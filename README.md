@@ -18,7 +18,7 @@
 
 ## اجرا
 
-کلیدها را به‌صورت env بدهید (`HF_TOKEN`, `QWEN_API_KEY`). `DATABASE_URL` اگر خالی باشد، پیش‌نمایش روی PGLite با seed JSON کار می‌کند. روی Neon، `scripts/ingest-legal.mjs` extension `vector` و ستون `embedding_vec` را می‌سازد.
+کلیدها را در Environment با همین اسم‌ها بگذارید: `HF_TOKEN` و `QWEN_API_KEY` (اسم کوتاه `hf` هم خوانده می‌شود). `DATABASE_URL` اگر خالی باشد، پیش‌نمایش روی PGLite با seed JSON کار می‌کند. روی Neon، `scripts/ingest-legal.mjs` extension `vector` و ستون `embedding_vec` را می‌سازد.
 
 ```sh
 npm install

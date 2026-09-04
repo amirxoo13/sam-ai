@@ -189,8 +189,9 @@ function EmptyState({
         </p>
         {statuteCount === 0 ? (
           <p className="max-w-md text-xs leading-5 text-warn">
-            قوانین موضوعه (legal_full_v4) هنوز در دسترس این توکن نیست — gated است. فعلاً
-            بازیابی روی آرای قضایی law-text-dataset-fa انجام می‌شود.
+            توکن Hugging Face وصل است. دیتاست قوانین موضوعه هنوز gated است و باید در
+            Hugging Face تأیید شود — این به‌معنای تنظیم‌نشدن hf نیست. فعلاً جست‌وجو روی
+            آرای قضایی انجام می‌شود.
           </p>
         ) : null}
       </div>

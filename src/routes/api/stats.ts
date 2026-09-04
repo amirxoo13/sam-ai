@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/stats")({
             ...stats,
             notes: {
               statute:
-                "QomSSLab/legal_full_v4 is gated (manual). Statute rows stay 0 until HF access is granted.",
+                "Hugging Face is connected. QomSSLab/legal_full_v4 is still gated until access is granted; case-law retrieval works.",
               case_law: "Ingested from QomSSLab/law-text-dataset-fa",
             },
           });

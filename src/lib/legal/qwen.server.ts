@@ -1,11 +1,6 @@
 import { QWEN_BASE_URL, QWEN_MODEL } from "./config";
+import { qwenApiKey } from "./secrets.server";
 import type { RetrievedChunk } from "./types";
-
-function key() {
-  const k = process.env.QWEN_API_KEY;
-  if (!k) throw new Error("QWEN_API_KEY تنظیم نشده است");
-  return k;
-}
 
 function formatSources(chunks: RetrievedChunk[]): string {
   if (chunks.length === 0) return "هیچ منبعی بازیابی نشد.";
@@ -47,7 +42,7 @@ export async function generateAnswer(
   const res = await fetch(`${QWEN_BASE_URL}/chat/completions`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${key()}`,
+      Authorization: `Bearer ${qwenApiKey()}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({

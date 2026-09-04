@@ -1,10 +1,5 @@
 import { EMBEDDING_DIM, EMBEDDING_MODEL, HF_EMBED_URL } from "./config";
-
-function token() {
-  const t = process.env.HF_TOKEN;
-  if (!t) throw new Error("HF_TOKEN تنظیم نشده است");
-  return t;
-}
+import { huggingfaceToken } from "./secrets.server";
 
 function asVectors(json: unknown): number[][] {
   if (!Array.isArray(json)) {
@@ -44,7 +39,7 @@ export async function embedTexts(
   const res = await fetch(HF_EMBED_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token()}`,
+      Authorization: `Bearer ${huggingfaceToken()}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ inputs }),
