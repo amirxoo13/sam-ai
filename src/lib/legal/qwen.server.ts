@@ -7,7 +7,8 @@ function formatSources(chunks: RetrievedChunk[]): string {
   return chunks
     .map((c, i) => {
       const title = c.source_title || "منبع بدون عنوان";
-      const art = c.article_number ? ` — ماده ${c.article_number}` : "";
+      const artLabel = c.source_title?.includes("اساسی") ? "اصل" : "ماده";
+      const art = c.article_number ? ` — ${artLabel} ${c.article_number}` : "";
       const date = c.law_date ? ` (${c.law_date})` : "";
       const kind = c.source_type === "statute" ? "قانون موضوعه" : "رأی / رویه قضایی";
       return `[منبع ${i + 1} | ${kind} | ${title}${art}${date}]\n${c.content}`;

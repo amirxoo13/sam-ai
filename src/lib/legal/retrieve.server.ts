@@ -37,16 +37,26 @@ function parseEmbedding(value: unknown): number[] {
 
 function citationBoost(question: string, row: Row): number {
   const q = toEnDigits(question);
-  const hay = toEnDigits(`${row.source_title ?? ""}\n${row.article_number ?? ""}\n${row.content}`);
+  const title = toEnDigits(row.source_title ?? "");
+  const article = toEnDigits(row.article_number ?? "");
+  const content = toEnDigits(row.content);
   let boost = 0;
-  const cited = new Set<string>();
+
   for (const m of q.matchAll(/(?:(?:رأی|رای)\s*)?(?:وحدت\s*رویه\s*)?(?:شماره\s*)?(\d{3,4})/g)) {
-    cited.add(m[1]);
+    const n = m[1];
+    if (article === n || content.includes(n) || title.includes(n)) boost += 0.22;
   }
-  for (const n of cited) {
-    if (hay.includes(n)) boost += 0.22;
+  for (const m of q.matchAll(/(?:ماده|اصل)\s*(\d{1,4})/g)) {
+    const n = m[1];
+    const exact = article === n || article === `${n}مکرر`;
+    const textual = new RegExp(`(?:ماده|اصل)\\s*${n}(?!\\d)`).test(content);
+    if (exact || textual) boost += exact ? 0.3 : 0.22;
   }
-  return Math.min(boost, 0.5);
+  if (q.includes("قانون اساسی") && title.includes("قانون اساسی")) boost += 0.12;
+  if (q.includes("قانون مدنی") && title.includes("قانون مدنی")) boost += 0.12;
+  if (q.includes("صدور چک") && title.includes("صدور چک")) boost += 0.12;
+  if (q.includes("مجازات") && title.includes("مجازات اسلامی")) boost += 0.08;
+  return Math.min(boost, 0.55);
 }
 
 function toRetrieved(row: Row, score: number): RetrievedChunk {

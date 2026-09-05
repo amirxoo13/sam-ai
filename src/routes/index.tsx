@@ -14,8 +14,9 @@ export const Route = createFileRoute("/")({
 });
 
 const SUGGESTIONS = [
-  "رأی وحدت رویه درباره آزادی مشروط چه می‌گوید؟",
-  "پس از نقض رأی در دیوان عالی کشور مرجع رسیدگی چه تکلیفی دارد؟",
+  "ماده ۱۰ قانون مدنی چه می‌گوید؟",
+  "اصل ۳۵ قانون اساسی درباره حق وکیل چیست؟",
+  "قانون صدور چک درباره چک بلامحل چه می‌گوید؟",
   "رأی وحدت رویه شماره ۸۱۲ هیأت عمومی دیوان عالی کشور درباره چیست؟",
 ];
 
@@ -184,16 +185,19 @@ function EmptyState({
           <span className="block text-muted">پاسخ با ارجاع به منبع.</span>
         </h2>
         <p className="max-w-md text-sm leading-6 text-muted">
-          SAM AI سؤال را embed می‌کند، نزدیک‌ترین قطعات را از پیکرهٔ آرای قضایی بازیابی
+          SAM AI سؤال را embed می‌کند، نزدیک‌ترین مواد قانون و آرای قضایی را بازیابی
           می‌کند و فقط بر اساس همان متن پاسخ می‌دهد.
         </p>
         {statuteCount === 0 ? (
           <p className="max-w-md text-xs leading-5 text-warn">
-            توکن Hugging Face وصل است. دیتاست قوانین موضوعه هنوز gated است و باید در
-            Hugging Face تأیید شود — این به‌معنای تنظیم‌نشدن hf نیست. فعلاً جست‌وجو روی
-            آرای قضایی انجام می‌شود.
+            قوانین موضوعه هنوز در پیکره نیستند.
           </p>
-        ) : null}
+        ) : (
+          <p className="max-w-md text-xs leading-5 text-subtle">
+            پیکره شامل مواد قوانین ایران (مدنی، اساسی، مجازات، آیین دادرسی، چک و…) و
+            آرای قضایی است.
+          </p>
+        )}
       </div>
       <div className="grid gap-2">
         {SUGGESTIONS.map((q) => (
@@ -243,12 +247,14 @@ function AssistantBubble({ message }: { message: ChatMessage }) {
                   {s.source_type === "statute" ? "قانون" : "رأی"}
                 </span>
                 <span className="ms-auto tabular-nums text-subtle">
-                  {(s.score * 100).toFixed(0)}٪
+                  {(Math.min(s.score, 1) * 100).toFixed(0)}٪
                 </span>
               </div>
               <p className="mt-1 text-sm text-fg">
                 {s.source_title}
-                {s.article_number ? ` — ماده ${s.article_number}` : ""}
+                {s.article_number
+                  ? ` — ${s.source_title?.includes("اساسی") ? "اصل" : "ماده"} ${s.article_number}`
+                  : ""}
                 {s.law_date ? ` · ${s.law_date}` : ""}
               </p>
             </li>

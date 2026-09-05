@@ -17,27 +17,60 @@ async function seedOnce() {
   const existing = await sql.query<{ n: number }>(
     "select count(*)::int as n from legal_chunks",
   );
-  if ((existing[0]?.n ?? 0) > 0) return;
+  if ((existing[0]?.n ?? 0) >= seedFile.chunks.length) return;
+
+  let hasVec = false;
+  try {
+    await sql.query("create extension if not exists vector");
+    await sql.query(
+      "alter table legal_chunks add column if not exists embedding_vec vector(384)",
+    );
+    hasVec = true;
+  } catch {
+    hasVec = false;
+  }
 
   for (const chunk of seedFile.chunks) {
-    await sql.query(
-      `insert into legal_chunks
-        (id, content, embedding, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
-       values ($1,$2,$3::jsonb,$4,$5,$6,$7,$8,$9,$10)
-       on conflict (id) do nothing`,
-      [
-        chunk.id,
-        chunk.content,
-        JSON.stringify(chunk.embedding),
-        chunk.source_type,
-        chunk.source_title,
-        chunk.article_number,
-        chunk.law_date,
-        chunk.source_url,
-        chunk.source_id,
-        chunk.hf_dataset,
-      ],
-    );
+    if (hasVec) {
+      await sql.query(
+        `insert into legal_chunks
+          (id, content, embedding, embedding_vec, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
+         values ($1,$2,$3::jsonb,$4::vector,$5,$6,$7,$8,$9,$10,$11)
+         on conflict (id) do nothing`,
+        [
+          chunk.id,
+          chunk.content,
+          JSON.stringify(chunk.embedding),
+          `[${chunk.embedding.join(",")}]`,
+          chunk.source_type,
+          chunk.source_title,
+          chunk.article_number,
+          chunk.law_date,
+          chunk.source_url,
+          chunk.source_id,
+          chunk.hf_dataset,
+        ],
+      );
+    } else {
+      await sql.query(
+        `insert into legal_chunks
+          (id, content, embedding, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
+         values ($1,$2,$3::jsonb,$4,$5,$6,$7,$8,$9,$10)
+         on conflict (id) do nothing`,
+        [
+          chunk.id,
+          chunk.content,
+          JSON.stringify(chunk.embedding),
+          chunk.source_type,
+          chunk.source_title,
+          chunk.article_number,
+          chunk.law_date,
+          chunk.source_url,
+          chunk.source_id,
+          chunk.hf_dataset,
+        ],
+      );
+    }
   }
 }
 
