@@ -45,12 +45,12 @@ LISTING_MARKERS = (
     "Loading more results",
 )
 
-CAP_STATUTE = 10
+CAP_STATUTE = 6
 CAP_RULING = 3
 MAX_CHUNK = 1650
 MIN_BODY = 280
 MIN_CHUNK = 220
-TARGET_MAX = 1800
+TARGET_MAX = 4200
 
 KIND_RANK = {
     "قانون": 0,

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/stats")({
             ...stats,
             notes: {
               statute:
-                "db07 core codes + persian-legal-rag-jsonl + ekhtebar PDFs + 1800 cleaned TreeText chunks from qavanin.ir (pages 1–102).",
+                "db07 core codes + persian-legal-rag-jsonl + ekhtebar PDFs + cleaned TreeText from qavanin.ir pages 1–102 (laws, bylaws, circulars, cabinet decrees).",
               case_law:
                 "QomSSLab subset + نظریات مشورتی + آرای وحدت رویه ۸۰۲–۸۶۱ + آرای دیوان عدالت از qavanin.ir.",
             },
