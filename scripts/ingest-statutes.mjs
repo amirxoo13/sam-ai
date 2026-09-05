@@ -215,7 +215,7 @@ async function main() {
       await saveCache(cache);
     }
     for (const chunk of slice) {
-      const { dir, title1, ...rest } = chunk;
+      const { dir: _dir, title1: _title1, ...rest } = chunk;
       embedded.push({ ...rest, embedding: cache[chunk.id] });
     }
     console.log(`embedded ${Math.min(i + BATCH, pending.length)}/${pending.length}`);

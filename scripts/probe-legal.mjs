@@ -3,7 +3,7 @@
  * Stage 0 pings + remaining category 3/4 downloads + gated-access attempts.
  * Real HTTP only. Writes reports under data/raw/reports/.
  */
-import { mkdir, writeFile, stat } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const HF_TOKEN = process.env.HF_TOKEN || "";

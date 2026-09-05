@@ -74,6 +74,8 @@ HF_TOKEN=... node scripts/ingest-qavanin.mjs
 
 `GET /api/stats`
 
+هر دو مسیر `POST` بالا rate-limit دارند (سقف پیش‌فرض: هر IP در هر ۱۰ دقیقه، ۲۰ درخواست برای `/api/ask` و ۱۰ درخواست برای `/api/draft`؛ ذخیره‌سازی در جدول `rate_limit_hits`، `migrations/0003_rate_limit.sql`)، چون هر دو به API پولی خارجی (Hugging Face، Qwen) وصل می‌شوند و بدون آن هر بازدیدکننده می‌توانست بدون محدودیت هزینه بسازد یا quota را مصرف کند.
+
 ## برگه‌ها و دادرسی
 
 صفحهٔ `/forms` ماجرا را می‌گیرد، مسیر (حقوقی / کیفری / هر دو / اداری) را تشخیص می‌دهد،

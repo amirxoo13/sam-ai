@@ -51,9 +51,9 @@ function parseMeta(text) {
     head.slice(0, 80);
 
   const articleMatch = text.match(/ماده\s*([۰-۹0-9]+(?:\s*مکرر)?)/);
-  const dateMatch = text.match(/((?:۱۳|۱۴)[۰-۹0-9]{2}(?:[\/\-][۰-۹0-9]{1,2}){0,2})/);
+  const dateMatch = text.match(/((?:۱۳|۱۴)[۰-۹0-9]{2}(?:[/-][۰-۹0-9]{1,2}){0,2})/);
   const rulingMatch = text.match(
-    /رأ[يی]\s*وحدت[‌\s]*رویه\s*شماره\s*([۰-۹0-9]+(?:\s*[–\-]\s*[۰-۹0-9]+)?)/,
+    /رأ[يی]\s*وحدت[‌\s]*رویه\s*شماره\s*([۰-۹0-9]+(?:\s*[–-]\s*[۰-۹0-9]+)?)/,
   );
 
   let kind = "case_law";

@@ -14,6 +14,12 @@ export const Route = createFileRoute("/api/draft")({
     handlers: {
       POST: async ({ request }) => {
         try {
+          const { checkRateLimit, rateLimitResponse } = await import(
+            "@/lib/legal/rate-limit.server"
+          );
+          const limit = await checkRateLimit(request, "draft");
+          if (!limit.allowed) return rateLimitResponse(limit);
+
           const json: unknown = await request.json();
           const parsed = bodySchema.safeParse(json);
           if (!parsed.success) {
