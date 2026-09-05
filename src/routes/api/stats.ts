@@ -15,9 +15,9 @@ export const Route = createFileRoute("/api/stats")({
             ...stats,
             notes: {
               statute:
-                "db07 complete core codes + filtered persian-legal-rag-jsonl + 1600 article-split statutes from the user ekhtebar PDF scrape (وکالت، مالیات، دیوان عدالت، گمرک، …). Core-code PDFs skipped.",
+                "db07 core codes + persian-legal-rag-jsonl + ekhtebar PDFs + 1800 cleaned TreeText chunks from qavanin.ir (pages 1–102).",
               case_law:
-                "80 judgments from QomSSLab/law-text-dataset-fa plus advisory opinions (نظریات مشورتی خرداد/تیر ۱۴۰۵) and آرای وحدت رویه ۸۰۲–۸۶۱ from persian-legal-rag-jsonl.",
+                "QomSSLab subset + نظریات مشورتی + آرای وحدت رویه ۸۰۲–۸۶۱ + آرای دیوان عدالت از qavanin.ir.",
             },
           });
         } catch (err) {

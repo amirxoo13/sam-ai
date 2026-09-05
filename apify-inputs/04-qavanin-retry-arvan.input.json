@@ -1,0 +1,762 @@
+{
+  "crawlerType": "playwright:firefox",
+  "keepUrlFragments": false,
+  "respectRobotsTxtFile": false,
+  "useSitemaps": false,
+  "htmlTransformer": "none",
+  "saveMarkdown": true,
+  "saveHtml": false,
+  "saveFiles": false,
+  "saveScreenshots": false,
+  "removeCookieWarnings": true,
+  "aggressivePrune": false,
+  "maxConcurrency": 2,
+  "initialConcurrency": 1,
+  "maxRequestRetries": 10,
+  "maxSessionRotations": 5,
+  "ignoreSslErrors": true,
+  "ignoreHttpsErrors": true,
+  "removeElementsCssSelector": "nav, footer, header, aside, iframe, script, style, noscript, svg, .menu, .navbar, .cookie, #cookie, .captcha, .k-pager-nav, #CommentBox, .comment, .comments, .error-section",
+  "proxyConfiguration": {
+    "useApifyProxy": false,
+    "proxyUrls": [
+      "http://USER:PASS@HOST:PORT"
+    ]
+  },
+  "customHttpHeaders": {
+    "Accept-Language": "fa-IR,fa;q=0.9,en;q=0.8"
+  },
+  "excludeUrlGlobs": [
+    {
+      "glob": "**/*login*"
+    },
+    {
+      "glob": "**/*Login*"
+    },
+    {
+      "glob": "**/*captcha*"
+    },
+    {
+      "glob": "**/Account/**"
+    },
+    {
+      "glob": "**/*.css"
+    },
+    {
+      "glob": "**/*.js"
+    },
+    {
+      "glob": "**/*.png"
+    },
+    {
+      "glob": "**/*.jpg"
+    },
+    {
+      "glob": "**/*.pdf"
+    },
+    {
+      "glob": "**/Phrase/**"
+    },
+    {
+      "glob": "**/*RelatedIndex*"
+    },
+    {
+      "glob": "**/*SubjectIndex*"
+    },
+    {
+      "glob": "**/*StatusIndex*"
+    },
+    {
+      "glob": "**/*ImageText*"
+    },
+    {
+      "glob": "**/*Attribute*"
+    }
+  ],
+  "startUrls": [
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10044126422386141717"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10116705735035698697"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10171021992749759811"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10186703048563480546"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10220437744282641270"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10361336083085722314"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1042078590798361492"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10460778044233092754"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10590830553258614154"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10773989360887173069"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1085788330442758543"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10861479477488627994"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10880377658861659180"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=10937323648392758758"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11074503685603790125"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11107979277932298134"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11209754420710749175"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11337812815260620795"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11408050095779699642"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11448591347516249650"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11733815569921432510"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=11740945108357917703"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12084467490724039492"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12133254112541716489"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12172964679320671231"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12177147357994757353"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12180213897961610889"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1219220891323083770"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12311447067640758756"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12348651415968716695"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12418375160140972043"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12554493040810496237"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1281842569636429382"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=12838241092170163755"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13106866717229843599"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13405722829475188418"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13422124486516154811"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13447082294513959473"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13513023856231401193"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13570547275779425409"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13626788320418927113"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13670775249672615067"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13732927149972973065"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13742506531336574322"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13754866651976951816"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13785913519996901906"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13922613224787931703"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13934589065184281551"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13936714510699387676"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13978713340899688783"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=13992532636931728372"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14070174324128604735"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14103596026600972094"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1411447868473254486"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14242206973932417451"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14333615115887296003"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14386650540322379987"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14513431559948742641"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14526513545621685317"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14567018636631864967"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14805065669902366507"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14838732150967738267"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14925941134215927182"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1493060739207097413"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=14979563660207582984"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15002361941347995781"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15006514654423963568"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15187652494464294058"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15246321373823842507"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15255799926277057754"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15258990546220448729"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15275101290518753570"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15333511679842417175"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15353187118837388602"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15367672908609662110"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15428848236868060259"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15440500954370286675"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1551161208800465883"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15552651834068774639"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15753660011305738971"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15755258771117881581"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=15865937366736148808"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1599221539866073535"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16051649538952407139"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1605506795794166435"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16115547526579067788"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16260050568950412445"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16274783449516849903"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16308878517025964479"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16385870680065547849"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16445548193857724672"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16646412672324702476"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16690646625443439181"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1673532684435710397"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1686925630628866877"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16939135381579415499"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=16963066885695540667"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17013744227127437569"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17120588319218429410"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17191406928193270760"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17195721276853461054"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1724050005934215568"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17384003286225155886"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1741374337406054483"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=1752299943880206654"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17552623811598523186"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17636575963624788870"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17743250556879819212"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17755206147864373617"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17777241390206189857"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17790677493898160099"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17801779498904927812"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17817732784385808602"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=17985778680992431869"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18060426331243413373"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18120968162075614880"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18129370536591451423"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18184175832602330727"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18186782637387082074"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18214274106783359760"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18269359317450227492"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=18390147578526696798"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=2076204374185790071"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=2112783358037438797"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=2420571908019430927"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=2486891369879991382"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=2806030466355481367"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=2932573951087268635"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=2984743835337894317"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3085280151149434482"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3116492585328017611"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3195277386429961128"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3274161800057818918"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3391217876056104509"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3474788383836608181"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3589810708106510627"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3713917522044329294"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3725656914632854038"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3827501605218098429"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=3955876669140711498"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=404931154327790467"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4091745447897488903"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=415216970234535035"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4164826867452643561"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4191461107930276472"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=433185346139847745"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4365673998029166988"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4399492400826456549"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4463789100837800267"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=462324037408240874"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4673670345642338934"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4675159279884548189"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4690162732713676166"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4750257320696164394"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4945258630006342210"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=4961848403143536396"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5018415453307832279"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5147172220520210408"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5171648775810456450"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5195359658144715115"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5227098297728703455"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5263480946444769395"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5277062110809492154"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=542222536349861806"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5443985214471362054"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5486762576225990465"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5516388782059625887"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5656442466380849517"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5872210180398498228"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5969057853456771069"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=5985642971546597804"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6082249768750008429"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6208948378030994065"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6307875903996440177"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=63435941056816065"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6455778995570690151"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6474292868169537544"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6486316463790117488"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6540459415440868617"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6583736161361524605"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6713443849841334169"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=6974600864131195039"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7068208611041017803"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7096162617603602781"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=740376957896033937"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7430319870291001090"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7583830804916320283"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7689914287321820843"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7731258294751328049"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=782683406471409189"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7830865727862105322"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7831691928965644029"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7855658617450026386"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7895481650747958606"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=7924183343430143702"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=804379002195330128"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8044549602395711970"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8046120164723308227"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8060540722881899332"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8081472466053806023"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8372132312398047906"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=842895358754108032"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8476638556041989904"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8534270210932366974"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8600823236180082479"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8698693107747402805"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8763854982891441109"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8828615058498966982"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8853559001083412025"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8864009992909797042"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=886846456305991844"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=8943086925045469377"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9043361421087939168"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9119313657320943501"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9137511787958955499"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9261969844765866740"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9266032797972908477"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9339858360881368057"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9483732963549297038"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9510214544863286553"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9802359109929695645"
+    },
+    {
+      "url": "https://qavanin.ir/Law/TreeText/?IDS=9893902187541105823"
+    }
+  ],
+  "includeUrlGlobs": [
+    {
+      "glob": "https://qavanin.ir/Law?page=*"
+    },
+    {
+      "glob": "https://qavanin.ir/Law/TreeText*"
+    },
+    {
+      "glob": "https://qavanin.ir/Law/TreeText/**"
+    }
+  ],
+  "maxCrawlPages": 232,
+  "maxCrawlDepth": 0,
+  "dynamicContentWaitSecs": 28,
+  "maxScrollHeightPixels": 25000,
+  "requestHandlerTimeoutSecs": 150,
+  "navigationTimeoutSecs": 90,
+  "clickElementsCssSelector": ""
+}

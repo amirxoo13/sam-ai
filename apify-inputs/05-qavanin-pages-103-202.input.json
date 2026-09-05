@@ -1,0 +1,396 @@
+{
+  "crawlerType": "playwright:firefox",
+  "keepUrlFragments": false,
+  "respectRobotsTxtFile": false,
+  "useSitemaps": false,
+  "htmlTransformer": "none",
+  "saveMarkdown": true,
+  "saveHtml": false,
+  "saveFiles": false,
+  "saveScreenshots": false,
+  "removeCookieWarnings": true,
+  "aggressivePrune": false,
+  "maxConcurrency": 2,
+  "initialConcurrency": 1,
+  "maxRequestRetries": 10,
+  "maxSessionRotations": 5,
+  "ignoreSslErrors": true,
+  "ignoreHttpsErrors": true,
+  "removeElementsCssSelector": "nav, footer, header, aside, iframe, script, style, noscript, svg, .menu, .navbar, .cookie, #cookie, .captcha, .k-pager-nav, #CommentBox, .comment, .comments, .error-section",
+  "proxyConfiguration": {
+    "useApifyProxy": false,
+    "proxyUrls": [
+      "http://USER:PASS@HOST:PORT"
+    ]
+  },
+  "customHttpHeaders": {
+    "Accept-Language": "fa-IR,fa;q=0.9,en;q=0.8"
+  },
+  "excludeUrlGlobs": [
+    {
+      "glob": "**/*login*"
+    },
+    {
+      "glob": "**/*Login*"
+    },
+    {
+      "glob": "**/*captcha*"
+    },
+    {
+      "glob": "**/Account/**"
+    },
+    {
+      "glob": "**/*.css"
+    },
+    {
+      "glob": "**/*.js"
+    },
+    {
+      "glob": "**/*.png"
+    },
+    {
+      "glob": "**/*.jpg"
+    },
+    {
+      "glob": "**/*.pdf"
+    },
+    {
+      "glob": "**/Phrase/**"
+    },
+    {
+      "glob": "**/*RelatedIndex*"
+    },
+    {
+      "glob": "**/*SubjectIndex*"
+    },
+    {
+      "glob": "**/*StatusIndex*"
+    },
+    {
+      "glob": "**/*ImageText*"
+    },
+    {
+      "glob": "**/*Attribute*"
+    }
+  ],
+  "startUrls": [
+    {
+      "url": "https://qavanin.ir/Law?page=103"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=104"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=105"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=106"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=107"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=108"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=109"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=110"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=111"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=112"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=113"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=114"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=115"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=116"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=117"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=118"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=119"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=120"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=121"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=122"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=123"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=124"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=125"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=126"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=127"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=128"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=129"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=130"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=131"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=132"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=133"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=134"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=135"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=136"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=137"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=138"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=139"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=140"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=141"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=142"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=143"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=144"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=145"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=146"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=147"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=148"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=149"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=150"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=151"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=152"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=153"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=154"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=155"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=156"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=157"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=158"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=159"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=160"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=161"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=162"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=163"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=164"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=165"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=166"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=167"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=168"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=169"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=170"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=171"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=172"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=173"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=174"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=175"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=176"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=177"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=178"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=179"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=180"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=181"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=182"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=183"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=184"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=185"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=186"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=187"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=188"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=189"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=190"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=191"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=192"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=193"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=194"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=195"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=196"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=197"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=198"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=199"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=200"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=201"
+    },
+    {
+      "url": "https://qavanin.ir/Law?page=202"
+    }
+  ],
+  "includeUrlGlobs": [
+    {
+      "glob": "https://qavanin.ir/Law?page=*"
+    },
+    {
+      "glob": "https://qavanin.ir/Law/TreeText*"
+    },
+    {
+      "glob": "https://qavanin.ir/Law/TreeText/**"
+    }
+  ],
+  "maxCrawlPages": 3000,
+  "maxCrawlDepth": 1,
+  "dynamicContentWaitSecs": 25,
+  "maxScrollHeightPixels": 25000,
+  "requestHandlerTimeoutSecs": 150,
+  "navigationTimeoutSecs": 90,
+  "clickElementsCssSelector": ""
+}

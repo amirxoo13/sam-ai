@@ -16,7 +16,7 @@
 | `QomSSLab/law-text-dataset-fa` | آرای قضایی (`source_type=case_law`) | ۸۰ قطعهٔ واقعی ingest شده (subset) |
 | `QomSSLab/legal_full_v4` و چند دیتاست مشابه HF | جایگزین نشده | شخصی / gated — دسترسی رد شد؛ به‌جایش فایل اکسل خود کاربر استفاده شد |
 | PDFهای محلی کاربر | همان متن قوانین در قالب اسکن/چاپ | به لپتاپ کاربر دسترسی نیست؛ جدول `LawItem` همان متن استخراج‌شده است |
-| qavanin.ir / ara.jri.ac.ir | منابع وب | backlog — آزمون اختبار انجام شد؛ این دو سامانه جستجویی‌اند و خزش صفحهٔ اول کافی نیست |
+| qavanin.ir (اسکرپ TreeText صفحات ۱–۱۰۲) | قوانین و مقررات رسمی + آرای دیوان عدالت | **۱۸۰۰ قطعه ingestشده** از ۴۴۶ سند تمیز (۸ قانون، ۴۱ آیین‌نامه، ۲۹۱ رأی، ۴۵ دستورالعمل، …). صفحات فهرست و پاسخ خالی آروان حذف شدند. ara.jri.ac.ir هنوز backlog است. |
 
 خام JSONL (~۳۵۳MB) وارد git نمی‌شود. فقط زیرمجموعهٔ پالایش‌شده embed می‌شود.
 
@@ -56,6 +56,13 @@ HF_TOKEN=... node scripts/ingest-jsonl.mjs
 pip install pypdf
 python3 scripts/extract-ekhtebar-pdfs.py
 HF_TOKEN=... node scripts/ingest-ekhtebar.mjs
+```
+
+افزودن خروجی اسکرپ qavanin.ir (TreeText):
+
+```sh
+python3 scripts/extract-qavanin.py
+HF_TOKEN=... node scripts/ingest-qavanin.mjs
 ```
 
 ## API
