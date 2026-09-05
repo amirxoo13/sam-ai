@@ -1,0 +1,71 @@
+{
+  "crawlerType": "playwright:firefox",
+  "htmlTransformer": "none",
+  "saveMarkdown": true,
+  "saveHtml": false,
+  "saveFiles": false,
+  "saveScreenshots": false,
+  "removeCookieWarnings": true,
+  "aggressivePrune": false,
+  "keepUrlFragments": false,
+  "respectRobotsTxtFile": false,
+  "useSitemaps": false,
+  "maxConcurrency": 2,
+  "initialConcurrency": 1,
+  "maxRequestRetries": 10,
+  "maxSessionRotations": 5,
+  "ignoreSslErrors": true,
+  "ignoreHttpsErrors": true,
+  "dynamicContentWaitSecs": 5,
+  "maxScrollHeightPixels": 12000,
+  "requestHandlerTimeoutSecs": 90,
+  "navigationTimeoutSecs": 60,
+  "maxCrawlPages": 46000,
+  "maxCrawlDepth": 0,
+  "removeElementsCssSelector": "nav, footer, header, aside, iframe, script, style, noscript, svg, .menu, .navbar, .cookie, #cookie, .captcha, .k-pager-nav, #CommentBox, .comment, .comments, .error-section",
+  "proxyConfiguration": {
+    "useApifyProxy": false,
+    "proxyUrls": [
+      "http://USER:PASS@HOST:PORT"
+    ]
+  },
+  "customHttpHeaders": {
+    "Accept-Language": "fa-IR,fa;q=0.9,en;q=0.8"
+  },
+  "includeUrlGlobs": [
+    {
+      "glob": "https://ara.jri.ac.ir/Judge/PrintText/**"
+    },
+    {
+      "glob": "https://ara.jri.ac.ir/Judge/PrintText/*"
+    }
+  ],
+  "excludeUrlGlobs": [
+    {
+      "glob": "**/*login*"
+    },
+    {
+      "glob": "**/Phrase/**"
+    },
+    {
+      "glob": "**/*.png"
+    },
+    {
+      "glob": "**/*.css"
+    },
+    {
+      "glob": "**/*.js"
+    }
+  ],
+  "startUrls": [
+    {
+      "url": "https://ara.jri.ac.ir/Judge/PrintText/54"
+    },
+    {
+      "url": "https://ara.jri.ac.ir/Judge/PrintText/41628"
+    },
+    {
+      "url": "https://ara.jri.ac.ir/Judge/PrintText/42097"
+    }
+  ]
+}

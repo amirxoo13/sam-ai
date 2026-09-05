@@ -19,3 +19,10 @@ __pycache__/
 *.pyc
 .project_id
 .node_modules.lock
+
+# local Apify inputs containing proxy credentials
+ara-full.input.json
+qavanin-full.input.json
+qavanin-smoke.input.json
+sam-apify-inputs.zip
+artifacts/
