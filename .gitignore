@@ -15,5 +15,7 @@ app-startup.log
 startup.sh
 
 AGENTS.md
+__pycache__/
+*.pyc
 .project_id
 .node_modules.lock

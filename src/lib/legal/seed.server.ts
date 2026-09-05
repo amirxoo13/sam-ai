@@ -1,8 +1,11 @@
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { getSql } from "@/lib/db";
-import seed from "@/data/legal-seed.json";
 import type { LegalChunk } from "./types";
 
 let seeding: Promise<void> | null = null;
+let seedFilePromise: Promise<SeedFile> | null = null;
 
 type SeedFile = {
   model: string;
@@ -10,10 +13,34 @@ type SeedFile = {
   chunks: LegalChunk[];
 };
 
-const seedFile = seed as SeedFile;
-const INSERT_BATCH = 40;
+const INSERT_BATCH = 50;
+
+function resolveSeedPath(): string {
+  const cwd = process.cwd();
+  const candidates = [
+    join(cwd, "src/data/legal-seed.json"),
+    join(cwd, "legal-seed.json"),
+    join(cwd, "data/legal-seed.json"),
+  ];
+  for (const path of candidates) {
+    if (existsSync(path)) return path;
+  }
+  throw new Error("فایل پیکره حقوقی پیدا نشد");
+}
+
+async function loadSeedFile(): Promise<SeedFile> {
+  seedFilePromise ??= readFile(resolveSeedPath(), "utf8").then((raw) => {
+    const parsed = JSON.parse(raw) as SeedFile;
+    if (!Array.isArray(parsed.chunks)) {
+      throw new Error("ساختار پیکره حقوقی نامعتبر است");
+    }
+    return parsed;
+  });
+  return seedFilePromise;
+}
 
 async function seedOnce() {
+  const seedFile = await loadSeedFile();
   const sql = await getSql();
   const existing = await sql.query<{ n: number }>(
     "select count(*)::int as n from legal_chunks",

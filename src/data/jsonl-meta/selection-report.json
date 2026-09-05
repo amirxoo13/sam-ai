@@ -1,0 +1,455 @@
+{
+  "total_selected": 1800,
+  "skipped": {
+    "class": 69460,
+    "size": 60,
+    "spam": 1848,
+    "src_cap": 7390,
+    "dup_text": 158,
+    "dup_source": 51,
+    "opinion_cap": 643,
+    "trimmed": 1054
+  },
+  "by_source": [
+    {
+      "source": "قانون تجارت.pdf",
+      "taken": 100,
+      "file_chunks": 164
+    },
+    {
+      "source": "قانون تامین اجتماعی.pdf",
+      "taken": 100,
+      "file_chunks": 290
+    },
+    {
+      "source": "قانون ثبت (1).pdf",
+      "taken": 100,
+      "file_chunks": 376
+    },
+    {
+      "source": "قانون اراضی و املاک.pdf",
+      "taken": 100,
+      "file_chunks": 170
+    },
+    {
+      "source": "www.dad-law.ir قانون معادن در ایران.PDF",
+      "taken": 100,
+      "file_chunks": 178
+    },
+    {
+      "source": "آیین_نامه_جدید_قانون_دفاتر_اسناد_رسمی_و_کانون_سردفتران_و_دفتریاران.pdf",
+      "taken": 55,
+      "file_chunks": 66
+    },
+    {
+      "source": "قانون شرکت های تعاونی.pdf",
+      "taken": 45,
+      "file_chunks": 45
+    },
+    {
+      "source": "قانون-مالیات-بر-ارزش-افزوده.pdf",
+      "taken": 38,
+      "file_chunks": 43
+    },
+    {
+      "source": "قانون شوراهای اسلامی.pdf",
+      "taken": 37,
+      "file_chunks": 44
+    },
+    {
+      "source": "قانون مدیریت خدمات کشوری.pdf",
+      "taken": 36,
+      "file_chunks": 48
+    },
+    {
+      "source": "www.dad-law.ir قانون نظام صنفی.pdf",
+      "taken": 35,
+      "file_chunks": 38
+    },
+    {
+      "source": "قانون_انتخابات_ریاست_جمهوری_اسلامی_ایران.pdf",
+      "taken": 33,
+      "file_chunks": 33
+    },
+    {
+      "source": "قانون داوری تجاری بین المللی.pdf",
+      "taken": 32,
+      "file_chunks": 166
+    },
+    {
+      "source": "قانون جدید دیوان عدالت اداری.pdf",
+      "taken": 29,
+      "file_chunks": 46
+    },
+    {
+      "source": "قانون-دیوان-عدالت-اداری.pdf",
+      "taken": 28,
+      "file_chunks": 47
+    },
+    {
+      "source": "نظریات_قانون_الزام_به_ثبت_معاملات_اموال_غیرمنقول1.pdf",
+      "taken": 27,
+      "file_chunks": 117
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_شهریور_ماه_1402_کانال_حقوق_بوک.pdf",
+      "taken": 27,
+      "file_chunks": 72
+    },
+    {
+      "source": "نظریات_مشورتی_آبان_ماه_1402_کانال_حقوق_بوک.pdf",
+      "taken": 27,
+      "file_chunks": 78
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_تیر_ماه_1403_کانال_حقوق_بوک.pdf",
+      "taken": 27,
+      "file_chunks": 66
+    },
+    {
+      "source": "نظریات مشورتی آبان ماه 99.pdf",
+      "taken": 27,
+      "file_chunks": 91
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_اداره_کل_حقوقی_قوه_قضاییه_آبان_ماه_1403_کانال.pdf",
+      "taken": 27,
+      "file_chunks": 60
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_اداره_کل_حقوقی_قوه_قضاییه_آذر_ماه_1403_کانال.pdf",
+      "taken": 27,
+      "file_chunks": 47
+    },
+    {
+      "source": "نظریه های اردیبهشت ۱۴۰۰.pdf",
+      "taken": 27,
+      "file_chunks": 77
+    },
+    {
+      "source": "نظریات_مشورتی_اداره_کل_حقوقی_قوه_قضاییه_دی_ماه_1404_کانال_حقوق_بوک.pdf",
+      "taken": 27,
+      "file_chunks": 86
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_اداره_کل_حقوقی_قوه_قضاییه_اردیبهشت_1403_کانال.pdf",
+      "taken": 27,
+      "file_chunks": 42
+    },
+    {
+      "source": "نظریه های اسفند ۹۹.pdf",
+      "taken": 26,
+      "file_chunks": 85
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_آذر_ماه_1402_کانال_حقوق_بوک.pdf",
+      "taken": 26,
+      "file_chunks": 105
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_اداره_کل_حقوقی_قوه_قضاییه_مهر_ماه_1403_کانال.pdf",
+      "taken": 26,
+      "file_chunks": 89
+    },
+    {
+      "source": "مجموعه_نظریات_مشورتی_خرداد_ماه_1402_کانال_حقوق_بوک.pdf",
+      "taken": 26,
+      "file_chunks": 87
+    },
+    {
+      "source": "نظریات آبان ۱۴۰۰.pdf",
+      "taken": 26,
+      "file_chunks": 73
+    },
+    {
+      "source": "قانون امور حسبی.pdf",
+      "taken": 21,
+      "file_chunks": 41
+    },
+    {
+      "source": "قانون_بیمه_اجباری_خسارات_وارده_به_شخص_ثالث_در_اثر_حوادث_ناشی_از.pdf",
+      "taken": 20,
+      "file_chunks": 24
+    },
+    {
+      "source": "قانون ثبت شرکت ها.pdf",
+      "taken": 18,
+      "file_chunks": 24
+    },
+    {
+      "source": "قانون انتخابات مجلس شورای اسلامی.pdf",
+      "taken": 17,
+      "file_chunks": 22
+    },
+    {
+      "source": "قانون_جدید_شوراهای_حل_اختلاف_1402_کانال_حقوق_بوک.pdf",
+      "taken": 16,
+      "file_chunks": 19
+    },
+    {
+      "source": "قانون شوراهای حل اختلاف.pdf",
+      "taken": 15,
+      "file_chunks": 20
+    },
+    {
+      "source": "قانون ملی شدن جنگل های کشور.pdf",
+      "taken": 15,
+      "file_chunks": 15
+    },
+    {
+      "source": "قانون شکار و صید.pdf",
+      "taken": 15,
+      "file_chunks": 15
+    },
+    {
+      "source": "قانون مبارزه با مواد مخدر.pdf",
+      "taken": 14,
+      "file_chunks": 18
+    },
+    {
+      "source": "قانون رسیدگی به تخلفات اداری.pdf",
+      "taken": 14,
+      "file_chunks": 14
+    },
+    {
+      "source": "قانون تجارت الکترونیک.pdf",
+      "taken": 13,
+      "file_chunks": 14
+    },
+    {
+      "source": "قانون-دفاتر-اسناد-رسمی.pdf",
+      "taken": 13,
+      "file_chunks": 15
+    },
+    {
+      "source": "135212_44378_قانون_نویسی_در_نظام_تقنینی_ایران_در_پرتو_مدل_های_پیش.pdf",
+      "taken": 13,
+      "file_chunks": 19
+    },
+    {
+      "source": "قانون اداره تصفیه امور ورشکستگی.pdf",
+      "taken": 12,
+      "file_chunks": 12
+    },
+    {
+      "source": "قانون حمایت از خانواده.pdf",
+      "taken": 12,
+      "file_chunks": 13
+    },
+    {
+      "source": "قانون_حمایت_خانواده.pdf",
+      "taken": 11,
+      "file_chunks": 13
+    },
+    {
+      "source": "قانون توضیع عادلانه آب.pdf",
+      "taken": 11,
+      "file_chunks": 15
+    },
+    {
+      "source": "_⁨قوانین_خاص_آیین_دادرسی_مدنی_اسکودا⁩.pdf",
+      "taken": 11,
+      "file_chunks": 212
+    },
+    {
+      "source": "_⁨قوانین_خاص_آیین_دادرسی_کیفری_اسکودا⁩.pdf",
+      "taken": 11,
+      "file_chunks": 35
+    },
+    {
+      "source": "_⁨قوانین_خاص_حقوق_تجارت_اسکودا_1398.pdf",
+      "taken": 11,
+      "file_chunks": 234
+    },
+    {
+      "source": "_⁨قوانین_خاص_حقوق_جزا_اسکودا_1398.pdf",
+      "taken": 11,
+      "file_chunks": 141
+    },
+    {
+      "source": "_⁨قوانین_خاص_حقوق_مدنی_اسکودا_1398.pdf",
+      "taken": 11,
+      "file_chunks": 141
+    },
+    {
+      "source": "قوانین خاص آیین دادرسی مدنی.pdf",
+      "taken": 11,
+      "file_chunks": 88
+    },
+    {
+      "source": "قوانین خاص حقوق مدنی.pdf",
+      "taken": 11,
+      "file_chunks": 100
+    },
+    {
+      "source": "قوانین خاص مرکز وکلا ۹۹.pdf",
+      "taken": 11,
+      "file_chunks": 621
+    },
+    {
+      "source": "قوانین خاص مرکز وکلا.pdf",
+      "taken": 11,
+      "file_chunks": 621
+    },
+    {
+      "source": "قوانین خاص کانون ۱۴۰۰.pdf",
+      "taken": 11,
+      "file_chunks": 482
+    },
+    {
+      "source": "Great-Bank-Of-Laws(www.prozheha.ir).pdf",
+      "taken": 11,
+      "file_chunks": 1850
+    },
+    {
+      "source": "قوانین خاص کانون وکلا سال 1402 (1).pdf",
+      "taken": 11,
+      "file_chunks": 514
+    },
+    {
+      "source": "مجموعه قوانین وزارت فرهنگ و ارشاد اسلامیwww.dad-law.blogfa.com.pdf",
+      "taken": 11,
+      "file_chunks": 1692
+    },
+    {
+      "source": "قوانین اقتصادی.pdf",
+      "taken": 11,
+      "file_chunks": 660
+    },
+    {
+      "source": "قانون جزایی.pdf",
+      "taken": 10,
+      "file_chunks": 892
+    },
+    {
+      "source": "قوانین  حقوقی.pdf",
+      "taken": 10,
+      "file_chunks": 398
+    },
+    {
+      "source": "قانون جرایم رایانه ای www.dad-law.ir.pdf",
+      "taken": 9,
+      "file_chunks": 16
+    },
+    {
+      "source": "قانون روابط موجر و مستاجر مصوب 56.pdf",
+      "taken": 9,
+      "file_chunks": 14
+    },
+    {
+      "source": "قانون معادن.pdf",
+      "taken": 8,
+      "file_chunks": 10
+    },
+    {
+      "source": "قانون بازار بورس اوراق بهادار.pdf",
+      "taken": 8,
+      "file_chunks": 17
+    },
+    {
+      "source": "قانون_جرایم_رایانه_ای_بصورت_رنگی_کانال_حقوق_بوک.pdf",
+      "taken": 8,
+      "file_chunks": 10
+    },
+    {
+      "source": "قانون مبارزه با پولشویی.pdf",
+      "taken": 7,
+      "file_chunks": 10
+    },
+    {
+      "source": "قانون_تشکیل_دادگاه_های_عمومی_و_انقلاب.pdf",
+      "taken": 7,
+      "file_chunks": 15
+    },
+    {
+      "source": "قانون وکالت.pdf",
+      "taken": 6,
+      "file_chunks": 10
+    },
+    {
+      "source": "قانون تقسیمات کشوری.pdf",
+      "taken": 6,
+      "file_chunks": 6
+    },
+    {
+      "source": "قانون تملک آپارتمان ها.pdf",
+      "taken": 5,
+      "file_chunks": 6
+    },
+    {
+      "source": "قانون_تشکیلات_و_اختیارات_سازمان_حج_و_اوقاف_و_امور_خیریه.pdf",
+      "taken": 5,
+      "file_chunks": 6
+    },
+    {
+      "source": "قانون-حمایت-از-آمران.pdf",
+      "taken": 4,
+      "file_chunks": 6
+    },
+    {
+      "source": "قانون نحوه انتشار اوراق مشارکت.pdf",
+      "taken": 4,
+      "file_chunks": 4
+    },
+    {
+      "source": "قانون_حمایت_حقوق_مولفان_و_مصنفان_و_هنرمندان.pdf",
+      "taken": 3,
+      "file_chunks": 5
+    },
+    {
+      "source": "قانون تشدید مجازات اسیدپاشی.pdf",
+      "taken": 2,
+      "file_chunks": 2
+    },
+    {
+      "source": "قانون ثبت احوال.pdf",
+      "taken": 2,
+      "file_chunks": 16
+    },
+    {
+      "source": "قانون روابط موجر و مستاجر.pdf",
+      "taken": 2,
+      "file_chunks": 3
+    },
+    {
+      "source": "قانون مبارزه با قاچاق انسان.pdf",
+      "taken": 2,
+      "file_chunks": 2
+    },
+    {
+      "source": "قانون_کیفیت_اخذ_پروانه_وکالت_دادگستری.pdf",
+      "taken": 2,
+      "file_chunks": 3
+    },
+    {
+      "source": "مواد جزایی قانون جوانی جمعیت.pdf",
+      "taken": 2,
+      "file_chunks": 5
+    },
+    {
+      "source": "قانون جرم سیاسی.pdf",
+      "taken": 2,
+      "file_chunks": 3
+    },
+    {
+      "source": "اصلاح_موادی_از_آیین_نامه_اجرایی_لایحه_قانونی_استقلال_کانون_وکلای.pdf",
+      "taken": 2,
+      "file_chunks": 2
+    },
+    {
+      "source": "قانون تجارت الکترونیکی www.dad-law.ir.pdf",
+      "taken": 1,
+      "file_chunks": 18
+    },
+    {
+      "source": "قانون سمعی و بصری.pdf",
+      "taken": 1,
+      "file_chunks": 5
+    },
+    {
+      "source": "قانون_مرجع_تشخيص_اراضی_موات_و_ابطال_اسناد_ان.pdf",
+      "taken": 1,
+      "file_chunks": 1
+    }
+  ]
+}

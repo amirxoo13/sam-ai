@@ -15,8 +15,9 @@ export const Route = createFileRoute("/api/stats")({
             ...stats,
             notes: {
               statute:
-                "User-provided db07 LawItem.xlsx — complete core Iranian codes (civil, constitution, penal, procedure, labour, cheque, family, …), not a sample. Gated HF statute datasets unused.",
-              case_law: "Ingested from QomSSLab/law-text-dataset-fa",
+                "db07 LawItem.xlsx complete core codes plus filtered unique statutes from github.com/amirxoo13/persian-legal-rag-jsonl (تجارت، ثبت، تأمین اجتماعی، اراضی، …). Raw 82k dump not ingested.",
+              case_law:
+                "80 judgments from QomSSLab/law-text-dataset-fa plus advisory opinions (نظریات مشورتی) from persian-legal-rag-jsonl.",
             },
           });
         } catch (err) {

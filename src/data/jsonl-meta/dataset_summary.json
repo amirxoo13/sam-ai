@@ -1,0 +1,19 @@
+{
+  "chunks": 82464,
+  "unique_source_files": 830,
+  "approx_words": 39869428,
+  "parts": [
+    {"file": "dataset_part_00.jsonl", "bytes": 89128920, "lines": 21031},
+    {"file": "dataset_part_01.jsonl", "bytes": 88739814, "lines": 20820},
+    {"file": "dataset_part_02.jsonl", "bytes": 89127547, "lines": 17613},
+    {"file": "dataset_part_03.jsonl", "bytes": 89128312, "lines": 20101},
+    {"file": "dataset_part_04.jsonl", "bytes": 13834049, "lines": 2899}
+  ],
+  "rules": {
+    "healthy_min_hit_rate": 0.35,
+    "min_tokens": 300,
+    "normalize": "NFKC + yeh/kaf unification",
+    "ocr": false,
+    "topic": "legal / criminal / statute only"
+  }
+}

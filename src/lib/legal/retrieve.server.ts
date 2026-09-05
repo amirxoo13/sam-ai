@@ -56,6 +56,14 @@ function citationBoost(question: string, row: Row): number {
   if (q.includes("قانون مدنی") && title.includes("قانون مدنی")) boost += 0.12;
   if (q.includes("صدور چک") && title.includes("صدور چک")) boost += 0.12;
   if (q.includes("مجازات") && title.includes("مجازات اسلامی")) boost += 0.08;
+  if (
+    (q.includes("تأمین اجتماعی") || q.includes("تامین اجتماعی")) &&
+    (title.includes("تأمین اجتماعی") || title.includes("تامین اجتماعی"))
+  ) {
+    boost += 0.12;
+  }
+  if (q.includes("قانون تجارت") && title.includes("قانون تجارت")) boost += 0.12;
+  if (q.includes("قانون ثبت") && title.includes("قانون ثبت")) boost += 0.12;
   return Math.min(boost, 0.55);
 }
 
