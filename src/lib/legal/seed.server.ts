@@ -11,6 +11,7 @@ type SeedFile = {
 };
 
 const seedFile = seed as SeedFile;
+const INSERT_BATCH = 40;
 
 async function seedOnce() {
   const sql = await getSql();
@@ -30,14 +31,13 @@ async function seedOnce() {
     hasVec = false;
   }
 
-  for (const chunk of seedFile.chunks) {
+  for (let i = 0; i < seedFile.chunks.length; i += INSERT_BATCH) {
+    const slice = seedFile.chunks.slice(i, i + INSERT_BATCH);
     if (hasVec) {
-      await sql.query(
-        `insert into legal_chunks
-          (id, content, embedding, embedding_vec, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
-         values ($1,$2,$3::jsonb,$4::vector,$5,$6,$7,$8,$9,$10,$11)
-         on conflict (id) do nothing`,
-        [
+      const values: unknown[] = [];
+      const rows = slice.map((chunk, idx) => {
+        const b = idx * 11;
+        values.push(
           chunk.id,
           chunk.content,
           JSON.stringify(chunk.embedding),
@@ -49,15 +49,21 @@ async function seedOnce() {
           chunk.source_url,
           chunk.source_id,
           chunk.hf_dataset,
-        ],
-      );
-    } else {
+        );
+        return `($${b + 1},$${b + 2},$${b + 3}::jsonb,$${b + 4}::vector,$${b + 5},$${b + 6},$${b + 7},$${b + 8},$${b + 9},$${b + 10},$${b + 11})`;
+      });
       await sql.query(
         `insert into legal_chunks
-          (id, content, embedding, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
-         values ($1,$2,$3::jsonb,$4,$5,$6,$7,$8,$9,$10)
+          (id, content, embedding, embedding_vec, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
+         values ${rows.join(",")}
          on conflict (id) do nothing`,
-        [
+        values,
+      );
+    } else {
+      const values: unknown[] = [];
+      const rows = slice.map((chunk, idx) => {
+        const b = idx * 10;
+        values.push(
           chunk.id,
           chunk.content,
           JSON.stringify(chunk.embedding),
@@ -68,7 +74,15 @@ async function seedOnce() {
           chunk.source_url,
           chunk.source_id,
           chunk.hf_dataset,
-        ],
+        );
+        return `($${b + 1},$${b + 2},$${b + 3}::jsonb,$${b + 4},$${b + 5},$${b + 6},$${b + 7},$${b + 8},$${b + 9},$${b + 10})`;
+      });
+      await sql.query(
+        `insert into legal_chunks
+          (id, content, embedding, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
+         values ${rows.join(",")}
+         on conflict (id) do nothing`,
+        values,
       );
     }
   }

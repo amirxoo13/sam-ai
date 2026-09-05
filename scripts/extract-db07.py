@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Select a chapter-spread subset of real statutes from the user-provided db07 xlsx."""
+"""Ingest complete core Iranian codes from the user-provided db07 xlsx.
+
+Sampling was leaving daily-use codes half-empty (e.g. 91/1089 of قانون مدنی).
+FULL_TITLES take every usable article. CAPPED_TITLES keep a dense chapter spread.
+"""
 from __future__ import annotations
 
 import json
@@ -13,21 +17,38 @@ NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 ROOT = Path(__file__).resolve().parents[1]
 FA = "۰۱۲۳۴۵۶۷۸۹"
 
-QUOTAS = [
-    ("قانون اساسی", 90),
-    ("قانون مدنی", 90),
-    ("قانون مجازات اسلامی (با اصلاحات سال 1399)", 70),
-    ("آیین دادرسی مدنی", 45),
-    ("آیین دادرسی کیفری", 45),
-    ("قانون تجارت (همراه قانون اصلاح قسمتی از قانون تجارت مصوب 1347)", 30),
-    ("قانون کار", 25),
-    ("قانون صدور چک(با اصلاحات 1400)", 25),
-    ("قانون مسئولیت مدنی", 20),
-    ("قانون اجرای احکام مدنی", 25),
-    ("قانون امور حسبی", 20),
-    ("قانون ثبت اسناد و املاک", 15),
-    ("قانون بیمه اجباری خسارات واردشده به شخص ثالث در اثر حوادث ناشی از وسایل نقلیه 1395", 15),
-    ("قانون تشکیلات و آیین دادرسی دیوان عدالت اداری", 15),
+# Entire usable article set — these are the codes people actually ask about.
+FULL_TITLES = [
+    "قانون اساسی",
+    "قانون مدنی",
+    "قانون مجازات اسلامی (با اصلاحات سال 1399)",
+    "تعزیرات و مجازات های بازدارنده (با اصلاحات سال 1399)",
+    "آیین دادرسی مدنی",
+    "آیین دادرسی کیفری",
+    "قانون کار",
+    "قانون صدور چک(با اصلاحات 1400)",
+    "قانون مسئولیت مدنی",
+    "قانون اجرای احکام مدنی",
+    "قانون حمایت خانواده",
+    "قانون روابط موجر و مستاجر (مصوب 76 ، 62 ، 56)",
+    "قانون تملک آپارتمانها",
+    "قانون جرائم رایانه ای",
+    "قانون مبارزه با مواد مخدر و الحاق موادی به آن (با آخرین تغییرات)",
+    "قانون شوراهای حل اختلاف",
+    "قانون مبارزه با پولشویی",
+    "قانون بیمه اجباری خسارات واردشده به شخص ثالث در اثر حوادث ناشی از وسایل نقلیه 1395",
+    "قانون تشکیلات و آیین دادرسی دیوان عدالت اداری",
+]
+
+# Large but secondary: keep coverage without exploding the bundled seed.
+CAPPED_TITLES = [
+    ("قانون تجارت (همراه قانون اصلاح قسمتی از قانون تجارت مصوب 1347)", 280),
+    ("قانون امور حسبی", 140),
+    ("قانون ثبت اسناد و املاک", 90),
+    ("قانون مبارزه با قاچاق کالا و ارز مصوب 1392/03/10 با اصلاحات سال 1394", 75),
+    ("قانون مالیات بر ارزش افزوده", 54),
+    ("قانون مدیریت خدمات کشوری", 80),
+    ("قانون مطبوعات", 48),
 ]
 
 PINS = [
@@ -84,10 +105,10 @@ TENS = {
     "بیست": 20,
     "بیستم": 20,
     "سی": 30,
-    "سیم": 30,
-    "سیام": 30,
-    "چهل": 40,
+    "سی‌ام": 30,
+    "سی ام": 30,
     "چهلم": 40,
+    "چهل": 40,
     "پنجاه": 50,
     "پنجاهم": 50,
     "شصت": 60,
@@ -101,17 +122,12 @@ TENS = {
 }
 HUNDREDS = {
     "صد": 100,
-    "صدم": 100,
     "یکصد": 100,
-    "یکصدم": 100,
+    "یک‌صد": 100,
     "دویست": 200,
-    "دویستم": 200,
     "سیصد": 300,
-    "سیصدم": 300,
     "چهارصد": 400,
-    "چهارصدم": 400,
     "پانصد": 500,
-    "پانصدم": 500,
 }
 
 
@@ -120,25 +136,19 @@ def to_en(s: str) -> str:
 
 
 def fa_words_to_int(s: str) -> int | None:
-    raw = to_en(s).replace("‌", " ").replace("-", " ").replace("ـ", " ").strip()
-    raw = re.sub(r"\s+", " ", raw)
-    if re.fullmatch(r"[0-9]+(?:مکرر)?", raw.replace(" ", "")):
-        m = re.match(r"([0-9]+)", raw)
-        return int(m.group(1)) if m else None
-    parts = [p.strip() for p in re.split(r"\s+و\s+", raw) if p.strip()]
-    if not parts:
-        return None
+    s = s.replace("‌", " ").replace("-", " ").strip()
+    s = re.sub(r"\s+", " ", s)
+    if s.isdigit():
+        return int(s)
+    parts = [p.strip() for p in re.split(r"\s+و\s+", s) if p.strip()]
     total = 0
-    for part in parts:
-        token = part.replace(" ", "")
-        if token in ONES:
-            total += ONES[token]
-        elif token in TENS:
-            total += TENS[token]
-        elif token in HUNDREDS:
-            total += HUNDREDS[token]
-        elif token.isdigit():
-            total += int(token)
+    for p in parts:
+        if p in ONES:
+            total += ONES[p]
+        elif p in TENS:
+            total += TENS[p]
+        elif p in HUNDREDS:
+            total += HUNDREDS[p]
         else:
             return None
     return total or None
@@ -288,7 +298,7 @@ def apply_pins(title: str, pool: list[dict], picked: list[dict]) -> list[dict]:
 def to_chunk(title: str, row: dict) -> dict:
     return {
         "id": f"statute-db07-{row['id']}",
-        "content": row["content"][:2200],
+        "content": row["content"][:3500],
         "source_type": "statute",
         "source_title": title,
         "article_number": article_number(row["content"], row["dir"]),
@@ -299,6 +309,34 @@ def to_chunk(title: str, row: dict) -> dict:
         "dir": row["dir"],
         "title1": row["title1"],
     }
+
+
+def resolve_title(by_title: dict[str, list[dict]], name: str) -> str | None:
+    if name in by_title:
+        return name
+    hits = [t for t in by_title if name in t and "قدیم" not in t]
+    if not hits:
+        return None
+    return min(hits, key=len)
+
+
+def take_rows(
+    title: str,
+    pool: list[dict],
+    quota: int | None,
+    seen_ids: set[str],
+) -> list[dict]:
+    if quota is None:
+        chosen = pool
+    else:
+        chosen = apply_pins(title, pool, spread(pool, min(quota, len(pool))))
+    kept = []
+    for r in chosen:
+        if r["id"] in seen_ids:
+            continue
+        seen_ids.add(r["id"])
+        kept.append(r)
+    return kept
 
 
 def main() -> None:
@@ -313,15 +351,15 @@ def main() -> None:
         by_title[r["title"]].append(r)
 
     seen_ids: set[str] = set()
-    for title, quota in QUOTAS:
-        pool = [r for r in by_title.get(title, []) if is_usable(r, title)]
-        take = apply_pins(title, pool, spread(pool, min(quota, len(pool))))
-        kept = []
-        for r in take:
-            if r["id"] in seen_ids:
-                continue
-            seen_ids.add(r["id"])
-            kept.append(r)
+    jobs: list[tuple[str, int | None]] = [(t, None) for t in FULL_TITLES] + list(CAPPED_TITLES)
+    for name, quota in jobs:
+        title = resolve_title(by_title, name)
+        if not title:
+            report.append({"title": name, "pool": 0, "taken": 0})
+            print("MISSING", name)
+            continue
+        pool = [r for r in by_title[title] if is_usable(r, title)]
+        kept = take_rows(title, pool, quota, seen_ids)
         report.append({"title": title, "pool": len(pool), "taken": len(kept)})
         selected.extend(to_chunk(title, r) for r in kept)
 
@@ -329,7 +367,7 @@ def main() -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "source": "user-uploaded db07-persian law database/LawItem.xlsx",
-        "why": "QomSSLab/legal_full_v4 and related HF datasets are personal/gated and access was denied. This corpus is the user's own law table (28461 rows, 962 titles).",
+        "why": "Complete core Iranian codes from the user's LawItem table (not a chapter sample). Gated HF statute datasets remain unused.",
         "total_selected": len(selected),
         "by_title": report,
         "chunks": selected,
@@ -337,7 +375,7 @@ def main() -> None:
     out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print("wrote", out, "selected", len(selected))
     for item in report:
-        print(f"  {item['taken']:3d}/{item['pool']:<5d}  {item['title'][:70]}")
+        print(f"  {item['taken']:4d}/{item['pool']:<5d}  {item['title'][:70]}")
 
 
 if __name__ == "__main__":

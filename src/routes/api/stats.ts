@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/stats")({
             ...stats,
             notes: {
               statute:
-                "User-provided db07 LawItem.xlsx (core Iranian statutes). QomSSLab/legal_full_v4 remains gated/personal.",
+                "User-provided db07 LawItem.xlsx — complete core Iranian codes (civil, constitution, penal, procedure, labour, cheque, family, …), not a sample. Gated HF statute datasets unused.",
               case_law: "Ingested from QomSSLab/law-text-dataset-fa",
             },
           });

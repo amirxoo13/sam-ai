@@ -179,6 +179,15 @@ async function main() {
   const caseLaw = (previous.chunks || []).filter((c) => c.source_type === "case_law");
   const pending = selected.chunks;
   const cache = await loadCache();
+  for (const c of previous.chunks || []) {
+    if (
+      c.source_type === "statute" &&
+      Array.isArray(c.embedding) &&
+      c.embedding.length === EMBEDDING_DIM
+    ) {
+      cache[c.id] ??= c.embedding;
+    }
+  }
   console.log(
     "statutes to embed",
     pending.length,
@@ -192,13 +201,11 @@ async function main() {
   for (let i = 0; i < pending.length; i += BATCH) {
     const slice = pending.slice(i, i + BATCH);
     const missing = [];
-    const missingIdx = [];
-    for (let j = 0; j < slice.length; j++) {
-      if (Array.isArray(cache[slice[j].id]) && cache[slice[j].id].length === EMBEDDING_DIM) {
+    for (const chunk of slice) {
+      if (Array.isArray(cache[chunk.id]) && cache[chunk.id].length === EMBEDDING_DIM) {
         continue;
       }
-      missing.push(slice[j]);
-      missingIdx.push(j);
+      missing.push(chunk);
     }
     if (missing.length) {
       const vecs = await embedBatch(missing.map((c) => c.content));
@@ -220,7 +227,7 @@ async function main() {
     dim: EMBEDDING_DIM,
     createdAt: new Date().toISOString(),
     statuteAccess:
-      "QomSSLab/legal_full_v4 is personal/gated (access denied). Statutes ingested from the user-provided db07-persian law database (LawItem.xlsx).",
+      "QomSSLab/legal_full_v4 is personal/gated (access denied). Statutes ingested from the user-provided db07-persian law database (LawItem.xlsx) — complete core codes, not a sample.",
     counts: {
       statute: embedded.length,
       case_law: caseLaw.length,
