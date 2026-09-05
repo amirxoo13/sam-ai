@@ -64,6 +64,8 @@ function citationBoost(question: string, row: Row): number {
   }
   if (q.includes("قانون تجارت") && title.includes("قانون تجارت")) boost += 0.12;
   if (q.includes("قانون ثبت") && title.includes("قانون ثبت")) boost += 0.12;
+  if (q.includes("وکالت") && title.includes("وکالت")) boost += 0.12;
+  if (q.includes("دیوان عدالت") && title.includes("دیوان عدالت")) boost += 0.12;
   return Math.min(boost, 0.55);
 }
 
