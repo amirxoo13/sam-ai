@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Gavel, LoaderCircle, Scale, Send, ShieldAlert } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { BookOpen, FileText, Gavel, LoaderCircle, Send, ShieldAlert } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
-import { SamMark } from "@/components/sam-mark";
 import { askLegal, getCorpusStats } from "@/lib/legal/ask.functions";
 import { LEGAL_DISCLAIMER } from "@/lib/legal/copy";
 import type { RetrievedChunk, SourceFilter } from "@/lib/legal/types";
@@ -19,7 +19,6 @@ const SUGGESTIONS = [
   "اصل ۳۵ قانون اساسی درباره حق وکیل چیست؟",
   "مدیران شرکت سهامی در قانون تجارت چه مسئولیت‌هایی دارند؟",
   "شرایط گرفتن پروانه وکالت در قانون وکالت چیست؟",
-  "رأی وحدت رویه ۸۰۲ درباره صلاحیت دادگاه نیابت چیست؟",
 ];
 
 type ChatMessage = {
@@ -80,21 +79,7 @@ function Home() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
-      <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-4 py-3">
-          <div className="flex size-11 items-center justify-center rounded-lg border border-border bg-surface text-accent">
-            <SamMark className="size-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-2">
-              <h1 className="text-base font-semibold tracking-tight">SAM AI</h1>
-              <span className="hidden text-xs text-subtle sm:inline">Smart Attorney Mind</span>
-            </div>
-            <p className="truncate text-xs text-muted">{corpusLabel}</p>
-          </div>
-          <Scale className="size-4 shrink-0 text-subtle" aria-hidden />
-        </div>
-      </header>
+      <AppHeader corpusLabel={corpusLabel} active="ask" />
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-4 pt-6">
         {messages.length === 0 && !busy ? (
@@ -190,6 +175,20 @@ function EmptyState({
           SAM AI سؤال را embed می‌کند، نزدیک‌ترین مواد قانون و آرای قضایی را بازیابی
           می‌کند و فقط بر اساس همان متن پاسخ می‌دهد.
         </p>
+        <Link
+          to="/forms"
+          className="flex min-h-11 items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-right transition-colors duration-150 hover:bg-elevated"
+        >
+          <FileText className="mt-0.5 size-4 shrink-0 text-muted" />
+          <span>
+            <span className="block text-sm font-medium text-fg">
+              تنظیم شکواییه، دادخواست یا لایحه
+            </span>
+            <span className="mt-1 block text-xs leading-5 text-muted">
+              ماجرا را بگویید؛ مسیر حقوقی یا کیفری مشخص می‌شود و پیش‌نویس آماده می‌گردد.
+            </span>
+          </span>
+        </Link>
         {statuteCount === 0 ? (
           <p className="max-w-md text-xs leading-5 text-warn">
             قوانین موضوعه هنوز در پیکره نیستند.

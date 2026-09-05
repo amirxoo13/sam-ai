@@ -71,4 +71,75 @@ export async function generateAnswer(
   return content;
 }
 
+export async function generateDraftText(input: {
+  formTitle: string;
+  trackLabel: string;
+  forum: string;
+  articles: string[];
+  skeleton: string;
+  facts: string;
+  sources: RetrievedChunk[];
+  nextSteps?: string;
+}): Promise<string> {
+  const system = [
+    "تو منشی حقوقی SAM AI هستی. پیش‌نویس اوراق قضایی فارسی می‌نویسی.",
+    "قواعد:",
+    "1) فقط از قالب داده‌شده، وقایع کاربر و متن منابع بازیابی‌شده استفاده کن.",
+    "2) ماده یا رأیی که در منابع نیست جعل نکن.",
+    "3) هویت ساختگی، شماره ملی و شماره پرونده جعلی ننویس؛ جای خالی را ……………… بگذار.",
+    "4) لحن رسمی دادگاه ایران؛ بدون وعده پیروزی.",
+    "5) در پایان یک بند کوتاه «گام بعدی ثبت» بنویس (ثنا / دفتر خدمات).",
+    "6) خروجی فقط متن پیش‌نویس باشد.",
+  ].join("\n");
+
+  const user = [
+    `نوع برگه: ${input.formTitle}`,
+    `مسیر: ${input.trackLabel}`,
+    `مرجع: ${input.forum}`,
+    `مواد استنادی قالب: ${input.articles.join("؛ ")}`,
+    "",
+    "وقایع و فیلدها:",
+    input.facts,
+    "",
+    "قالب خام:",
+    input.skeleton,
+    "",
+    input.nextSteps ? `جریان دادرسی پس از ثبت:\n${input.nextSteps}\n` : "",
+    "منابع بازیابی‌شده:",
+    formatSources(input.sources),
+  ].join("\n");
+
+  const res = await fetch(`${QWEN_BASE_URL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${qwenApiKey()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: QWEN_MODEL,
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      max_tokens: 2200,
+      temperature: 0.15,
+      enable_thinking: false,
+    }),
+  });
+  const json: {
+    choices?: { message?: { content?: string } }[];
+    error?: { message?: string };
+  } = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      `Qwen HTTP ${res.status}: ${json.error?.message || JSON.stringify(json).slice(0, 400)}`,
+    );
+  }
+  const content = json.choices?.[0]?.message?.content?.trim();
+  if (!content) throw new Error("پیش‌نویس خالی");
+  return content;
+}
+
 export { QWEN_MODEL };
+
+

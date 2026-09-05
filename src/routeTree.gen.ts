@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FormsRouteImport } from './routes/forms'
 import { Route as ApiAskRouteImport } from './routes/api/ask'
+import { Route as ApiDraftRouteImport } from './routes/api/draft'
 import { Route as ApiStatsRouteImport } from './routes/api/stats'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +20,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormsRoute = FormsRouteImport.update({
+  id: '/forms',
+  path: '/forms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAskRoute = ApiAskRouteImport.update({
   id: '/api/ask',
   path: '/api/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDraftRoute = ApiDraftRouteImport.update({
+  id: '/api/draft',
+  path: '/api/draft',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStatsRoute = ApiStatsRouteImport.update({
@@ -31,31 +43,39 @@ const ApiStatsRoute = ApiStatsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/forms': typeof FormsRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/draft': typeof ApiDraftRoute
   '/api/stats': typeof ApiStatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/forms': typeof FormsRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/draft': typeof ApiDraftRoute
   '/api/stats': typeof ApiStatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/forms': typeof FormsRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/draft': typeof ApiDraftRoute
   '/api/stats': typeof ApiStatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/ask' | '/api/stats'
+  fullPaths: '/' | '/forms' | '/api/ask' | '/api/draft' | '/api/stats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/ask' | '/api/stats'
-  id: '__root__' | '/' | '/api/ask' | '/api/stats'
+  to: '/' | '/forms' | '/api/ask' | '/api/draft' | '/api/stats'
+  id: '__root__' | '/' | '/forms' | '/api/ask' | '/api/draft' | '/api/stats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FormsRoute: typeof FormsRoute
   ApiAskRoute: typeof ApiAskRoute
+  ApiDraftRoute: typeof ApiDraftRoute
   ApiStatsRoute: typeof ApiStatsRoute
 }
 
@@ -68,11 +88,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forms': {
+      id: '/forms'
+      path: '/forms'
+      fullPath: '/forms'
+      preLoaderRoute: typeof FormsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ask': {
       id: '/api/ask'
       path: '/api/ask'
       fullPath: '/api/ask'
       preLoaderRoute: typeof ApiAskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/draft': {
+      id: '/api/draft'
+      path: '/api/draft'
+      fullPath: '/api/draft'
+      preLoaderRoute: typeof ApiDraftRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/stats': {
@@ -87,7 +121,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FormsRoute: FormsRoute,
   ApiAskRoute: ApiAskRoute,
+  ApiDraftRoute: ApiDraftRoute,
   ApiStatsRoute: ApiStatsRoute,
 }
 export const routeTree = rootRouteImport

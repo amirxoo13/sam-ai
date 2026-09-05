@@ -34,3 +34,30 @@ export type AskResult = {
   embeddingModel: string;
   retrieved: number;
 };
+
+export type DraftNextStep = {
+  title: string;
+  detail: string;
+};
+
+export type DraftResult = {
+  classification: {
+    track: "civil" | "criminal" | "both" | "admin";
+    trackLabel: string;
+    forum: string;
+    formId: string;
+    formTitle: string;
+    fileVia: string;
+    articles: string[];
+    reason: string;
+    advice: string;
+    confidence: "high" | "medium";
+    alternatives: { id: string; title: string }[];
+  };
+  nextSteps: DraftNextStep[];
+  draft: string;
+  usedModel: boolean;
+  model: string;
+  embeddingModel: string;
+  sources: RetrievedChunk[];
+};
