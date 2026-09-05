@@ -99,12 +99,12 @@ def is_spam(text: str) -> bool:
 
 
 def classify(name: str) -> str | None:
+    if OPINION_RE.search(name) or re.search(r"وحدت\s*رویه|آرای وحدت", name):
+        return "opinion"
     if SKIP_RE.search(name):
         return None
     if DEV_PLAN_RE.search(name) or PAPER_RE.search(name):
         return None
-    if OPINION_RE.search(name):
-        return "opinion"
     if CORE_RE.search(name) and not KEEP_EVEN_IF_CORE.search(name):
         return None
     if re.search(
