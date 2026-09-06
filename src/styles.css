@@ -1,17 +1,27 @@
 @import "tailwindcss";
 
+/* این پالت دقیقاً همان توکن‌های app/globals.css در سایت اقامت (cursor/SAMAI)
+   است — چون هدف این است که هر دو بخش (پرسش‌وپاسخ اقامتی + وکیل هوش‌مصنوعی)
+   روی یک دامنه، بی‌هیچ تفاوت بصری محسوسی، یک سایت واحد به‌نظر برسند. اگر
+   پالت دامنه‌ی اصلی روزی عوض شد، فقط همین‌جا و globals.css آن‌طرف را با هم
+   به‌روزرسانی کن. */
 @theme {
-  --color-bg: #0b0d10;
-  --color-surface: #14181e;
-  --color-elevated: #1c222b;
-  --color-fg: #e8e6e1;
-  --color-muted: #9aa0a8;
-  --color-subtle: #6e747d;
-  --color-accent: #8fa3b8;
-  --color-accent-fg: #0b0d10;
-  --color-border: #2a3038;
-  --color-danger: #c45c5c;
-  --color-warn: #c4a574;
+  --color-bg: #05070d;
+  --color-surface: #0c1120;
+  --color-elevated: #171f3d;
+  --color-elevated-2: #121830;
+  --color-fg: #eef1fa;
+  --color-muted: #8b93b0;
+  --color-subtle: #5b6485;
+  --color-accent: #d9b25c;
+  --color-accent-light: #f0d78c;
+  --color-accent-fg: #1a1305;
+  --color-cyan: #34d6e8;
+  --color-cyan-dim: #1a8fa3;
+  --color-border: #212a48;
+  --color-border-soft: #171e38;
+  --color-danger: #ef4444;
+  --color-warn: #9c7f3a;
   --font-sans: "Vazirmatn", "Segoe UI", system-ui, sans-serif;
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -30,6 +40,11 @@
 
   body {
     min-height: 100dvh;
+    /* همان درخشش رادیال دو رنگ (طلایی/فیروزه‌ای) پس‌زمینه‌ی سایت اقامت */
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(52, 214, 232, 0.08), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(217, 178, 92, 0.07), transparent 55%),
+      var(--color-bg);
   }
 
   button:not(:disabled),
@@ -50,6 +65,10 @@
   textarea,
   input {
     font-family: inherit;
+  }
+
+  ::selection {
+    background: rgba(217, 178, 92, 0.35);
   }
 }
 

@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormsRouteImport } from './routes/forms'
+import { Route as ResidencyRouteImport } from './routes/residency'
 import { Route as ApiAskRouteImport } from './routes/api/ask'
 import { Route as ApiDraftRouteImport } from './routes/api/draft'
+import { Route as ApiResidencyAskRouteImport } from './routes/api/residency-ask'
 import { Route as ApiStatsRouteImport } from './routes/api/stats'
 
 const IndexRoute = IndexRouteImport.update({
@@ -25,6 +27,11 @@ const FormsRoute = FormsRouteImport.update({
   path: '/forms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResidencyRoute = ResidencyRouteImport.update({
+  id: '/residency',
+  path: '/residency',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAskRoute = ApiAskRouteImport.update({
   id: '/api/ask',
   path: '/api/ask',
@@ -33,6 +40,11 @@ const ApiAskRoute = ApiAskRouteImport.update({
 const ApiDraftRoute = ApiDraftRouteImport.update({
   id: '/api/draft',
   path: '/api/draft',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiResidencyAskRoute = ApiResidencyAskRouteImport.update({
+  id: '/api/residency-ask',
+  path: '/api/residency-ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStatsRoute = ApiStatsRouteImport.update({
@@ -44,38 +56,68 @@ const ApiStatsRoute = ApiStatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forms': typeof FormsRoute
+  '/residency': typeof ResidencyRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
+  '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forms': typeof FormsRoute
+  '/residency': typeof ResidencyRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
+  '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/forms': typeof FormsRoute
+  '/residency': typeof ResidencyRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
+  '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/forms' | '/api/ask' | '/api/draft' | '/api/stats'
+  fullPaths:
+    | '/'
+    | '/forms'
+    | '/residency'
+    | '/api/ask'
+    | '/api/draft'
+    | '/api/residency-ask'
+    | '/api/stats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/forms' | '/api/ask' | '/api/draft' | '/api/stats'
-  id: '__root__' | '/' | '/forms' | '/api/ask' | '/api/draft' | '/api/stats'
+  to:
+    | '/'
+    | '/forms'
+    | '/residency'
+    | '/api/ask'
+    | '/api/draft'
+    | '/api/residency-ask'
+    | '/api/stats'
+  id:
+    | '__root__'
+    | '/'
+    | '/forms'
+    | '/residency'
+    | '/api/ask'
+    | '/api/draft'
+    | '/api/residency-ask'
+    | '/api/stats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormsRoute: typeof FormsRoute
+  ResidencyRoute: typeof ResidencyRoute
   ApiAskRoute: typeof ApiAskRoute
   ApiDraftRoute: typeof ApiDraftRoute
+  ApiResidencyAskRoute: typeof ApiResidencyAskRoute
   ApiStatsRoute: typeof ApiStatsRoute
 }
 
@@ -95,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/residency': {
+      id: '/residency'
+      path: '/residency'
+      fullPath: '/residency'
+      preLoaderRoute: typeof ResidencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ask': {
       id: '/api/ask'
       path: '/api/ask'
@@ -107,6 +156,13 @@ declare module '@tanstack/react-router' {
       path: '/api/draft'
       fullPath: '/api/draft'
       preLoaderRoute: typeof ApiDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/residency-ask': {
+      id: '/api/residency-ask'
+      path: '/api/residency-ask'
+      fullPath: '/api/residency-ask'
+      preLoaderRoute: typeof ApiResidencyAskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/stats': {
@@ -122,8 +178,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormsRoute: FormsRoute,
+  ResidencyRoute: ResidencyRoute,
   ApiAskRoute: ApiAskRoute,
   ApiDraftRoute: ApiDraftRoute,
+  ApiResidencyAskRoute: ApiResidencyAskRoute,
   ApiStatsRoute: ApiStatsRoute,
 }
 export const routeTree = rootRouteImport
