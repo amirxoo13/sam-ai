@@ -16,7 +16,11 @@ function formatSources(chunks: RetrievedChunk[]): string {
     .join("\n\n---\n\n");
 }
 
-export function buildLegalPrompt(question: string, chunks: RetrievedChunk[]): {
+export function buildLegalPrompt(
+  question: string,
+  chunks: RetrievedChunk[],
+  userFilesContext?: string,
+): {
   system: string;
   user: string;
 } {
@@ -29,17 +33,26 @@ export function buildLegalPrompt(question: string, chunks: RetrievedChunk[]): {
     "4) وزن حقوقی قانون موضوعه بالاتر از رأی است؛ اگر هر دو هست، تمایز بده.",
     "5) پاسخ را به فارسی روان، منظم و با تیترهای کوتاه بنویس.",
     "6) مشاوره قضایی شخصی صادر نکن و حکم قطعی نده.",
-  ].join("\n");
+    userFilesContext
+      ? "7) اگر پرونده‌ی خصوصی کاربر پایین آمده و به سؤال مرتبط بود، وقایع همان پرونده را هم در پاسخ لحاظ کن — ولی باز هم فقط بر اساس منابع قانونی زیر استدلال حقوقی کن."
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  const user = `سؤال کاربر:\n${question}\n\nمنابع بازیابی‌شده:\n${formatSources(chunks)}`;
+  const userFilesBlock = userFilesContext
+    ? `\n\nپرونده(های) خصوصی این کاربر (فقط اگر مرتبط بود استفاده کن):\n${userFilesContext}`
+    : "";
+  const user = `سؤال کاربر:\n${question}\n\nمنابع بازیابی‌شده:\n${formatSources(chunks)}${userFilesBlock}`;
   return { system, user };
 }
 
 export async function generateAnswer(
   question: string,
   chunks: RetrievedChunk[],
+  userFilesContext?: string,
 ): Promise<string> {
-  const { system, user } = buildLegalPrompt(question, chunks);
+  const { system, user } = buildLegalPrompt(question, chunks, userFilesContext);
   const res = await fetch(`${QWEN_BASE_URL}/chat/completions`, {
     method: "POST",
     headers: {
@@ -54,7 +67,11 @@ export async function generateAnswer(
       ],
       max_tokens: 1400,
       temperature: 0.2,
-      enable_thinking: false,
+      // qwen3.8-max یک مدل thinking-only است — enable_thinking برایش بی‌اثر
+      // است (نمی‌تواند فکرکردن را خاموش کند)، ولی reasoning_effort="none"
+      // این فاز را عملاً حذف/کمینه می‌کند. بدون این، فراخوانی‌های سنگین‌تر
+      // ریسک برخورد به timeout سرورless را دارند.
+      reasoning_effort: "none",
     }),
   });
   const json: {
@@ -123,7 +140,7 @@ export async function generateDraftText(input: {
       ],
       max_tokens: 2200,
       temperature: 0.15,
-      enable_thinking: false,
+      reasoning_effort: "none",
     }),
   });
   const json: {

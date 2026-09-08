@@ -17,7 +17,7 @@ const SYSTEM_PROMPT_TEMPLATE = `تو «سام»، دستیار حقوقی SAMAI 
 متن‌های بازیابی‌شده:
 {{RETRIEVED_CHUNKS}}
 
-سؤال کاربر: {{USER_QUESTION}}`;
+سؤال کاربر: {{USER_QUESTION}}{{USER_FILES_CONTEXT}}`;
 
 interface ChatRequestBody {
   question?: string;
@@ -105,9 +105,16 @@ export const Route = createFileRoute("/api/residency-ask")({
             ? `\nکاربر گفته کشور موردنظرش «${countryLabel}» است — اگر منبع پیدا‌شده مربوط به کشور دیگری بود، این را شفاف بگو.\n`
             : "";
 
+          const { getUserFilesContext } = await import("@/lib/user-files.server");
+          const userFilesContext = await getUserFilesContext(sessionUser.id).catch(() => "");
+          const userFilesBlock = userFilesContext
+            ? `\n\nپرونده(های) خصوصی این کاربر (فقط اگر مرتبط بود استفاده کن):\n${userFilesContext}`
+            : "";
+
           const prompt = SYSTEM_PROMPT_TEMPLATE.replace("{{COUNTRY_CONTEXT}}", countryContext)
             .replace("{{RETRIEVED_CHUNKS}}", chunksText)
-            .replace("{{USER_QUESTION}}", question);
+            .replace("{{USER_QUESTION}}", question)
+            .replace("{{USER_FILES_CONTEXT}}", userFilesBlock);
 
           const { saveChatMessage } = await import("@/lib/chat-history.server");
           await saveChatMessage(sessionUser.id, "residency", "user", question);

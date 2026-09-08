@@ -24,6 +24,7 @@ function fallbackFromSources(question: string, chunks: RetrievedChunk[]): string
 export async function runAsk(input: {
   question: string;
   sourceType?: SourceFilter;
+  userFilesContext?: string;
 }): Promise<AskResult> {
   const sourceType: SourceFilter = input.sourceType ?? "all";
   const sources = await retrieveChunks(input.question, sourceType);
@@ -39,7 +40,7 @@ export async function runAsk(input: {
     };
   }
   try {
-    const answer = await generateAnswer(input.question, sources);
+    const answer = await generateAnswer(input.question, sources, input.userFilesContext);
     return {
       answer,
       sources,

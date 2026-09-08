@@ -12,7 +12,9 @@ export const askLegal = createServerFn({ method: "POST" })
   .validator(askSchema)
   .handler(async ({ data, context }) => {
     const { runAsk } = await import("./ask.server");
-    const result = await runAsk(data);
+    const { getUserFilesContext } = await import("@/lib/user-files.server");
+    const userFilesContext = await getUserFilesContext(context.userId).catch(() => "");
+    const result = await runAsk({ ...data, userFilesContext: userFilesContext || undefined });
     const { saveChatMessage } = await import("@/lib/chat-history.server");
     await saveChatMessage(context.userId, "legal", "user", data.question);
     await saveChatMessage(context.userId, "legal", "assistant", result.answer);

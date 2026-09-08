@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/app-header";
 import { RequireAuth } from "@/components/require-auth";
 import { signOut } from "@/lib/auth/client";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { getChatHistory } from "@/lib/chat-history.functions";
 import type { ChatMessageRow, ChatType } from "@/lib/chat-history.server";
+import { deleteMyFile, listMyFiles, uploadUserFile } from "@/lib/user-files.functions";
+import type { UserFileSummary } from "@/lib/user-files.server";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/profile")({
@@ -63,13 +65,9 @@ function ProfilePage() {
           </button>
         </section>
 
-        {/* پرونده‌های کاربر — فاز بعدی */}
-        <section className="mb-6 rounded-2xl border border-dashed border-border bg-elevated-2/50 p-6">
-          <h2 className="text-[14px] font-bold text-fg">پرونده‌های من</h2>
-          <p className="mt-1.5 text-[12.5px] leading-6 text-subtle">
-            آپلود خصوصی پرونده و اتصالش به هوش مصنوعی — به‌زودی در این بخش اضافه
-            می‌شود.
-          </p>
+        {/* پرونده‌های کاربر */}
+        <section className="mb-6 rounded-2xl border border-border bg-elevated-2 p-5 sm:p-6">
+          <FilesSection />
         </section>
 
         {/* تاریخچه‌ی مکالمات */}
@@ -99,6 +97,119 @@ function ProfilePage() {
         </section>
       </main>
     </div>
+  );
+}
+
+function FilesSection() {
+  const [files, setFiles] = useState<UserFileSummary[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function refresh() {
+    listMyFiles()
+      .then(setFiles)
+      .catch((err) => setError(err instanceof Error ? err.message : "خطا در بارگذاری پرونده‌ها"));
+  }
+
+  useEffect(refresh, []);
+
+  async function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setError(null);
+    setUploading(true);
+    try {
+      for (const file of Array.from(fileList)) {
+        if (!/\.(txt|md)$/i.test(file.name)) {
+          setError("فعلاً فقط فایل‌های متنی (.txt یا .md) پشتیبانی می‌شوند.");
+          continue;
+        }
+        const content = await file.text();
+        if (!content.trim()) continue;
+        await uploadUserFile({ data: { filename: file.name, content } });
+      }
+      refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "خطا در آپلود پرونده");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  async function remove(id: number) {
+    setFiles((prev) => (prev ? prev.filter((f) => f.id !== id) : prev));
+    try {
+      await deleteMyFile({ data: { id } });
+    } catch {
+      refresh();
+    }
+  }
+
+  return (
+    <>
+      <div className="mb-1 flex items-center justify-between">
+        <h2 className="text-[14px] font-bold text-fg">پرونده‌های من</h2>
+        <span className="text-[11.5px] text-subtle">فقط خودت می‌بینی‌شون</span>
+      </div>
+      <p className="mt-1.5 text-[12.5px] leading-6 text-subtle">
+        پرونده‌های متنی خودت را آپلود کن — خودکار در اختیار دستیار حقوقی و
+        اقامتی قرار می‌گیره تا موقع پاسخ‌دادن در نظرش بگیره (فقط اگر مرتبط
+        باشه).
+      </p>
+
+      <label
+        className={cn(
+          "mt-4 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed px-4 py-6 text-center transition-colors",
+          uploading ? "border-accent/50 bg-accent/5" : "border-border hover:border-accent/40",
+        )}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          accept=".txt,.md,text/plain"
+          className="hidden"
+          onChange={(e) => void handleFiles(e.target.files)}
+          disabled={uploading}
+        />
+        <span className="text-[13px] font-medium text-fg">
+          {uploading ? "در حال آپلود..." : "برای انتخاب پرونده کلیک کن"}
+        </span>
+        <span className="text-[11.5px] text-subtle">فرمت‌های مجاز: txt، md</span>
+      </label>
+
+      {error ? <p className="mt-3 text-[12.5px] text-danger">{error}</p> : null}
+
+      <div className="mt-4 grid gap-2">
+        {files === null ? (
+          <p className="text-[13px] text-subtle">در حال بارگذاری...</p>
+        ) : files.length === 0 ? (
+          <p className="text-[13px] text-subtle">هنوز پرونده‌ای آپلود نکردی.</p>
+        ) : (
+          files.map((f) => (
+            <div
+              key={f.id}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3.5 py-2.5"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-[13px] font-medium text-fg">{f.filename}</p>
+                <p className="text-[11px] text-subtle">
+                  {(f.size / 1024).toFixed(1)} کیلوبایت · {new Date(f.created_at).toLocaleDateString("fa-IR")}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void remove(f.id)}
+                className="shrink-0 text-[12px] text-subtle hover:text-danger"
+              >
+                حذف
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </>
   );
 }
 
