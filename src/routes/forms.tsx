@@ -41,6 +41,56 @@ const TRACK_FILTER: { id: "all" | LegalTrack; label: string }[] = [
   { id: "admin", label: "اداری" },
 ];
 
+const STEPS: { id: Step; label: string }[] = [
+  { id: "story", label: "ماجرا" },
+  { id: "path", label: "مسیر" },
+  { id: "fill", label: "پیش‌نویس" },
+];
+
+function StepIndicator({ step }: { step: Step }) {
+  const activeIndex = STEPS.findIndex((s) => s.id === step);
+  return (
+    <ol className="flex items-center" aria-label="مراحل">
+      {STEPS.map((item, i) => {
+        const isDone = i < activeIndex;
+        const isActive = i === activeIndex;
+        return (
+          <li key={item.id} className="flex flex-1 items-center last:flex-none">
+            <div className="flex flex-col items-center gap-1.5">
+              <div
+                className={cn(
+                  "flex size-8 shrink-0 items-center justify-center rounded-full border text-[12px] font-bold transition-colors",
+                  isActive
+                    ? "border-accent bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] text-[#1a1305]"
+                    : isDone
+                      ? "border-accent/50 bg-elevated text-accent"
+                      : "border-border bg-surface text-subtle",
+                )}
+              >
+                {isDone ? <Check className="size-4" /> : i + 1}
+              </div>
+              <span
+                className={cn(
+                  "text-[11.5px] font-medium",
+                  isActive ? "text-accent-light" : isDone ? "text-muted" : "text-subtle",
+                )}
+              >
+                {item.label}
+              </span>
+            </div>
+            {i < STEPS.length - 1 ? (
+              <div
+                className={cn("mx-2 h-px flex-1 transition-colors", isDone ? "bg-accent/50" : "bg-border")}
+                aria-hidden="true"
+              />
+            ) : null}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function FormsPage() {
   const stats = Route.useLoaderData();
   const [step, setStep] = useState<Step>("story");
@@ -156,43 +206,26 @@ function FormsPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader corpusLabel={corpusLabel} active="forms" />
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-6">
-        <section className="space-y-2">
-          <p className="text-xs font-medium tracking-[0.14em] text-subtle">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
+        <section className="mb-6">
+          <p className="mb-2 flex items-center gap-2 text-[11.5px] font-bold tracking-[0.14em] text-accent">
+            <Scale className="size-3.5" />
             تشخیص مسیر و پیش‌نویس اوراق
           </p>
-          <h2 className="text-2xl font-semibold leading-tight tracking-tight">
-            مثل جلسه وکیل: اول ماجرا، بعد مسیر، بعد برگه.
+          <h2 className="text-[26px] font-extrabold leading-[1.35] tracking-tight text-fg">
+            مثل جلسه‌ی وکیل: اول ماجرا، بعد مسیر، بعد برگه.
           </h2>
-          <p className="max-w-xl text-sm leading-6 text-muted">
+          <p className="mt-2 max-w-xl text-[13.5px] leading-7 text-muted">
             شرح را بگویید. SAM AI تشخیص می‌دهد دعوا حقوقی است یا کیفری، قالب
             شکواییه / دادخواست / لایحه را برمی‌گزیند و با مواد پیکره پیش‌نویس
             می‌نویسد.
           </p>
         </section>
 
-        <ol className="grid grid-cols-3 gap-2" aria-label="مراحل">
-          {(
-            [
-              { id: "story", label: "۱. ماجرا" },
-              { id: "path", label: "۲. مسیر" },
-              { id: "fill", label: "۳. پیش‌نویس" },
-            ] as const
-          ).map((item) => (
-            <li
-              key={item.id}
-              className={cn(
-                "rounded-lg px-3 py-2 text-center text-xs",
-                step === item.id
-                  ? "bg-elevated text-fg"
-                  : "bg-surface text-muted",
-              )}
-            >
-              {item.label}
-            </li>
-          ))}
-        </ol>
+        <div className="rounded-2xl border border-border bg-elevated-2 p-5 sm:p-6">
+          <StepIndicator step={step} />
 
+        <div className="mt-6">
         {step === "story" ? (
           <section className="grid gap-4">
             <label className="grid gap-1.5">
@@ -205,12 +238,17 @@ function FormsPage() {
                 className="min-h-32 resize-y rounded-lg border border-border bg-surface px-3 py-2.5 text-sm leading-7 text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
               />
             </label>
-            <label className="flex min-h-11 items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm">
+            <label
+              className={cn(
+                "flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[13px] leading-6 transition-colors",
+                hasJudgment ? "border-accent/50 bg-accent/[0.07] text-fg" : "border-border bg-surface text-muted",
+              )}
+            >
               <input
                 type="checkbox"
                 checked={hasJudgment}
                 onChange={(e) => setHasJudgment(e.target.checked)}
-                className="size-4 accent-fg"
+                className="size-4 shrink-0 accent-[#d9b25c]"
               />
               رأی، قرار یا دادنامه صادر شده و می‌خواهم لایحه / اعتراض بنویسم
             </label>
@@ -228,6 +266,8 @@ function FormsPage() {
             ) : null}
             <Button
               type="button"
+              variant="premium"
+              size="lg"
               disabled={story.length < 8}
               onClick={diagnose}
               className="w-full"
@@ -319,6 +359,8 @@ function FormsPage() {
               </Button>
               <Button
                 type="button"
+                variant="premium"
+                size="lg"
                 disabled={busy || story.length < 8}
                 onClick={() => void generate()}
                 className="flex-1"
@@ -346,6 +388,8 @@ function FormsPage() {
             ) : null}
           </section>
         ) : null}
+        </div>
+        </div>
       </main>
     </div>
   );
@@ -427,8 +471,14 @@ function PathCard({
       : cls.track === "civil"
         ? "text-accent"
         : "text-warn";
+  const trackBorder =
+    cls.track === "criminal"
+      ? "border-r-4 border-r-danger"
+      : cls.track === "civil"
+        ? "border-r-4 border-r-accent"
+        : "border-r-4 border-r-warn";
   return (
-    <article className="space-y-5 rounded-xl border border-border bg-surface p-4">
+    <article className={cn("space-y-5 rounded-xl border border-border bg-surface p-5", trackBorder)}>
       <div className="flex items-start gap-3">
         <Scale className="mt-0.5 size-4 shrink-0 text-muted" />
         <div className="min-w-0 flex-1">
@@ -485,7 +535,7 @@ function PathCard({
         <Button type="button" variant="ghost" onClick={onChangeForm} className="sm:w-auto">
           تغییر قالب
         </Button>
-        <Button type="button" onClick={onContinue} className="flex-1">
+        <Button type="button" variant="premium" onClick={onContinue} className="flex-1">
           <Check className="size-4" />
           تکمیل مشخصات و نوشتن برگه
         </Button>
@@ -512,8 +562,14 @@ function ResultCard({
       : c.track === "civil"
         ? "text-accent"
         : "text-warn";
+  const trackBorder =
+    c.track === "criminal"
+      ? "border-r-4 border-r-danger"
+      : c.track === "civil"
+        ? "border-r-4 border-r-accent"
+        : "border-r-4 border-r-warn";
   return (
-    <article className="space-y-4 rounded-xl border border-border bg-surface p-4">
+    <article className={cn("space-y-4 rounded-xl border border-border bg-surface p-5", trackBorder)}>
       <div>
         <p className={cn("text-sm font-semibold", trackColor)}>مسیر: {c.trackLabel}</p>
         <p className="mt-1 text-sm leading-6 text-muted">

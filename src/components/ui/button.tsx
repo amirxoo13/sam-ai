@@ -9,6 +9,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-fg text-accent-fg hover:bg-fg/90",
+        premium:
+          "bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent)_60%,var(--color-warn))] text-[#1a1305] shadow-[0_8px_24px_-8px_rgba(217,178,92,0.55)] hover:brightness-[1.06] active:brightness-95",
         secondary:
           "border border-border bg-elevated text-fg hover:bg-surface",
         ghost: "text-muted hover:bg-elevated hover:text-fg",
@@ -16,6 +18,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-11 min-h-11 px-4",
+        lg: "h-12 min-h-12 px-5 text-[15px]",
         sm: "h-9 min-h-9 px-3 text-xs",
         icon: "size-11 min-h-11 min-w-11",
       },
