@@ -16,7 +16,7 @@ export const Route = createRootRoute({
         content:
           "دستیار حقوقی هوشمند برای حقوق ایران؛ پاسخ بر اساس متن قانون و آرای قضایی با ارجاع دقیق.",
       },
-      { name: "theme-color", content: "#0b0d10" },
+      { name: "theme-color", content: "#05070d" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

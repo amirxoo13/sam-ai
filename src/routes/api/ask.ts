@@ -12,6 +12,14 @@ export const Route = createFileRoute("/api/ask")({
     handlers: {
       POST: async ({ request }) => {
         try {
+          const { getSessionUser } = await import("@/lib/auth/verify.server");
+          const sessionUser = await getSessionUser();
+          if (!sessionUser) {
+            return Response.json(
+              { error: "برای استفاده از این قابلیت باید وارد حساب کاربری‌ات بشی." },
+              { status: 401 },
+            );
+          }
           const json: unknown = await request.json();
           const parsed = bodySchema.safeParse(json);
           if (!parsed.success) {

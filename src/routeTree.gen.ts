@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormsRouteImport } from './routes/forms'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResidencyRouteImport } from './routes/residency'
 import { Route as ApiAskRouteImport } from './routes/api/ask'
 import { Route as ApiDraftRouteImport } from './routes/api/draft'
@@ -25,6 +27,16 @@ const IndexRoute = IndexRouteImport.update({
 const FormsRoute = FormsRouteImport.update({
   id: '/forms',
   path: '/forms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResidencyRoute = ResidencyRouteImport.update({
@@ -56,6 +68,8 @@ const ApiStatsRoute = ApiStatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forms': typeof FormsRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
@@ -65,6 +79,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forms': typeof FormsRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
@@ -75,6 +91,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/forms': typeof FormsRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
@@ -86,6 +104,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/forms'
+    | '/login'
+    | '/profile'
     | '/residency'
     | '/api/ask'
     | '/api/draft'
@@ -95,6 +115,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/forms'
+    | '/login'
+    | '/profile'
     | '/residency'
     | '/api/ask'
     | '/api/draft'
@@ -104,6 +126,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/forms'
+    | '/login'
+    | '/profile'
     | '/residency'
     | '/api/ask'
     | '/api/draft'
@@ -114,6 +138,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormsRoute: typeof FormsRoute
+  LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   ResidencyRoute: typeof ResidencyRoute
   ApiAskRoute: typeof ApiAskRoute
   ApiDraftRoute: typeof ApiDraftRoute
@@ -135,6 +161,20 @@ declare module '@tanstack/react-router' {
       path: '/forms'
       fullPath: '/forms'
       preLoaderRoute: typeof FormsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/residency': {
@@ -178,6 +218,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormsRoute: FormsRoute,
+  LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   ResidencyRoute: ResidencyRoute,
   ApiAskRoute: ApiAskRoute,
   ApiDraftRoute: ApiDraftRoute,

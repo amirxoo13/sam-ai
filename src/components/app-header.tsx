@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 /**
  * این هدر عمداً پیکسل‌به‌پیکسل شبیه Navbar سایت اقامت (cursor/SAMAI) ساخته
@@ -15,12 +16,49 @@ const NAV_LINKS: { to: string; label: string; key: "ask" | "forms" | "residency"
   { to: "/residency", label: "پرسش اقامتی", key: "residency" },
 ];
 
+function AccountChip() {
+  const { user, isPending } = useCurrentUserState();
+  if (isPending) return <div className="h-9 w-9 shrink-0 rounded-full bg-surface sm:h-10 sm:w-10" />;
+  if (!user) {
+    return (
+      <Link
+        to="/login"
+        className="shrink-0 rounded-lg border border-accent/40 px-3 py-2 text-[12.5px] font-bold text-accent-light hover:bg-accent/10 sm:text-[13px]"
+      >
+        ورود
+      </Link>
+    );
+  }
+  const label = user.displayName ?? user.primaryEmail ?? "کاربر";
+  return (
+    <Link
+      to="/profile"
+      className="flex shrink-0 items-center gap-2 rounded-lg border border-border px-2 py-1.5 hover:border-accent/40"
+      aria-label="پروفایل کاربری"
+    >
+      {user.profileImageUrl ? (
+        <img src={user.profileImageUrl} alt="" className="size-7 rounded-full object-cover" />
+      ) : (
+        <span
+          className="grid size-7 shrink-0 place-items-center rounded-full text-[12px] font-bold text-[#1a1305]"
+          style={{ background: "linear-gradient(135deg,var(--color-accent-light),var(--color-accent))" }}
+        >
+          {label.charAt(0).toUpperCase()}
+        </span>
+      )}
+      <span className="hidden max-w-24 truncate text-[12.5px] font-medium text-fg sm:inline">
+        {label}
+      </span>
+    </Link>
+  );
+}
+
 export function AppHeader({
   corpusLabel,
   active,
 }: {
   corpusLabel?: string;
-  active: "ask" | "forms" | "residency";
+  active: "ask" | "forms" | "residency" | "profile";
 }) {
   return (
     <header
@@ -69,6 +107,8 @@ export function AppHeader({
             </Link>
           ))}
         </nav>
+
+        <AccountChip />
       </div>
     </header>
   );

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/app-header";
+import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import {
   FORM_FIELDS,
@@ -204,6 +205,7 @@ function FormsPage() {
   ];
 
   return (
+    <RequireAuth>
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader corpusLabel={corpusLabel} active="forms" />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
@@ -392,6 +394,7 @@ function FormsPage() {
         </div>
       </main>
     </div>
+    </RequireAuth>
   );
 }
 

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { authMiddleware } from "@/lib/auth/middleware";
 
 const askSchema = z.object({
   question: z.string().trim().min(4).max(2000),
@@ -7,10 +8,15 @@ const askSchema = z.object({
 });
 
 export const askLegal = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .validator(askSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { runAsk } = await import("./ask.server");
-    return runAsk(data);
+    const result = await runAsk(data);
+    const { saveChatMessage } = await import("@/lib/chat-history.server");
+    await saveChatMessage(context.userId, "legal", "user", data.question);
+    await saveChatMessage(context.userId, "legal", "assistant", result.answer);
+    return result;
   });
 
 export const getCorpusStats = createServerFn({ method: "GET" }).handler(
@@ -42,8 +48,13 @@ const draftSchema = z.object({
 });
 
 export const draftLegal = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .validator(draftSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { runDraft } = await import("./draft.server");
-    return runDraft(data);
+    const result = await runDraft(data);
+    const { saveChatMessage } = await import("@/lib/chat-history.server");
+    await saveChatMessage(context.userId, "legal", "user", `[برگه] ${data.story}`);
+    await saveChatMessage(context.userId, "legal", "assistant", result.draft);
+    return result;
   });

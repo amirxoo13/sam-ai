@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/app-header";
+import { RequireAuth } from "@/components/require-auth";
 import { COUNTRIES_WITH_COVERAGE, COUNTRY_LABEL_FA } from "@/lib/residency/countries";
 
 export const Route = createFileRoute("/residency")({
@@ -130,6 +131,7 @@ function ResidencyPage() {
   }
 
   return (
+    <RequireAuth>
     <div className="min-h-dvh bg-bg text-fg">
       <AppHeader active="residency" corpusLabel="قوانین مهاجرت اروپا و آمریکا" />
       <main className="mx-auto w-full max-w-4xl px-4 py-8">
@@ -276,5 +278,6 @@ function ResidencyPage() {
         }
       `}</style>
     </div>
+    </RequireAuth>
   );
 }

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, FileText, Gavel, LoaderCircle, Send, ShieldAlert } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppHeader } from "@/components/app-header";
+import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { askLegal, getCorpusStats } from "@/lib/legal/ask.functions";
 import { LEGAL_DISCLAIMER } from "@/lib/legal/copy";
@@ -78,6 +79,7 @@ function Home() {
   }
 
   return (
+    <RequireAuth>
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader corpusLabel={corpusLabel} active="ask" />
 
@@ -151,6 +153,7 @@ function Home() {
         </div>
       </footer>
     </div>
+    </RequireAuth>
   );
 }
 

@@ -30,7 +30,17 @@ export const Route = createFileRoute("/api/residency-ask")({
     handlers: {
       POST: async ({ request }) => {
         let body: ChatRequestBody;
+        let sessionUser: { id: string; email: string | null };
         try {
+          const { getSessionUser } = await import("@/lib/auth/verify.server");
+          const resolvedUser = await getSessionUser();
+          if (!resolvedUser) {
+            return Response.json(
+              { error: "برای استفاده از این قابلیت باید وارد حساب کاربری‌ات بشی." },
+              { status: 401 },
+            );
+          }
+          sessionUser = resolvedUser;
           body = await request.json();
         } catch {
           return Response.json({ error: "بدنه درخواست باید JSON معتبر باشد" }, { status: 400 });
@@ -99,8 +109,44 @@ export const Route = createFileRoute("/api/residency-ask")({
             .replace("{{RETRIEVED_CHUNKS}}", chunksText)
             .replace("{{USER_QUESTION}}", question);
 
-          const stream = await qwenChatStream([{ role: "system", content: prompt }]);
-          return new Response(stream, {
+          const { saveChatMessage } = await import("@/lib/chat-history.server");
+          await saveChatMessage(sessionUser.id, "residency", "user", question);
+
+          const upstream = await qwenChatStream([{ role: "system", content: prompt }]);
+          const decoder = new TextDecoder();
+          let answerBuffer = "";
+          let lineTail = "";
+          const loggedStream = new ReadableStream<Uint8Array>({
+            async start(controller) {
+              const reader = upstream.getReader();
+              try {
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+                  controller.enqueue(value);
+                  lineTail += decoder.decode(value, { stream: true });
+                  const lines = lineTail.split("\n");
+                  lineTail = lines.pop() ?? "";
+                  for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                      const parsed = JSON.parse(line);
+                      if (parsed.t === "c" && typeof parsed.d === "string") answerBuffer += parsed.d;
+                    } catch {
+                      /* نادیده گرفته می‌شود */
+                    }
+                  }
+                }
+              } finally {
+                controller.close();
+                if (answerBuffer.trim()) {
+                  await saveChatMessage(sessionUser.id, "residency", "assistant", answerBuffer);
+                }
+              }
+            },
+          });
+
+          return new Response(loggedStream, {
             headers: {
               "Content-Type": "application/x-ndjson; charset=utf-8",
               "Cache-Control": "no-cache, no-transform",
