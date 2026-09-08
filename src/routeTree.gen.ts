@@ -18,6 +18,7 @@ import { Route as ApiAskRouteImport } from './routes/api/ask'
 import { Route as ApiDraftRouteImport } from './routes/api/draft'
 import { Route as ApiResidencyAskRouteImport } from './routes/api/residency-ask'
 import { Route as ApiStatsRouteImport } from './routes/api/stats'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const ApiStatsRoute = ApiStatsRouteImport.update({
   path: '/api/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/api/draft'
     | '/api/residency-ask'
     | '/api/stats'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/api/draft'
     | '/api/residency-ask'
     | '/api/stats'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/api/draft'
     | '/api/residency-ask'
     | '/api/stats'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   ApiDraftRoute: typeof ApiDraftRoute
   ApiResidencyAskRoute: typeof ApiResidencyAskRoute
   ApiStatsRoute: typeof ApiStatsRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDraftRoute: ApiDraftRoute,
   ApiResidencyAskRoute: ApiResidencyAskRoute,
   ApiStatsRoute: ApiStatsRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
