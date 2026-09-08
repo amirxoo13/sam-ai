@@ -10,8 +10,13 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
  * جدا سرو می‌شوند، از دید کاربر کاملاً یک سایت واحد به‌نظر برسند.
  */
 
-const NAV_LINKS: { to: string; label: string; key: "ask" | "forms" | "residency" }[] = [
-  { to: "/", label: "پرسش حقوقی", key: "ask" },
+const NAV_LINKS: {
+  to: string;
+  label: string;
+  key: "home" | "ask" | "forms" | "residency";
+}[] = [
+  { to: "/", label: "خانه", key: "home" },
+  { to: "/ask", label: "پرسش حقوقی", key: "ask" },
   { to: "/forms", label: "برگه‌ها", key: "forms" },
   { to: "/residency", label: "پرسش اقامتی", key: "residency" },
 ];
@@ -58,7 +63,7 @@ export function AppHeader({
   active,
 }: {
   corpusLabel?: string;
-  active: "ask" | "forms" | "residency" | "profile";
+  active: "home" | "ask" | "forms" | "residency" | "profile" | "about" | "sources" | "contact";
 }) {
   return (
     <header

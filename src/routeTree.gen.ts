@@ -10,10 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AskRouteImport } from './routes/ask'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FormsRouteImport } from './routes/forms'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResidencyRouteImport } from './routes/residency'
+import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as ApiAskRouteImport } from './routes/api/ask'
 import { Route as ApiDraftRouteImport } from './routes/api/draft'
 import { Route as ApiResidencyAskRouteImport } from './routes/api/residency-ask'
@@ -23,6 +27,21 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AskRoute = AskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormsRoute = FormsRouteImport.update({
@@ -43,6 +62,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const ResidencyRoute = ResidencyRouteImport.update({
   id: '/residency',
   path: '/residency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SourcesRoute = SourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAskRoute = ApiAskRouteImport.update({
@@ -73,10 +97,14 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/ask': typeof AskRoute
+  '/contact': typeof ContactRoute
   '/forms': typeof FormsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
+  '/sources': typeof SourcesRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
@@ -85,10 +113,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/ask': typeof AskRoute
+  '/contact': typeof ContactRoute
   '/forms': typeof FormsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
+  '/sources': typeof SourcesRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
@@ -98,10 +130,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/ask': typeof AskRoute
+  '/contact': typeof ContactRoute
   '/forms': typeof FormsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
+  '/sources': typeof SourcesRoute
   '/api/ask': typeof ApiAskRoute
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
@@ -112,10 +148,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
+    | '/ask'
+    | '/contact'
     | '/forms'
     | '/login'
     | '/profile'
     | '/residency'
+    | '/sources'
     | '/api/ask'
     | '/api/draft'
     | '/api/residency-ask'
@@ -124,10 +164,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/ask'
+    | '/contact'
     | '/forms'
     | '/login'
     | '/profile'
     | '/residency'
+    | '/sources'
     | '/api/ask'
     | '/api/draft'
     | '/api/residency-ask'
@@ -136,10 +180,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
+    | '/ask'
+    | '/contact'
     | '/forms'
     | '/login'
     | '/profile'
     | '/residency'
+    | '/sources'
     | '/api/ask'
     | '/api/draft'
     | '/api/residency-ask'
@@ -149,10 +197,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AskRoute: typeof AskRoute
+  ContactRoute: typeof ContactRoute
   FormsRoute: typeof FormsRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   ResidencyRoute: typeof ResidencyRoute
+  SourcesRoute: typeof SourcesRoute
   ApiAskRoute: typeof ApiAskRoute
   ApiDraftRoute: typeof ApiDraftRoute
   ApiResidencyAskRoute: typeof ApiResidencyAskRoute
@@ -167,6 +219,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ask': {
+      id: '/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forms': {
@@ -195,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/residency'
       fullPath: '/residency'
       preLoaderRoute: typeof ResidencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sources': {
+      id: '/sources'
+      path: '/sources'
+      fullPath: '/sources'
+      preLoaderRoute: typeof SourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ask': {
@@ -237,10 +317,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AskRoute: AskRoute,
+  ContactRoute: ContactRoute,
   FormsRoute: FormsRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   ResidencyRoute: ResidencyRoute,
+  SourcesRoute: SourcesRoute,
   ApiAskRoute: ApiAskRoute,
   ApiDraftRoute: ApiDraftRoute,
   ApiResidencyAskRoute: ApiResidencyAskRoute,

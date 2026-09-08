@@ -22,7 +22,7 @@ function LoginPage() {
 
   // اگر از قبل واردیم، همین‌جا نگه نداریم
   if (!isPending && user) {
-    void navigate({ to: "/" });
+    void navigate({ to: "/ask" });
     return null;
   }
 
@@ -50,7 +50,7 @@ function LoginPage() {
           );
         }
       }
-      await navigate({ to: "/" });
+      await navigate({ to: "/ask" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطای غیرمنتظره");
     } finally {
