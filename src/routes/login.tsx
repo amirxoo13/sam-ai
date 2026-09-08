@@ -37,10 +37,18 @@ function LoginPage() {
           password,
           name: name.trim() || email.split("@")[0],
         });
-        if (err) throw new Error(err.message || "ثبت‌نام انجام نشد");
+        if (err) {
+          throw new Error(
+            err.message || `ثبت‌نام انجام نشد (کد: ${err.code ?? "?"} / وضعیت: ${err.status ?? "?"})`,
+          );
+        }
       } else {
         const { error: err } = await authClient.signIn.email({ email, password });
-        if (err) throw new Error(err.message || "ورود انجام نشد");
+        if (err) {
+          throw new Error(
+            err.message || `ورود انجام نشد (کد: ${err.code ?? "?"} / وضعیت: ${err.status ?? "?"})`,
+          );
+        }
       }
       await navigate({ to: "/" });
     } catch (err) {
