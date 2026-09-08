@@ -1,15 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { SiteFooter } from "@/components/site-footer";
+import { getCrawlerStats } from "@/lib/crawler/functions";
 import { getCorpusStats } from "@/lib/legal/ask.functions";
 
 export const Route = createFileRoute("/sources")({
-  loader: () => getCorpusStats(),
+  loader: async () => ({
+    stats: await getCorpusStats(),
+    crawler: await getCrawlerStats().catch(() => ({ bySource: [] })),
+  }),
   component: SourcesPage,
 });
 
 function SourcesPage() {
-  const stats = Route.useLoaderData();
+  const { stats, crawler } = Route.useLoaderData();
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader active="sources" />
@@ -57,9 +61,25 @@ function SourcesPage() {
         </div>
 
         <p className="mt-8 rounded-xl border border-border bg-elevated-2 p-4 text-[13px] leading-6 text-subtle">
-          پیکره‌ی حقوقی ایران به‌صورت دوره‌ای به‌روزرسانی می‌شود. اسناد
-          اقامتی مستقیماً از منابع رسمی بالا بازیابی می‌گردند.
+          پیکره‌ی حقوقی ایران با یک کرال‌کننده‌ی خودکار و محترمانه (پیرو
+          robots.txt) هر چند دقیقه یک دسته‌ی کوچک از صفحات جدید یا
+          تغییرکرده را می‌خواند و به‌روزرسانی می‌کند. اسناد اقامتی مستقیماً
+          از منابع رسمی بالا بازیابی می‌گردند.
         </p>
+
+        {crawler.bySource.length > 0 ? (
+          <div className="mt-4 rounded-xl border border-border bg-elevated-2 p-4">
+            <p className="mb-2 text-[12px] font-bold text-fg">وضعیت کرال‌کننده</p>
+            <div className="grid gap-1.5 text-[12px] text-subtle" dir="ltr">
+              {crawler.bySource.map((row) => (
+                <div key={`${row.source_id}-${row.status}`} className="flex justify-between" dir="rtl">
+                  <span>{row.source_id} — {row.status}</span>
+                  <span className="tabular-nums text-fg">{row.n.toLocaleString("fa-IR")}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </main>
       <SiteFooter />
     </div>

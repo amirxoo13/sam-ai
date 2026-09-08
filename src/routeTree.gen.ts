@@ -23,6 +23,7 @@ import { Route as ApiDraftRouteImport } from './routes/api/draft'
 import { Route as ApiResidencyAskRouteImport } from './routes/api/residency-ask'
 import { Route as ApiStatsRouteImport } from './routes/api/stats'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCronCrawlRouteImport } from './routes/api/cron/crawl'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +95,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronCrawlRoute = ApiCronCrawlRouteImport.update({
+  id: '/api/cron/crawl',
+  path: '/api/cron/crawl',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/crawl': typeof ApiCronCrawlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/crawl': typeof ApiCronCrawlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cron/crawl': typeof ApiCronCrawlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/api/residency-ask'
     | '/api/stats'
     | '/api/auth/$'
+    | '/api/cron/crawl'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/api/residency-ask'
     | '/api/stats'
     | '/api/auth/$'
+    | '/api/cron/crawl'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/api/residency-ask'
     | '/api/stats'
     | '/api/auth/$'
+    | '/api/cron/crawl'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   ApiResidencyAskRoute: typeof ApiResidencyAskRoute
   ApiStatsRoute: typeof ApiStatsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCronCrawlRoute: typeof ApiCronCrawlRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/crawl': {
+      id: '/api/cron/crawl'
+      path: '/api/cron/crawl'
+      fullPath: '/api/cron/crawl'
+      preLoaderRoute: typeof ApiCronCrawlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiResidencyAskRoute: ApiResidencyAskRoute,
   ApiStatsRoute: ApiStatsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCronCrawlRoute: ApiCronCrawlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
