@@ -5,6 +5,10 @@ import { ensureSeeded } from "./seed.server";
 import type { RetrievedChunk, SourceFilter, SourceType } from "./types";
 
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
+const EXTRA_DATASETS = [
+  "amirxo13/iran-legal-corpus",
+  "power-edaalat-anonymized",
+];
 
 type Row = {
   id: string;
@@ -81,6 +85,31 @@ function citationBoost(question: string, row: Row): number {
   return Math.min(boost, 0.55);
 }
 
+function tokenize(question: string): string[] {
+  const q = toEnDigits(question)
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک");
+  const stop = new Set([
+    "که", "از", "در", "به", "را", "این", "آن", "با", "برای", "یا", "و",
+    "است", "هست", "چیست", "چه", "می", "های", "ها", "یک", "شود", "کرد",
+  ]);
+  return q
+    .split(/[^\u0600-\u06FFa-zA-Z0-9]+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 3 && !stop.has(t));
+}
+
+function lexicalScore(question: string, row: Row): number {
+  const tokens = tokenize(question);
+  if (tokens.length === 0) return 0;
+  const hay = `${row.source_title ?? ""}\n${row.content}`;
+  let hits = 0;
+  for (const t of tokens) {
+    if (hay.includes(t)) hits += 1;
+  }
+  return hits / tokens.length;
+}
+
 function toRetrieved(row: Row, score: number): RetrievedChunk {
   return {
     id: row.id,
@@ -107,6 +136,7 @@ async function retrieveViaPgvector(
           `select id, content, source_type, source_title, article_number, law_date, source_url,
                   (1 - (embedding_vec <=> $1::vector))::float as score
            from legal_chunks
+           where embedding_vec is not null
            order by embedding_vec <=> $1::vector
            limit 40`,
           [vecLiteral],
@@ -115,7 +145,7 @@ async function retrieveViaPgvector(
           `select id, content, source_type, source_title, article_number, law_date, source_url,
                   (1 - (embedding_vec <=> $1::vector))::float as score
            from legal_chunks
-           where source_type = $2
+           where source_type = $2 and embedding_vec is not null
            order by embedding_vec <=> $1::vector
            limit 40`,
           [vecLiteral, sourceType],
@@ -125,18 +155,46 @@ async function retrieveViaPgvector(
   }
 }
 
+async function retrieveLexical(question: string, sourceType: SourceFilter): Promise<Row[]> {
+  const tokens = tokenize(question).sort((a, b) => b.length - a.length).slice(0, 4);
+  if (tokens.length === 0) return [];
+  const sql = await getSql();
+  const likes = tokens.map((t) => `%${t}%`);
+  const likeClause = likes.map((_, i) => `content ilike $${i + 2}`).join(" or ");
+  const params: unknown[] = [EXTRA_DATASETS, ...likes];
+  const typeClause =
+    sourceType === "all" ? "" : ` and source_type = $${params.push(sourceType)}`;
+  try {
+    return await sql.query<Row>(
+      `select id, content, source_type, source_title, article_number, law_date, source_url
+       from legal_chunks
+       where hf_dataset = any($1::text[])
+         and (${likeClause})${typeClause}
+       limit 40`,
+      params,
+    );
+  } catch {
+    return [];
+  }
+}
+
 function rankRows(question: string, queryVec: number[], rows: Row[]): RetrievedChunk[] {
-  return rows
-    .map((row) => {
-      const embedding = parseEmbedding(row.embedding);
-      const semantic =
-        typeof row.score === "number"
-          ? Number(row.score)
-          : embedding.length
-            ? cosine(queryVec, embedding)
-            : -1;
-      return toRetrieved(row, semantic + citationBoost(question, row));
-    })
+  const byId = new Map<string, RetrievedChunk>();
+  for (const row of rows) {
+    const embedding = parseEmbedding(row.embedding);
+    const hasVec =
+      typeof row.score === "number" || embedding.length > 10;
+    const semantic = hasVec
+      ? typeof row.score === "number"
+        ? Number(row.score)
+        : cosine(queryVec, embedding)
+      : 0;
+    const lex = hasVec ? 0 : lexicalScore(question, row);
+    const scored = toRetrieved(row, semantic + lex + citationBoost(question, row));
+    const prev = byId.get(scored.id);
+    if (!prev || scored.score > prev.score) byId.set(scored.id, scored);
+  }
+  return [...byId.values()]
     .filter((r) => r.score > 0.2)
     .sort((a, b) => b.score - a.score)
     .slice(0, TOP_K);
@@ -149,19 +207,25 @@ export async function retrieveChunks(
   await ensureSeeded();
   const queryVec = await embedQuery(question);
   const vectorRows = await retrieveViaPgvector(queryVec, sourceType);
-  if (vectorRows) return rankRows(question, queryVec, vectorRows);
+  const lexicalRows = await retrieveLexical(question, sourceType);
+  if (vectorRows) return rankRows(question, queryVec, [...vectorRows, ...lexicalRows]);
 
   const sql = await getSql();
   const rows =
     sourceType === "all"
       ? await sql.query<Row>(
-          "select id, content, embedding, source_type, source_title, article_number, law_date, source_url from legal_chunks",
+          `select id, content, embedding, source_type, source_title, article_number, law_date, source_url
+           from legal_chunks
+           where jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10`,
         )
       : await sql.query<Row>(
-          "select id, content, embedding, source_type, source_title, article_number, law_date, source_url from legal_chunks where source_type = $1",
+          `select id, content, embedding, source_type, source_title, article_number, law_date, source_url
+           from legal_chunks
+           where source_type = $1
+             and jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10`,
           [sourceType],
         );
-  return rankRows(question, queryVec, rows);
+  return rankRows(question, queryVec, [...rows, ...lexicalRows]);
 }
 
 export async function corpusStats() {
@@ -173,9 +237,19 @@ export async function corpusStats() {
   const totalRow = await sql.query<{ n: number }>(
     "select count(*)::int as n from legal_chunks",
   );
+  const extra = await sql.query<{ hf_dataset: string; n: number }>(
+    `select coalesce(hf_dataset, 'unknown') as hf_dataset, count(*)::int as n
+     from legal_chunks
+     group by hf_dataset
+     order by n desc`,
+  );
   return {
     total: totalRow[0]?.n ?? 0,
     byType: Object.fromEntries(rows.map((r) => [r.source_type, r.n])) as Record<
+      string,
+      number
+    >,
+    byDataset: Object.fromEntries(extra.map((r) => [r.hf_dataset, r.n])) as Record<
       string,
       number
     >,

@@ -15,9 +15,9 @@ export const Route = createFileRoute("/api/stats")({
             ...stats,
             notes: {
               statute:
-                "db07 core codes + persian-legal-rag-jsonl + ekhtebar PDFs + cleaned TreeText from qavanin.ir pages 1–102 (laws, bylaws, circulars, cabinet decrees).",
+                "db07 core codes + persian-legal-rag-jsonl + ekhtebar PDFs + cleaned TreeText from qavanin.ir pages 1–102 + moshir iran-legal-corpus (106872 new articles).",
               case_law:
-                "QomSSLab subset + نظریات مشورتی + آرای وحدت رویه ۸۰۲–۸۶۱ + آرای دیوان عدالت از qavanin.ir.",
+                "QomSSLab subset + نظریات مشورتی + آرای وحدت رویه ۸۰۲–۸۶۱ + آرای دیوان عدالت از qavanin.ir + 9996 anonymized procedure samples from power.",
             },
           });
         } catch (err) {
