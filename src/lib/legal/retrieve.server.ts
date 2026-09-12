@@ -7,7 +7,8 @@ import type { RetrievedChunk, SourceFilter, SourceType } from "./types";
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 const EXTRA_DATASETS = [
   "amirxo13/iran-legal-corpus",
-  "power-edaalat-anonymized",
+  "power-edaalat-index",
+  "moshir-legal-rag-pilot",
 ];
 
 type Row = {

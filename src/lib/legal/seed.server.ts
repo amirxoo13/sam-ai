@@ -29,7 +29,8 @@ type ExtraChunk = {
 const INSERT_BATCH = 80;
 const EXTRA_DATASETS = [
   "amirxo13/iran-legal-corpus",
-  "power-edaalat-anonymized",
+  "power-edaalat-index",
+  "moshir-legal-rag-pilot",
 ] as const;
 
 function resolveSeedPath(): string {
@@ -58,7 +59,9 @@ function extraCorpusFiles(): string[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((f) =>
-      /^(moshir-iran-corpus-part\d+|power-cases-anonymized)\.jsonl\.gz$/.test(f),
+      /^(moshir-iran-corpus-part\d+|power-cases-full|moshir-pilot)\.jsonl\.gz$/.test(
+        f,
+      ),
     )
     .sort()
     .map((f) => join(dir, f));
@@ -171,7 +174,15 @@ async function insertExtraSlice(
     `insert into legal_chunks
       (id, content, embedding, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset)
      values ${rows.join(",")}
-     on conflict (id) do nothing`,
+     on conflict (id) do update set
+       content = excluded.content,
+       source_type = excluded.source_type,
+       source_title = excluded.source_title,
+       article_number = excluded.article_number,
+       law_date = excluded.law_date,
+       source_url = excluded.source_url,
+       source_id = excluded.source_id,
+       hf_dataset = excluded.hf_dataset`,
     values,
   );
 }
