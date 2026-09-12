@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { getSql } from "@/lib/db";
+import { anonymizeChunk } from "./anonymize";
 import type { LegalChunk } from "./types";
 
 let seeding: Promise<void> | null = null;
@@ -73,7 +74,8 @@ function loadExtraChunks(): ExtraChunk[] {
     const text = gunzipSync(readFileSync(path)).toString("utf8");
     for (const line of text.split("\n")) {
       if (!line.trim()) continue;
-      out.push(JSON.parse(line) as ExtraChunk);
+      const parsed = JSON.parse(line) as ExtraChunk;
+      out.push(anonymizeChunk(parsed));
     }
   }
   return out;

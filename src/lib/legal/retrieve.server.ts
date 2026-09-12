@@ -2,6 +2,7 @@ import { dbSource, getSql } from "@/lib/db";
 import { TOP_K } from "./config";
 import { cosine, embedQuery } from "./embeddings.server";
 import { ensureSeeded } from "./seed.server";
+import { anonymizeChunk } from "./anonymize";
 import type { RetrievedChunk, SourceFilter, SourceType } from "./types";
 
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
@@ -112,11 +113,16 @@ function lexicalScore(question: string, row: Row): number {
 }
 
 function toRetrieved(row: Row, score: number): RetrievedChunk {
+  const cleaned = anonymizeChunk({
+    content: row.content,
+    source_title: row.source_title,
+    hf_dataset: null,
+  });
   return {
     id: row.id,
-    content: row.content,
+    content: cleaned.content,
     source_type: row.source_type,
-    source_title: row.source_title,
+    source_title: cleaned.source_title,
     article_number: row.article_number,
     law_date: row.law_date,
     source_url: row.source_url,
