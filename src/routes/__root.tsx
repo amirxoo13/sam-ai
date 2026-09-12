@@ -14,15 +14,15 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "دستیار حقوقی هوشمند برای حقوق ایران؛ پاسخ بر اساس متن قانون و آرای قضایی با ارجاع دقیق.",
+          "دستیار حقوقی مؤسسه SAM AI برای حقوق ایران؛ پاسخ بر اساس متن قانون و آرای قضایی با ارجاع قابل راستی‌آزمایی.",
       },
       { name: "theme-color", content: "#05070d" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/__grok/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       {
         rel: "preconnect",
         href: "https://fonts.googleapis.com",

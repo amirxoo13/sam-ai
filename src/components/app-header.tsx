@@ -13,12 +13,15 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 const NAV_LINKS: {
   to: string;
   label: string;
-  key: "home" | "ask" | "forms" | "residency";
+  key: "home" | "ask" | "forms" | "residency" | "about" | "sources" | "contact";
 }[] = [
   { to: "/", label: "خانه", key: "home" },
   { to: "/ask", label: "پرسش حقوقی", key: "ask" },
   { to: "/forms", label: "برگه‌ها", key: "forms" },
   { to: "/residency", label: "پرسش اقامتی", key: "residency" },
+  { to: "/sources", label: "منابع", key: "sources" },
+  { to: "/about", label: "درباره", key: "about" },
+  { to: "/contact", label: "تماس", key: "contact" },
 ];
 
 function AccountChip() {
@@ -28,6 +31,7 @@ function AccountChip() {
     return (
       <Link
         to="/login"
+        search={{ next: "/ask" }}
         className="shrink-0 rounded-lg border border-accent/40 px-3 py-2 text-[12.5px] font-bold text-accent-light hover:bg-accent/10 sm:text-[13px]"
       >
         ورود
@@ -85,7 +89,7 @@ export function AppHeader({
               <span className="text-[16px] font-extrabold tracking-tight sm:text-[18px]">
                 SAM<span className="text-cyan">AI</span>
               </span>
-              <span className="hidden text-xs text-subtle sm:inline">Smart Attorney Mind</span>
+              <span className="hidden text-xs text-subtle sm:inline">مؤسسه حقوقی</span>
             </span>
             <span className="hidden truncate text-[11px] text-muted sm:block">
               {corpusLabel ?? "دستیار حقوقی و اقامتی هوشمند"}

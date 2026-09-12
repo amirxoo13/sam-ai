@@ -10,18 +10,17 @@ export const Route = createFileRoute("/residency")({
 
 interface ChatTurn {
   question: string;
-  thinking?: string;
   answer?: string;
   error?: string;
   loading?: boolean;
 }
 
 const SUGGESTED_QUESTIONS = [
-  "شرایط گرین کارت خانوادگی چیه؟",
-  "برای پناهندگی در آلمان چه مدارکی لازمه؟",
-  "مهلت اعتراض به رد درخواست ویزا در آمریکا چقدره؟",
+  "شرایط اقامت دائم خانوادگی در ایالات متحده چیست؟",
+  "برای پناهندگی در آلمان چه مدارکی لازم است؟",
+  "مهلت اعتراض به رد درخواست ویزا در آمریکا چقدر است؟",
   "شرایط ویزای کار H-1B چیست؟",
-  "روند رسیدگی به درخواست پناهندگی در اتحادیه اروپا چطوره؟",
+  "روند رسیدگی به درخواست پناهندگی در اتحادیه اروپا چگونه است؟",
 ];
 
 function flagEmoji(iso2: string): string {
@@ -86,7 +85,6 @@ function ResidencyPage() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let lineBuffer = "";
-      let thinkingSoFar = "";
       let answerSoFar = "";
 
       while (true) {
@@ -103,15 +101,13 @@ function ResidencyPage() {
           } catch {
             continue;
           }
-          if (parsed.t === "r" && typeof parsed.d === "string") thinkingSoFar += parsed.d;
-          else if (parsed.t === "c" && typeof parsed.d === "string") answerSoFar += parsed.d;
+          if (parsed.t === "c" && typeof parsed.d === "string") answerSoFar += parsed.d;
         }
         setTurns((prev) => {
           const next = [...prev];
           next[next.length - 1] = {
             ...next[next.length - 1],
             loading: answerSoFar.length === 0,
-            thinking: thinkingSoFar || undefined,
             answer: answerSoFar || undefined,
           };
           return next;
@@ -139,9 +135,9 @@ function ResidencyPage() {
           {/* SIDEBAR */}
           <aside className="order-2 flex flex-col gap-5 md:order-1">
             <div className="rounded-2xl border border-border bg-elevated-2 p-5">
-              <div className="mb-1 text-[13px] font-bold text-fg">کشور موردنظرت رو انتخاب کن</div>
+              <div className="mb-1 text-[13px] font-bold text-fg">کشور مورد نظر را انتخاب کنید</div>
               <div className="mb-3 text-[11.5px] leading-7 text-subtle">
-                پاسخ‌ها بر اساس قوانین همون کشور جست‌وجو می‌شوند.
+                پاسخ‌ها بر اساس قوانین همان کشور جست‌وجو می‌شوند. این خدمت مشاورهٔ وکیل مجاز کشور مقصد نیست.
               </div>
               <select
                 value={country}
@@ -178,7 +174,7 @@ function ResidencyPage() {
             <div className="border-b border-border px-5 py-4">
               <h1 className="m-0 text-[17px] font-bold">پرسش‌وپاسخ اقامتی</h1>
               <p className="mt-1 text-[12.5px] text-subtle">
-                پاسخ‌ها با جست‌وجوی برداری در اسناد رسمی و تولید با Qwen3.8-Max ساخته می‌شوند.
+                پاسخ‌ها با جست‌وجوی اسنادی در متون رسمی مهاجرت تهیه می‌شود.
               </p>
             </div>
 
@@ -186,7 +182,7 @@ function ResidencyPage() {
               {turns.length === 0 && (
                 <div className="flex flex-1 flex-col items-center justify-center gap-2.5 text-center text-sm text-subtle">
                   <div className="text-4xl">⚖️</div>
-                  سؤالت را درباره قوانین مهاجرتی بنویس یا یکی از نمونه‌سؤال‌های کناری را انتخاب کن.
+                  سؤالی درباره قوانین مهاجرت بنویسید یا یکی از نمونه‌ها را انتخاب کنید.
                 </div>
               )}
 
@@ -199,23 +195,11 @@ function ResidencyPage() {
                     {turn.question}
                   </div>
 
-                  {turn.loading &&
-                    (turn.thinking ? (
-                      <div
-                        className="self-start rounded-[16px_16px_16px_3px] border border-dashed px-4 py-[13px] text-[13.5px] italic leading-8 text-muted"
-                        style={{ maxWidth: "90%", background: "var(--color-elevated)", borderColor: "var(--color-warn)", whiteSpace: "pre-wrap" }}
-                      >
-                        <div className="mb-1.5 flex items-center gap-2 not-italic">
-                          <span className="pulse-dot" />
-                          <span className="text-[12.5px] font-bold text-accent-light">🤔 در حال فکر کردن...</span>
-                        </div>
-                        {turn.thinking}
-                      </div>
-                    ) : (
+                  {turn.loading ? (
                       <div className="flex items-center gap-2 text-[13.5px] text-muted">
-                        <span className="pulse-dot" /> در حال جست‌وجو در منابع رسمی...
+                        <span className="pulse-dot" /> در حال تهیه پاسخ از منابع رسمی…
                       </div>
-                    ))}
+                    ) : null}
 
                   {turn.error && (
                     <div
@@ -249,7 +233,7 @@ function ResidencyPage() {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="سؤالت را درباره قوانین مهاجرتی بنویس..."
+                placeholder="پرسش خود را درباره قوانین مهاجرت بنویسید…"
                 className="flex-1 rounded-[10px] border border-border bg-elevated px-4 py-[13px] text-[14.5px] text-fg"
               />
               <button

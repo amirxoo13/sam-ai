@@ -8,11 +8,12 @@ export const uploadUserFile = createServerFn({ method: "POST" })
     z.object({
       filename: z.string().trim().min(1).max(200),
       content: z.string().trim().min(1),
+      matterId: z.string().uuid().optional(),
     }),
   )
   .handler(async ({ data, context }) => {
     const { createUserFile } = await import("./user-files.server");
-    return createUserFile(context.userId, data.filename, data.content);
+    return createUserFile(context.userId, data.filename, data.content, data.matterId);
   });
 
 export const listMyFiles = createServerFn({ method: "GET" })

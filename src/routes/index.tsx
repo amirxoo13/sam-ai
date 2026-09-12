@@ -9,8 +9,7 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-  const { user, isPending } = useCurrentUserState();
-  const primaryCta = isPending ? "/ask" : user ? "/ask" : "/login";
+  const { user } = useCurrentUserState();
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
@@ -19,29 +18,44 @@ function LandingPage() {
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:py-16">
         <section className="mx-auto max-w-2xl text-center">
           <p className="mb-3 text-[12px] font-bold tracking-[0.18em] text-accent uppercase">
-            Smart Attorney Mind
+            مؤسسه حقوقی SAM AI
           </p>
           <h1 className="text-[30px] font-extrabold leading-[1.35] tracking-tight sm:text-[38px]">
-            دستیار حقوقی و اقامتی هوشمند —
+            پرسش حقوقی با ارجاع به متن قانون،
             <br />
-            <span className="text-cyan">پاسخ با ارجاع به منبع</span>، نه حدس.
+            <span className="text-cyan">نه حدس و نه درصد شباهت.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-[14.5px] leading-8 text-muted">
-            SAM AI سؤال شما را در متن قانون، آرای قضایی و اسناد رسمی
-            جست‌وجو می‌کند و فقط بر اساس همان متن پاسخ می‌دهد — چیزی را که
-            نمی‌داند، صادقانه می‌گوید نمی‌داند.
+            SAM AI پرسش شما را نخست با شماره ماده و نام قانون، سپس با جستجوی
+            متنی و در صورت وجود با بردار واقعی، در پیکرهٔ قوانین و آرای ایران
+            می‌جوید و فقط بر همان متن پاسخ می‌دهد. آنچه در منبع نیست گفته
+            نمی‌شود.
           </p>
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              to={primaryCta}
-              className="w-full rounded-xl px-7 py-3.5 text-[14.5px] font-bold text-[#1a1305] sm:w-auto"
-              style={{
-                background:
-                  "linear-gradient(135deg,var(--color-accent-light),var(--color-accent) 60%,var(--color-warn))",
-              }}
-            >
-              {user ? "شروع پرسش" : "ساخت حساب رایگان"}
-            </Link>
+            {user ? (
+              <Link
+                to="/ask"
+                className="w-full rounded-xl px-7 py-3.5 text-[14.5px] font-bold text-[#1a1305] sm:w-auto"
+                style={{
+                  background:
+                    "linear-gradient(135deg,var(--color-accent-light),var(--color-accent) 60%,var(--color-warn))",
+                }}
+              >
+                ورود به پرسش حقوقی
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                search={{ next: "/ask" }}
+                className="w-full rounded-xl px-7 py-3.5 text-[14.5px] font-bold text-[#1a1305] sm:w-auto"
+                style={{
+                  background:
+                    "linear-gradient(135deg,var(--color-accent-light),var(--color-accent) 60%,var(--color-warn))",
+                }}
+              >
+                ورود موکل
+              </Link>
+            )}
             <Link
               to="/sources"
               className="w-full rounded-xl border border-border px-7 py-3.5 text-[14.5px] font-medium text-fg hover:bg-elevated-2 sm:w-auto"
@@ -54,34 +68,34 @@ function LandingPage() {
         <section className="mt-16 grid gap-4 sm:grid-cols-2">
           <FeatureCard
             icon={<Gavel className="size-5" />}
-            title="پرسش‌وپاسخ حقوقی و کیفری ایران"
-            desc="بر پایه‌ی قوانین اصلی، قوانین خاص، آرای قضایی واقعی و نظریات مشورتی — با ارجاع دقیق به ماده و منبع."
+            title="پرسش حقوقی ایران"
+            desc="بازیابی ماده‌به‌ماده از قانون اساسی، قوانین عادی، آیین‌نامه، رأی وحدت رویه و نظریات مشورتی — با تمایز الزام‌آوری."
             to="/ask"
           />
           <FeatureCard
             icon={<ShieldCheck className="size-5" />}
-            title="پرسش‌وپاسخ اقامتی اروپا و آمریکا"
-            desc="بر پایه‌ی اسناد رسمی eCFR، Federal Register، CourtListener و EUR-Lex، بر اساس کشور موردنظرتان."
+            title="پرسش اقامتی اروپا و آمریکا"
+            desc="بر پایهٔ اسناد رسمی eCFR، Federal Register، CourtListener و EUR-Lex، بر اساس کشور مورد نظر شما."
             to="/residency"
           />
           <FeatureCard
             icon={<FileText className="size-5" />}
             title="تنظیم شکواییه، دادخواست و لایحه"
-            desc="ماجرا را بگویید؛ مسیر حقوقی یا کیفری تشخیص داده می‌شود و پیش‌نویس برگه‌ی رسمی آماده می‌گردد."
+            desc="شرح را بنویسید؛ مسیر حقوقی یا کیفری تشخیص داده می‌شود و پیش‌نویس با مواد بازیابی‌شده تنظیم می‌گردد."
             to="/forms"
           />
           <FeatureCard
             icon={<Scale className="size-5" />}
-            title="پرونده‌های خصوصی شما"
-            desc="پرونده‌های خودتان را در پروفایل کاربری آپلود کنید و در اختیار دستیار حقوقی بگذارید."
+            title="پرونده به‌عنوان شیء کاری"
+            desc="پرونده جدا از پرسش نگهداری می‌شود. فقط بند مرتبط بازیابی می‌گردد؛ کل متن به مدل ریخته نمی‌شود."
             to="/profile"
           />
         </section>
 
         <section className="mt-16 rounded-2xl border border-border bg-elevated-2 p-6 text-center sm:p-8">
           <p className="mx-auto max-w-xl text-[13.5px] leading-7 text-muted">
-            SAM AI جایگزین مشاوره‌ی حقوقی رسمی نیست. برای بررسی دقیق پرونده‌تان،
-            می‌توانید مستقیم با تیم حقوقی SAM AI تماس بگیرید.
+            SAM AI جایگزین مشاورهٔ حقوقی و رابطهٔ وکیل–موکل نیست. برای بررسی
+            پرونده، می‌توانید با دفتر مؤسسه تماس بگیرید.
           </p>
           <Link
             to="/contact"
@@ -106,7 +120,7 @@ function FeatureCard({
   icon: React.ReactNode;
   title: string;
   desc: string;
-  to: string;
+  to: "/" | "/ask" | "/forms" | "/residency" | "/profile" | "/sources";
 }) {
   return (
     <Link

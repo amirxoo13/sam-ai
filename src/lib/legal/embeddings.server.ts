@@ -1,6 +1,8 @@
 import { EMBEDDING_DIM, EMBEDDING_MODEL, HF_EMBED_URL } from "./config";
 import { huggingfaceToken } from "./secrets.server";
 
+const EMBED_TIMEOUT_MS = 20_000;
+
 function asVectors(json: unknown): number[][] {
   if (!Array.isArray(json)) {
     throw new Error("پاسخ embedding آرایه نبود");
@@ -30,33 +32,56 @@ export function l2normalize(vec: number[]): number[] {
   return vec.map((x) => x / n);
 }
 
+async function embedOnce(texts: string[], kind: "query" | "passage"): Promise<number[][]> {
+  const inputs = texts.map((t) => `${kind}: ${t.slice(0, 1800)}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), EMBED_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(HF_EMBED_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${huggingfaceToken()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ inputs, wait_for_model: true }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(`زمان انتظار embedding به پایان رسید (${EMBED_TIMEOUT_MS / 1000}ثانیه)`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+  const json: unknown = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error(`Hugging Face embed HTTP ${res.status}`);
+  }
+  const vecs = asVectors(json);
+  if (vecs.length !== texts.length) {
+    throw new Error(`تعداد بردار ${vecs.length} با ورودی ${texts.length} نمی‌خواند`);
+  }
+  return vecs;
+}
+
 export async function embedTexts(
   texts: string[],
   kind: "query" | "passage",
 ): Promise<number[][]> {
   if (texts.length === 0) return [];
-  const inputs = texts.map((t) => `${kind}: ${t.slice(0, 1800)}`);
-  const res = await fetch(HF_EMBED_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${huggingfaceToken()}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ inputs }),
-  });
-  const json: unknown = await res.json().catch(() => null);
-  if (!res.ok) {
-    throw new Error(
-      `Hugging Face embed HTTP ${res.status}: ${JSON.stringify(json).slice(0, 400)}`,
-    );
+  let last: Error | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await embedOnce(texts, kind);
+    } catch (err) {
+      last = err instanceof Error ? err : new Error(String(err));
+      const wait = 400 * 2 ** attempt;
+      await new Promise((r) => setTimeout(r, wait));
+    }
   }
-  const vecs = asVectors(json);
-  if (vecs.length !== texts.length) {
-    throw new Error(
-      `تعداد بردار ${vecs.length} با ورودی ${texts.length} نمی‌خواند`,
-    );
-  }
-  return vecs;
+  throw last ?? new Error("embedding ناموفق");
 }
 
 export async function embedQuery(question: string): Promise<number[]> {
@@ -64,13 +89,12 @@ export async function embedQuery(question: string): Promise<number[]> {
   return vec;
 }
 
-/** Cosine similarity. Vectors are L2-normalized when produced here; still safe if not. */
 export function cosine(a: number[], b: number[]): number {
-  const n = Math.min(a.length, b.length);
+  if (a.length !== b.length || a.length === 0) return -1;
   let dot = 0;
   let na = 0;
   let nb = 0;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i];
     na += a[i] * a[i];
     nb += b[i] * b[i];

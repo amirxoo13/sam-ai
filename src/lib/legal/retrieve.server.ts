@@ -3,14 +3,9 @@ import { TOP_K } from "./config";
 import { cosine, embedQuery } from "./embeddings.server";
 import { ensureSeeded } from "./seed.server";
 import { anonymizeChunk } from "./anonymize";
+import { parseArticleRefs, articleMatchSqlValues } from "./article-query";
+import { rankRows, type RankRow } from "./rank";
 import type { RetrievedChunk, SourceFilter, SourceType } from "./types";
-
-const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
-const EXTRA_DATASETS = [
-  "amirxo13/iran-legal-corpus",
-  "power-edaalat-index",
-  "moshir-legal-rag-pilot",
-];
 
 type Row = {
   id: string;
@@ -24,10 +19,6 @@ type Row = {
   score?: number;
 };
 
-function toEnDigits(s: string): string {
-  return s.replace(/[۰-۹]/g, (ch) => String(FA_DIGITS.indexOf(ch)));
-}
-
 function parseEmbedding(value: unknown): number[] {
   if (Array.isArray(value)) return value.map(Number);
   if (typeof value === "string") {
@@ -35,176 +26,168 @@ function parseEmbedding(value: unknown): number[] {
       const parsed = JSON.parse(value) as unknown;
       if (Array.isArray(parsed)) return parsed.map(Number);
     } catch {
-      /* fall through */
+      /* ignore */
     }
   }
   return [];
 }
 
-function citationBoost(question: string, row: Row): number {
-  const q = toEnDigits(question);
-  const title = toEnDigits(row.source_title ?? "");
-  const article = toEnDigits(row.article_number ?? "");
-  const content = toEnDigits(row.content);
-  let boost = 0;
-
-  for (const m of q.matchAll(/(?:(?:رأی|رای)\s*)?(?:وحدت\s*رویه\s*)?(?:شماره\s*)?(\d{3,4})/g)) {
-    const n = m[1];
-    if (article === n || content.includes(n) || title.includes(n)) boost += 0.22;
-  }
-  for (const m of q.matchAll(/(?:ماده|اصل)\s*(\d{1,4})/g)) {
-    const n = m[1];
-    const exact = article === n || article === `${n}مکرر`;
-    const textual = new RegExp(`(?:ماده|اصل)\\s*${n}(?!\\d)`).test(content);
-    if (exact || textual) boost += exact ? 0.3 : 0.22;
-  }
-  if (q.includes("قانون اساسی") && title.includes("قانون اساسی")) boost += 0.12;
-  if (q.includes("قانون مدنی") && title.includes("قانون مدنی")) boost += 0.12;
-  if (q.includes("صدور چک") && title.includes("صدور چک")) boost += 0.12;
-  if (q.includes("مجازات") && title.includes("مجازات اسلامی")) boost += 0.08;
-  if (
-    (q.includes("تأمین اجتماعی") || q.includes("تامین اجتماعی")) &&
-    (title.includes("تأمین اجتماعی") || title.includes("تامین اجتماعی"))
-  ) {
-    boost += 0.12;
-  }
-  if (q.includes("قانون تجارت") && title.includes("قانون تجارت")) boost += 0.12;
-  if (q.includes("قانون ثبت") && title.includes("قانون ثبت")) boost += 0.12;
-  if (q.includes("وکالت") && title.includes("وکالت")) boost += 0.12;
-  if (q.includes("دیوان عدالت") && title.includes("دیوان عدالت")) boost += 0.12;
-  if (
-    (q.includes("وحدت رویه") || q.includes("وحدت رويه")) &&
-    (title.includes("وحدت رویه") || content.includes("وحدت رویه"))
-  ) {
-    boost += 0.14;
-  }
-  if (
-    (q.includes("نظریه مشورتی") || q.includes("نظریات مشورتی")) &&
-    (title.includes("نظریات") || title.includes("نظریه") || content.includes("نظریه"))
-  ) {
-    boost += 0.12;
-  }
-  return Math.min(boost, 0.55);
-}
-
-function tokenize(question: string): string[] {
-  const q = toEnDigits(question)
-    .replace(/ي/g, "ی")
-    .replace(/ك/g, "ک");
-  const stop = new Set([
-    "که", "از", "در", "به", "را", "این", "آن", "با", "برای", "یا", "و",
-    "است", "هست", "چیست", "چه", "می", "های", "ها", "یک", "شود", "کرد",
-  ]);
-  return q
-    .split(/[^\u0600-\u06FFa-zA-Z0-9]+/)
-    .map((t) => t.trim())
-    .filter((t) => t.length >= 3 && !stop.has(t));
-}
-
-function lexicalScore(question: string, row: Row): number {
-  const tokens = tokenize(question);
-  if (tokens.length === 0) return 0;
-  const hay = `${row.source_title ?? ""}\n${row.content}`;
-  let hits = 0;
-  for (const t of tokens) {
-    if (hay.includes(t)) hits += 1;
-  }
-  return hits / tokens.length;
-}
-
-function toRetrieved(row: Row, score: number): RetrievedChunk {
+function cleanRow(row: Row): Row {
   const cleaned = anonymizeChunk({
     content: row.content,
     source_title: row.source_title,
     hf_dataset: null,
   });
-  return {
-    id: row.id,
-    content: cleaned.content,
-    source_type: row.source_type,
-    source_title: cleaned.source_title,
-    article_number: row.article_number,
-    law_date: row.law_date,
-    source_url: row.source_url,
-    score,
-  };
+  return { ...row, content: cleaned.content, source_title: cleaned.source_title };
 }
 
-async function retrieveViaPgvector(
-  queryVec: number[],
-  sourceType: SourceFilter,
-): Promise<Row[] | null> {
-  if (dbSource !== "neon") return null;
-  const sql = await getSql();
-  const vecLiteral = `[${queryVec.join(",")}]`;
-  try {
-    return sourceType === "all"
-      ? await sql.query<Row>(
-          `select id, content, source_type, source_title, article_number, law_date, source_url,
-                  (1 - (embedding_vec <=> $1::vector))::float as score
-           from legal_chunks
-           where embedding_vec is not null
-           order by embedding_vec <=> $1::vector
-           limit 40`,
-          [vecLiteral],
-        )
-      : await sql.query<Row>(
-          `select id, content, source_type, source_title, article_number, law_date, source_url,
-                  (1 - (embedding_vec <=> $1::vector))::float as score
-           from legal_chunks
-           where source_type = $2 and embedding_vec is not null
-           order by embedding_vec <=> $1::vector
-           limit 40`,
-          [vecLiteral, sourceType],
-        );
-  } catch {
-    return null;
-  }
+function typeClause(sourceType: SourceFilter, start: number): { sql: string; extra: unknown[] } {
+  if (sourceType === "all") return { sql: "", extra: [] };
+  return { sql: ` and source_type = $${start}`, extra: [sourceType] };
 }
 
-async function retrieveLexical(question: string, sourceType: SourceFilter): Promise<Row[]> {
-  const tokens = tokenize(question).sort((a, b) => b.length - a.length).slice(0, 4);
-  if (tokens.length === 0) return [];
+async function retrieveExact(refs: ReturnType<typeof parseArticleRefs>, sourceType: SourceFilter): Promise<RankRow[]> {
+  if (refs.length === 0) return [];
+  const numbers = [...new Set(refs.flatMap((r) => articleMatchSqlValues(r)))];
+  const hint = refs.find((r) => r.lawHint)?.lawHint ?? "";
   const sql = await getSql();
-  const likes = tokens.map((t) => `%${t}%`);
-  const likeClause = likes.map((_, i) => `content ilike $${i + 2}`).join(" or ");
-  const params: unknown[] = [EXTRA_DATASETS, ...likes];
-  const typeClause =
-    sourceType === "all" ? "" : ` and source_type = $${params.push(sourceType)}`;
-  try {
-    return await sql.query<Row>(
+
+  async function run(useHint: boolean): Promise<Row[]> {
+    const typed = typeClause(sourceType, 2);
+    const params: unknown[] = [numbers, ...typed.extra];
+    let hintSql = "";
+    if (useHint && hint) {
+      const idx = params.push(`%${hint}%`);
+      hintSql = ` and (source_title ilike $${idx} or content ilike $${idx})`;
+    }
+    return sql.query<Row>(
       `select id, content, source_type, source_title, article_number, law_date, source_url
        from legal_chunks
-       where hf_dataset = any($1::text[])
-         and (${likeClause})${typeClause}
-       limit 40`,
+       where article_number = any($1::text[])${typed.sql}${hintSql}
+       order by case when source_type = 'statute' then 0 when source_type = 'advisory_opinion' then 1 else 2 end
+       limit 80`,
       params,
     );
+  }
+
+  try {
+    let rows = await run(Boolean(hint));
+    if (rows.length === 0 && hint) rows = await run(false);
+    return rows.map((row) => ({
+      ...cleanRow(row),
+      matchKind: "exact_article" as const,
+    }));
   } catch {
     return [];
   }
 }
 
-function rankRows(question: string, queryVec: number[], rows: Row[]): RetrievedChunk[] {
-  const byId = new Map<string, RetrievedChunk>();
-  for (const row of rows) {
-    const embedding = parseEmbedding(row.embedding);
-    const hasVec =
-      typeof row.score === "number" || embedding.length > 10;
-    const semantic = hasVec
-      ? typeof row.score === "number"
-        ? Number(row.score)
-        : cosine(queryVec, embedding)
-      : 0;
-    const lex = hasVec ? 0 : lexicalScore(question, row);
-    const scored = toRetrieved(row, semantic + lex + citationBoost(question, row));
-    const prev = byId.get(scored.id);
-    if (!prev || scored.score > prev.score) byId.set(scored.id, scored);
+async function retrieveFts(question: string, sourceType: SourceFilter): Promise<RankRow[]> {
+  const sql = await getSql();
+  const typed = typeClause(sourceType, 2);
+  try {
+    const rows = await sql.query<Row>(
+      `select id, content, source_type, source_title, article_number, law_date, source_url,
+              ts_rank(search_text, plainto_tsquery('simple', $1))::float as score
+       from legal_chunks
+       where search_text @@ plainto_tsquery('simple', $1)${typed.sql}
+       order by score desc
+       limit 30`,
+      [question, ...typed.extra],
+    );
+    if (rows.length > 0) {
+      return rows.map((row) => ({ ...cleanRow(row), matchKind: "fts" as const, semantic: 0 }));
+    }
+  } catch {
+    /* ستون search_text یا GIN ممکن است روی این backend نباشد */
   }
-  return [...byId.values()]
-    .filter((r) => r.score > 0.2)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, TOP_K);
+  const tokens = question
+    .replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length >= 3)
+    .slice(0, 5);
+  if (tokens.length === 0) return [];
+  const likes = tokens.map((t) => `%${t}%`);
+  const likeSql = likes.map((_, i) => `(content ilike $${i + 1} or source_title ilike $${i + 1})`).join(" or ");
+  const params: unknown[] = [...likes];
+  const extraType =
+    sourceType === "all" ? "" : ` and source_type = $${params.push(sourceType)}`;
+  try {
+    const rows = await sql.query<Row>(
+      `select id, content, source_type, source_title, article_number, law_date, source_url
+       from legal_chunks
+       where (${likeSql})${extraType}
+       limit 30`,
+      params,
+    );
+    return rows.map((row) => ({ ...cleanRow(row), matchKind: "fts" as const }));
+  } catch {
+    return [];
+  }
+}
+
+async function retrieveViaPgvector(queryVec: number[], sourceType: SourceFilter): Promise<RankRow[]> {
+  if (dbSource !== "neon") return [];
+  const sql = await getSql();
+  const vecLiteral = `[${queryVec.join(",")}]`;
+  const typed = typeClause(sourceType, 2);
+  try {
+    const rows = await sql.query<Row>(
+      `select id, content, source_type, source_title, article_number, law_date, source_url,
+              (1 - (embedding_vec <=> $1::vector))::float as score
+       from legal_chunks
+       where embedding_vec is not null${typed.sql}
+       order by embedding_vec <=> $1::vector
+       limit 30`,
+      [vecLiteral, ...typed.extra],
+    );
+    return rows.map((row) => ({
+      ...cleanRow(row),
+      matchKind: "vector" as const,
+      semantic: Number(row.score ?? 0),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function retrieveJsonbVectors(
+  queryVec: number[],
+  sourceType: SourceFilter,
+): Promise<RankRow[]> {
+  const sql = await getSql();
+  try {
+    const rows =
+      sourceType === "all"
+        ? await sql.query<Row>(
+            `select id, content, embedding, source_type, source_title, article_number, law_date, source_url
+             from legal_chunks
+             where jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10
+             limit 4000`,
+          )
+        : await sql.query<Row>(
+            `select id, content, embedding, source_type, source_title, article_number, law_date, source_url
+             from legal_chunks
+             where source_type = $1
+               and jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10
+             limit 4000`,
+            [sourceType],
+          );
+    const scored: RankRow[] = [];
+    for (const row of rows) {
+      const embedding = parseEmbedding(row.embedding);
+      if (embedding.length < 10) continue;
+      scored.push({
+        ...cleanRow(row),
+        matchKind: "vector",
+        semantic: cosine(queryVec, embedding),
+      });
+    }
+    scored.sort((a, b) => (b.semantic ?? 0) - (a.semantic ?? 0));
+    return scored.slice(0, 30);
+  } catch {
+    return [];
+  }
 }
 
 export async function retrieveChunks(
@@ -212,27 +195,18 @@ export async function retrieveChunks(
   sourceType: SourceFilter,
 ): Promise<RetrievedChunk[]> {
   await ensureSeeded();
-  const queryVec = await embedQuery(question);
-  const vectorRows = await retrieveViaPgvector(queryVec, sourceType);
-  const lexicalRows = await retrieveLexical(question, sourceType);
-  if (vectorRows) return rankRows(question, queryVec, [...vectorRows, ...lexicalRows]);
-
-  const sql = await getSql();
-  const rows =
-    sourceType === "all"
-      ? await sql.query<Row>(
-          `select id, content, embedding, source_type, source_title, article_number, law_date, source_url
-           from legal_chunks
-           where jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10`,
-        )
-      : await sql.query<Row>(
-          `select id, content, embedding, source_type, source_title, article_number, law_date, source_url
-           from legal_chunks
-           where source_type = $1
-             and jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10`,
-          [sourceType],
-        );
-  return rankRows(question, queryVec, [...rows, ...lexicalRows]);
+  const refs = parseArticleRefs(question);
+  const exact = await retrieveExact(refs, sourceType);
+  const fts = await retrieveFts(question, sourceType);
+  let vectors: RankRow[] = [];
+  try {
+    const queryVec = await embedQuery(question);
+    vectors = await retrieveViaPgvector(queryVec, sourceType);
+    if (vectors.length === 0) vectors = await retrieveJsonbVectors(queryVec, sourceType);
+  } catch (err) {
+    console.error("embedQuery failed; continuing with exact+fts", err);
+  }
+  return rankRows(question, refs, [...exact, ...fts, ...vectors], TOP_K);
 }
 
 export async function corpusStats() {
@@ -241,25 +215,24 @@ export async function corpusStats() {
   const rows = await sql.query<{ source_type: string; n: number }>(
     "select source_type, count(*)::int as n from legal_chunks group by source_type",
   );
-  const totalRow = await sql.query<{ n: number }>(
-    "select count(*)::int as n from legal_chunks",
-  );
+  const totalRow = await sql.query<{ n: number }>("select count(*)::int as n from legal_chunks");
   const extra = await sql.query<{ hf_dataset: string; n: number }>(
     `select coalesce(hf_dataset, 'unknown') as hf_dataset, count(*)::int as n
-     from legal_chunks
-     group by hf_dataset
-     order by n desc`,
+     from legal_chunks group by hf_dataset order by n desc`,
   );
+  const embedded = await sql.query<{ n: number }>(
+    `select count(*)::int as n from legal_chunks
+     where jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10`,
+  );
+  const withSearch = await sql.query<{ n: number }>(
+    `select count(*)::int as n from legal_chunks where search_text is not null`,
+  ).catch(() => [{ n: 0 }]);
   return {
     total: totalRow[0]?.n ?? 0,
-    byType: Object.fromEntries(rows.map((r) => [r.source_type, r.n])) as Record<
-      string,
-      number
-    >,
-    byDataset: Object.fromEntries(extra.map((r) => [r.hf_dataset, r.n])) as Record<
-      string,
-      number
-    >,
+    embedded: embedded[0]?.n ?? 0,
+    searchable: withSearch[0]?.n ?? 0,
+    byType: Object.fromEntries(rows.map((r) => [r.source_type, r.n])) as Record<string, number>,
+    byDataset: Object.fromEntries(extra.map((r) => [r.hf_dataset, r.n])) as Record<string, number>,
     backend: dbSource,
   };
 }

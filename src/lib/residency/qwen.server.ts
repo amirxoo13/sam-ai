@@ -37,28 +37,23 @@ export async function qwenChat(messages: ChatMessage[], options: { temperature?:
     );
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
-      throw new Error(`Qwen API بعد از ${QWEN_FETCH_TIMEOUT_MS / 1000} ثانیه پاسخ نداد.`);
+      throw new Error(`مدل تولید پاسخ پس از ${QWEN_FETCH_TIMEOUT_MS / 1000} ثانیه پاسخ نداد.`);
     }
     throw err;
   }
   if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Qwen API با خطا مواجه شد (status ${res.status}): ${body.slice(0, 500)}`);
+    throw new Error(`مدل تولید پاسخ در دسترس نبود (${res.status})`);
   }
   const data = await res.json();
   const content = data?.choices?.[0]?.message?.content;
   if (typeof content !== "string") {
-    throw new Error(`پاسخ غیرمنتظره از Qwen API: ${JSON.stringify(data).slice(0, 300)}`);
+    throw new Error("پاسخ خالی از مدل تولید متن");
   }
   return content;
 }
 
 /**
- * پاسخ نهایی به‌صورت استریم NDJSON — هر خط {"t":"r"|"c","d":"..."}. "r" یعنی
- * تکه‌ای از فکرکردنِ زنده‌ی qwen3.8-max (که thinking-only است و پیش‌فرضش
- * سنگین‌ترین سطح استدلال است)، "c" یعنی تکه‌ای از جواب نهایی. اگر فقط
- * content خوانده شود (نه reasoning_content) در طول کل فاز فکرکردن هیچ بایتی
- * به کاربر نمی‌رسد و به‌نظر می‌آید «سایت جواب نمی‌دهد».
+ * استریم فقط متن نهایی — زنجیرهٔ فکر به مشتری فرستاده نمی‌شود.
  */
 export async function qwenChatStream(
   messages: ChatMessage[],
@@ -79,23 +74,22 @@ export async function qwenChatStream(
           messages,
           temperature: options.temperature ?? 0.3,
           stream: true,
-          reasoning_effort: "low",
+          reasoning_effort: "none",
         }),
       },
       QWEN_FETCH_TIMEOUT_MS,
     );
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") {
-      throw new Error(`Qwen API بعد از ${QWEN_FETCH_TIMEOUT_MS / 1000} ثانیه شروع به پاسخ نکرد.`);
+      throw new Error(`مدل تولید پاسخ پس از ${QWEN_FETCH_TIMEOUT_MS / 1000} ثانیه آغاز نشد.`);
     }
     throw err;
   }
   if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Qwen API با خطا مواجه شد (status ${res.status}): ${body.slice(0, 500)}`);
+    throw new Error(`مدل تولید پاسخ در دسترس نبود (${res.status})`);
   }
   if (!res.body) {
-    throw new Error("پاسخ استریم از Qwen API بدنه‌ای نداشت");
+    throw new Error("پاسخ استریم بدنه‌ای نداشت");
   }
 
   const upstreamReader = res.body.getReader();
@@ -103,8 +97,8 @@ export async function qwenChatStream(
   const encoder = new TextEncoder();
   let buffer = "";
 
-  function emit(controller: ReadableStreamDefaultController<Uint8Array>, type: "r" | "c", text: string) {
-    controller.enqueue(encoder.encode(JSON.stringify({ t: type, d: text }) + "\n"));
+  function emit(controller: ReadableStreamDefaultController<Uint8Array>, text: string) {
+    controller.enqueue(encoder.encode(JSON.stringify({ t: "c", d: text }) + "\n"));
   }
 
   return new ReadableStream<Uint8Array>({
@@ -124,17 +118,12 @@ export async function qwenChatStream(
         if (payload === "[DONE]") continue;
         try {
           const json = JSON.parse(payload);
-          const delta = json?.choices?.[0]?.delta;
-          const reasoningDelta = delta?.reasoning_content;
-          if (typeof reasoningDelta === "string" && reasoningDelta.length > 0) {
-            emit(controller, "r", reasoningDelta);
-          }
-          const contentDelta = delta?.content;
+          const contentDelta = json?.choices?.[0]?.delta?.content;
           if (typeof contentDelta === "string" && contentDelta.length > 0) {
-            emit(controller, "c", contentDelta);
+            emit(controller, contentDelta);
           }
         } catch {
-          // خط ناقص بین دو chunk — باقی‌مانده در buffer نگه داشته می‌شود
+          /* خط ناقص */
         }
       }
     },

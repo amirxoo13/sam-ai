@@ -6,6 +6,7 @@ import { signOut } from "@/lib/auth/client";
 import { useCurrentUser } from "@/lib/auth/use-current-user";
 import { getChatHistory } from "@/lib/chat-history.functions";
 import type { ChatMessageRow, ChatType } from "@/lib/chat-history.server";
+import { listMyMatters } from "@/lib/matter.functions";
 import { deleteMyFile, listMyFiles, uploadUserFile } from "@/lib/user-files.functions";
 import type { UserFileSummary } from "@/lib/user-files.server";
 import { cn } from "@/lib/utils";
@@ -104,6 +105,8 @@ function FilesSection() {
   const [files, setFiles] = useState<UserFileSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [matters, setMatters] = useState<{ id: string; title: string }[]>([]);
+  const [matterId, setMatterId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function refresh() {
@@ -112,7 +115,17 @@ function FilesSection() {
       .catch((err) => setError(err instanceof Error ? err.message : "خطا در بارگذاری پرونده‌ها"));
   }
 
-  useEffect(refresh, []);
+  useEffect(() => {
+    refresh();
+    void listMyMatters()
+      .then((list) => {
+        setMatters(list);
+        setMatterId((current) => current ?? list[0]?.id ?? null);
+      })
+      .catch(() => {
+        /* پرونده کاری اختیاری است */
+      });
+  }, []);
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
@@ -126,11 +139,13 @@ function FilesSection() {
         }
         const content = await file.text();
         if (!content.trim()) continue;
-        await uploadUserFile({ data: { filename: file.name, content } });
+        await uploadUserFile({
+          data: { filename: file.name, content, matterId: matterId ?? undefined },
+        });
       }
       refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "خطا در آپلود پرونده");
+      setError(err instanceof Error ? err.message : "خطا در بارگذاری پرونده");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -149,14 +164,29 @@ function FilesSection() {
   return (
     <>
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-[14px] font-bold text-fg">پرونده‌های من</h2>
-        <span className="text-[11.5px] text-subtle">فقط خودت می‌بینی‌شون</span>
+        <h2 className="text-[14px] font-bold text-fg">پرونده‌های کاری</h2>
+        <span className="text-[11.5px] text-subtle">فقط شما این فایل‌ها را می‌بینید</span>
       </div>
       <p className="mt-1.5 text-[12.5px] leading-6 text-subtle">
-        پرونده‌های متنی خودت را آپلود کن — خودکار در اختیار دستیار حقوقی و
-        اقامتی قرار می‌گیره تا موقع پاسخ‌دادن در نظرش بگیره (فقط اگر مرتبط
-        باشه).
+        فایل را به یک پروندهٔ کاری پیوست کنید. سامانه فقط بند مرتبط با پرسش را
+        بازیابی می‌کند؛ کل متن به مدل ریخته نمی‌شود.
       </p>
+      {matters.length > 0 ? (
+        <label className="mt-3 grid gap-1.5">
+          <span className="text-[12px] text-muted">پروندهٔ کاری</span>
+          <select
+            className="h-10 rounded-md border border-border bg-surface px-2 text-sm text-fg"
+            value={matterId ?? ""}
+            onChange={(e) => setMatterId(e.target.value)}
+          >
+            {matters.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
 
       <label
         className={cn(
@@ -174,7 +204,7 @@ function FilesSection() {
           disabled={uploading}
         />
         <span className="text-[13px] font-medium text-fg">
-          {uploading ? "در حال آپلود..." : "برای انتخاب پرونده کلیک کن"}
+          {uploading ? "در حال بارگذاری…" : "برای انتخاب فایل کلیک کنید"}
         </span>
         <span className="text-[11.5px] text-subtle">فرمت‌های مجاز: txt، md</span>
       </label>
@@ -185,7 +215,7 @@ function FilesSection() {
         {files === null ? (
           <p className="text-[13px] text-subtle">در حال بارگذاری...</p>
         ) : files.length === 0 ? (
-          <p className="text-[13px] text-subtle">هنوز پرونده‌ای آپلود نکردی.</p>
+          <p className="text-[13px] text-subtle">هنوز فایلی پیوست نشده است.</p>
         ) : (
           files.map((f) => (
             <div

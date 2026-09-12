@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/draft")({
           const sessionUser = await getSessionUser();
           if (!sessionUser) {
             return Response.json(
-              { error: "برای استفاده از این قابلیت باید وارد حساب کاربری‌ات بشی." },
+              { error: "برای استفاده از این قابلیت باید وارد حساب کاربری خود شوید." },
               { status: 401 },
             );
           }

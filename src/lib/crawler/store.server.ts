@@ -41,16 +41,16 @@ export async function replaceChunksForSourceUrl(
       const vecLiteral = `[${r.embedding.join(",")}]`;
       await sql.query(
         `insert into legal_chunks
-          (id, content, embedding, embedding_vec, source_type, source_title, source_url, source_id, hf_dataset)
-         values ($1,$2,$3::jsonb,$4::vector,$5,$6,$7,$8,$9)
+          (id, content, embedding, embedding_vec, source_type, source_title, source_url, source_id, hf_dataset, search_text)
+         values ($1,$2,$3::jsonb,$4::vector,$5,$6,$7,$8,$9, to_tsvector('simple', coalesce($6,'') || ' ' || left($2, 40000)))
          on conflict (id) do nothing`,
         [r.id, r.content, JSON.stringify(r.embedding), vecLiteral, "statute", r.source_title, sourceUrl, r.sourceId, "crawler"],
       );
     } else {
       await sql.query(
         `insert into legal_chunks
-          (id, content, embedding, source_type, source_title, source_url, source_id, hf_dataset)
-         values ($1,$2,$3::jsonb,$4,$5,$6,$7,$8)
+          (id, content, embedding, source_type, source_title, source_url, source_id, hf_dataset, search_text)
+         values ($1,$2,$3::jsonb,$4,$5,$6,$7,$8, to_tsvector('simple', coalesce($5,'') || ' ' || left($2, 40000)))
          on conflict (id) do nothing`,
         [r.id, r.content, JSON.stringify(r.embedding), "statute", r.source_title, sourceUrl, r.sourceId, "crawler"],
       );

@@ -4,7 +4,8 @@ import { authMiddleware } from "@/lib/auth/middleware";
 
 const askSchema = z.object({
   question: z.string().trim().min(4).max(2000),
-  sourceType: z.enum(["all", "statute", "case_law"]).default("all"),
+  sourceType: z.enum(["all", "statute", "case_law", "convention", "advisory_opinion", "terminology"]).default("all"),
+  matterId: z.string().uuid().optional(),
 });
 
 export const askLegal = createServerFn({ method: "POST" })
@@ -12,21 +13,27 @@ export const askLegal = createServerFn({ method: "POST" })
   .validator(askSchema)
   .handler(async ({ data, context }) => {
     const { runAsk } = await import("./ask.server");
-    const { getUserFilesContext } = await import("@/lib/user-files.server");
-    const userFilesContext = await getUserFilesContext(context.userId).catch(() => "");
-    const result = await runAsk({ ...data, userFilesContext: userFilesContext || undefined });
+    const { getOrCreateDefaultMatter, assertMatterOwner, retrieveMatterExcerpts } = await import("@/lib/matter.server");
+    const matter = data.matterId
+      ? ((await assertMatterOwner(context.userId, data.matterId)) ? { id: data.matterId } : await getOrCreateDefaultMatter(context.userId))
+      : await getOrCreateDefaultMatter(context.userId);
+    const matterExcerpts = await retrieveMatterExcerpts(context.userId, matter.id, data.question).catch(() => "");
+    const result = await runAsk({
+      question: data.question,
+      sourceType: data.sourceType,
+      matterExcerpts: matterExcerpts || undefined,
+      userId: context.userId,
+    });
     const { saveChatMessage } = await import("@/lib/chat-history.server");
-    await saveChatMessage(context.userId, "legal", "user", data.question);
-    await saveChatMessage(context.userId, "legal", "assistant", result.answer);
+    await saveChatMessage(context.userId, "legal", "user", data.question, matter.id, result.requestId);
+    await saveChatMessage(context.userId, "legal", "assistant", result.answer, matter.id, result.requestId);
     return result;
   });
 
-export const getCorpusStats = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const { corpusStats } = await import("./retrieve.server");
-    return corpusStats();
-  },
-);
+export const getCorpusStats = createServerFn({ method: "GET" }).handler(async () => {
+  const { corpusStats } = await import("./retrieve.server");
+  return corpusStats();
+});
 
 const fieldSchema = z
   .object({

@@ -13,4 +13,4 @@ export const QWEN_BASE_URL =
 
 export const QWEN_MODEL = process.env.QWEN_MODEL || "qwen3.8-max";
 
-export const TOP_K = 5;
+export const TOP_K = 8;

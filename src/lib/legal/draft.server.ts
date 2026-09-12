@@ -3,6 +3,7 @@ import { classifyMatter } from "./classify";
 import { EMBEDDING_MODEL } from "./config";
 import { generateDraftText, QWEN_MODEL } from "./qwen.server";
 import { retrieveChunks } from "./retrieve.server";
+import { toPublicCitations } from "./cite";
 import type { DraftResult, RetrievedChunk } from "./types";
 
 export type DraftAnswers = Partial<Record<string, string>>;
@@ -28,6 +29,30 @@ export async function runDraft(input: {
     formId: input.formId,
     hasJudgment,
   });
+  if (cls.refuseToDraft) {
+    return {
+      classification: {
+        track: cls.track,
+        trackLabel: cls.trackLabel,
+        forum: cls.forum,
+        formId: cls.form.id,
+        formTitle: cls.form.title,
+        fileVia: cls.form.fileVia,
+        articles: [],
+        reason: cls.reason,
+        advice: cls.advice,
+        confidence: "none",
+        refused: true,
+        alternatives: [],
+      },
+      nextSteps: [],
+      draft: cls.reason,
+      usedModel: false,
+      model: QWEN_MODEL,
+      embeddingModel: EMBEDDING_MODEL,
+      sources: [],
+    };
+  }
   const skeleton = fillTemplate(cls.form.template, answers);
 
   const query = [
@@ -79,6 +104,7 @@ export async function runDraft(input: {
       reason: cls.reason,
       advice: cls.advice,
       confidence: cls.confidence,
+      refused: false,
       alternatives: cls.alternatives.map((f) => ({ id: f.id, title: f.title })),
     },
     nextSteps: cls.nextSteps,
@@ -86,6 +112,6 @@ export async function runDraft(input: {
     usedModel,
     model: QWEN_MODEL,
     embeddingModel: EMBEDDING_MODEL,
-    sources,
+    sources: toPublicCitations(sources, []),
   };
 }

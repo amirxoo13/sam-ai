@@ -1,4 +1,11 @@
-export type SourceType = "statute" | "case_law" | "convention" | "advisory_opinion" | "terminology";
+import type { Authority } from "./authority.ts";
+
+export type SourceType =
+  | "statute"
+  | "case_law"
+  | "convention"
+  | "advisory_opinion"
+  | "terminology";
 
 export type SourceFilter = "all" | SourceType;
 
@@ -24,6 +31,8 @@ export type RetrievedChunk = {
   law_date: string | null;
   source_url: string | null;
   score: number;
+  authority: Authority;
+  matchKind: "exact_article" | "fts" | "vector";
 };
 
 export function sourceTypeLabelFa(t: SourceType): string {
@@ -43,13 +52,47 @@ export function sourceTypeLabelFa(t: SourceType): string {
   }
 }
 
+export type PublicCitation = {
+  id: string;
+  source_type: SourceType;
+  source_title: string | null;
+  article_number: string | null;
+  law_date: string | null;
+  source_url: string | null;
+  authorityLabel: string;
+  authorityShort: string;
+  binding: Authority["binding"];
+  quote: string;
+  matchKind: RetrievedChunk["matchKind"];
+  verified: boolean;
+};
+
+export type AskEval = {
+  retrieval: {
+    retrieved: number;
+    exactArticleHits: number;
+    ftsHits: number;
+    vectorHits: number;
+    bindingSources: number;
+    advisorySources: number;
+  };
+  answer: {
+    cited: number;
+    verified: number;
+    unverified: number;
+  };
+};
+
 export type AskResult = {
   answer: string;
-  sources: RetrievedChunk[];
+  sources: PublicCitation[];
   usedFallback: boolean;
   model: string;
   embeddingModel: string;
   retrieved: number;
+  requestId: string;
+  unverifiedCites: string[];
+  eval: AskEval;
 };
 
 export type DraftNextStep = {
@@ -68,7 +111,8 @@ export type DraftResult = {
     articles: string[];
     reason: string;
     advice: string;
-    confidence: "high" | "medium";
+    confidence: "high" | "medium" | "none";
+    refused: boolean;
     alternatives: { id: string; title: string }[];
   };
   nextSteps: DraftNextStep[];
@@ -76,5 +120,5 @@ export type DraftResult = {
   usedModel: boolean;
   model: string;
   embeddingModel: string;
-  sources: RetrievedChunk[];
+  sources: PublicCitation[];
 };

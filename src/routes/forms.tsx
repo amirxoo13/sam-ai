@@ -494,7 +494,7 @@ function PathCard({
           </p>
           <p className="mt-1 text-sm leading-6 text-muted">{cls.reason}</p>
           <p className="mt-1 text-xs text-subtle">
-            اطمینان تشخیص: {cls.confidence === "high" ? "بالا" : "متوسط"} · ثبت: {cls.form.fileVia}
+            اطمینان تشخیص: {cls.confidence === "high" ? "بالا" : cls.confidence === "medium" ? "متوسط" : "نامشخص"} · ثبت: {cls.form.fileVia}
           </p>
         </div>
       </div>
@@ -616,8 +616,26 @@ function ResultCard({
               key={s.id}
               className="rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted"
             >
-              منبع {i + 1}: {s.source_title}
-              {s.article_number ? ` — ماده ${s.article_number}` : ""}
+              <p>
+                منبع {i + 1} ({s.authorityShort}):{" "}
+                {s.source_url ? (
+                  <a
+                    href={s.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-light underline-offset-2 hover:underline"
+                  >
+                    {s.source_title}
+                    {s.article_number ? ` — ماده ${s.article_number}` : ""}
+                  </a>
+                ) : (
+                  <>
+                    {s.source_title}
+                    {s.article_number ? ` — ماده ${s.article_number}` : ""}
+                  </>
+                )}
+              </p>
+              <p className="mt-1 text-[11px] leading-5 text-subtle">{s.authorityLabel}</p>
             </li>
           ))}
         </ul>

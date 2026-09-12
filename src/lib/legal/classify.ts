@@ -13,7 +13,8 @@ export type Classification = {
   form: LegalForm;
   reason: string;
   advice: string;
-  confidence: "high" | "medium";
+  confidence: "high" | "medium" | "none";
+  refuseToDraft: boolean;
   alternatives: LegalForm[];
   nextSteps: ProcedureStep[];
   hasJudgment: boolean;
@@ -77,6 +78,7 @@ const PHRASE_BOOSTS: { re: RegExp; formId: string; weight: number }[] = [
   { re: /نظریه کارشناس|اعتراض به کارشناس/, formId: "expert-objection", weight: 6 },
 ];
 
+import { REFUSE_RE } from "./refuse.ts";
 const JUDGMENT_RE =
   /رأی|رای دادگاه|دادنامه|حکم صادر|حکم دادگاه|قرار منع|قرار موقوفی|کیفرخواست صادر/;
 
@@ -99,6 +101,18 @@ export function classifyMatter(input: {
 }): Classification {
   const text = normalize(`${input.story}`);
   const hasJudgment = Boolean(input.hasJudgment) || JUDGMENT_RE.test(text);
+
+  if (!input.formId && REFUSE_RE.test(text)) {
+    const fallback = LEGAL_FORMS.find((f) => f.id === "claim-money")!;
+    return pack({
+      form: fallback,
+      reason:
+        "برای این موضوع قالب ثبت‌شده در سامانه وجود ندارد. پیش‌نویس صادر نمی‌شود؛ به وکیل دادگستری مراجعه کنید.",
+      confidence: "none",
+      hasJudgment,
+      refuseToDraft: true,
+    });
+  }
 
   if (input.formId) {
     const form = formById(input.formId);
@@ -135,7 +149,18 @@ export function classifyMatter(input: {
   }
 
   if (ranked.length === 0) {
-    const criminalHint = /کلاه|فریب|سرقت|دزد|تهدید|فحش|کتک|جرح|تجاوز|مواد مخدر/.test(text);
+    const criminalHint = /کلاه|فریب|سرقت|دزد|تهدید|فحش|کتک|جرح/.test(text);
+    if (REFUSE_RE.test(text)) {
+      const fallback = LEGAL_FORMS.find((f) => f.id === "claim-money")!;
+      return pack({
+        form: fallback,
+        reason:
+          "برای این موضوع قالب ثبت‌شده در سامانه وجود ندارد. پیش‌نویس صادر نمی‌شود؛ به وکیل دادگستری مراجعه کنید.",
+        confidence: "none",
+        hasJudgment,
+        refuseToDraft: true,
+      });
+    }
     const fallback = LEGAL_FORMS.find((f) =>
       criminalHint ? f.id === "fraud-complaint" : f.id === "claim-money",
     )!;
@@ -176,8 +201,9 @@ function isPostJudgment(id: string): boolean {
 function pack(input: {
   form: LegalForm;
   reason: string;
-  confidence: "high" | "medium";
+  confidence: "high" | "medium" | "none";
   hasJudgment: boolean;
+  refuseToDraft?: boolean;
   ranked?: { form: LegalForm; score: number }[];
 }): Classification {
   const alternatives = (input.ranked ?? [])
@@ -193,6 +219,7 @@ function pack(input: {
     reason: input.reason,
     advice: trackAdvice(input.form.track),
     confidence: input.confidence,
+    refuseToDraft: Boolean(input.refuseToDraft),
     alternatives,
     nextSteps: procedureFor({
       track: input.form.track,

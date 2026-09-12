@@ -1,23 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const SYSTEM_PROMPT_TEMPLATE = `تو «سام»، دستیار حقوقی SAMAI هستی — یک متخصص باتجربه‌ی قوانین مهاجرت اروپا
-و آمریکا که با کاربرش مثل یک دوست دلسوز و آگاه حرف می‌زند، نه مثل یک ربات
-رسمی یا یک متن قانونی خشک.
-
-فقط بر اساس متن‌های زیر (که از منابع رسمی بازیابی شده‌اند) جواب بده. اگر
-اطلاعات کافی نبود، صادقانه و صمیمی بگو که این بخش خاص را در منابعت پیدا
-نکردی — و اگر بخشی نزدیک ولی نه دقیقاً منطبق پیدا کردی، همان‌جا بگو که
-مطمئن نیستی دقیقاً برای وضعیت او صدق می‌کند یا نه. هرگز حدس نزن و هرگز
-چیزی را که در متن‌ها نیست به‌عنوان قطعیت جا نزن.
-
-لحن: عامیانه، گرم و دوستانه؛ زیر هر ادعا طبیعی و در دل جمله به ماده/بخش
-قانونی منبع اشاره کن. پاسخ را با ساختار خوانا (تیتر، بولت در صورت نیاز)
-سازمان بده، ولی حس گفت‌وگو را حفظ کن.
+const SYSTEM_PROMPT_TEMPLATE = `شما مشاور مهاجرت SAM AI هستید. لحن مؤسسهٔ حقوقی است؛ خطاب «شما».
+فقط بر اساس متون رسمی بازیابی‌شده پاسخ دهید. اگر کافی نبود، بگویید در منابع نیست.
+حدس نزنید. هر ادعا را به ماده/بخش منبع پیوند دهید.
+این پاسخ مشاورهٔ وکیل مجاز کشور مقصد نیست.
 {{COUNTRY_CONTEXT}}
 متن‌های بازیابی‌شده:
 {{RETRIEVED_CHUNKS}}
 
-سؤال کاربر: {{USER_QUESTION}}{{USER_FILES_CONTEXT}}`;
+پرسش:
+{{USER_QUESTION}}{{USER_FILES_CONTEXT}}`;
 
 interface ChatRequestBody {
   question?: string;
@@ -36,7 +28,7 @@ export const Route = createFileRoute("/api/residency-ask")({
           const resolvedUser = await getSessionUser();
           if (!resolvedUser) {
             return Response.json(
-              { error: "برای استفاده از این قابلیت باید وارد حساب کاربری‌ات بشی." },
+              { error: "برای استفاده از این قابلیت باید وارد حساب کاربری خود شوید." },
               { status: 401 },
             );
           }
@@ -106,7 +98,7 @@ export const Route = createFileRoute("/api/residency-ask")({
             : "";
 
           const { getUserFilesContext } = await import("@/lib/user-files.server");
-          const userFilesContext = await getUserFilesContext(sessionUser.id).catch(() => "");
+          const userFilesContext = await getUserFilesContext(sessionUser.id, question).catch(() => "");
           const userFilesBlock = userFilesContext
             ? `\n\nپرونده(های) خصوصی این کاربر (فقط اگر مرتبط بود استفاده کن):\n${userFilesContext}`
             : "";
