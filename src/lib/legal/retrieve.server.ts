@@ -2,7 +2,7 @@ import { dbSource, getSql } from "@/lib/db";
 import { TOP_K } from "./config";
 import { cosine, embedQuery } from "./embeddings.server";
 import { ensureSeeded } from "./seed.server";
-import type { RetrievedChunk, SourceFilter } from "./types";
+import type { RetrievedChunk, SourceFilter, SourceType } from "./types";
 
 const FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 
@@ -10,7 +10,7 @@ type Row = {
   id: string;
   content: string;
   embedding?: unknown;
-  source_type: "statute" | "case_law";
+  source_type: SourceType;
   source_title: string | null;
   article_number: string | null;
   law_date: string | null;

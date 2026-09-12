@@ -1,4 +1,4 @@
-export type SourceType = "statute" | "case_law";
+export type SourceType = "statute" | "case_law" | "convention" | "advisory_opinion" | "terminology";
 
 export type SourceFilter = "all" | SourceType;
 
@@ -25,6 +25,23 @@ export type RetrievedChunk = {
   source_url: string | null;
   score: number;
 };
+
+export function sourceTypeLabelFa(t: SourceType): string {
+  switch (t) {
+    case "statute":
+      return "قانون موضوعه";
+    case "case_law":
+      return "رأی / رویه قضایی";
+    case "convention":
+      return "کنوانسیون / معاهده";
+    case "advisory_opinion":
+      return "نظریه مشورتی";
+    case "terminology":
+      return "اصطلاح‌نامه حقوقی";
+    default:
+      return "سند حقوقی";
+  }
+}
 
 export type AskResult = {
   answer: string;

@@ -6,7 +6,12 @@ import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
 import { askLegal, getCorpusStats } from "@/lib/legal/ask.functions";
 import { LEGAL_DISCLAIMER } from "@/lib/legal/copy";
-import type { RetrievedChunk, SourceFilter } from "@/lib/legal/types";
+import type { RetrievedChunk } from "@/lib/legal/types";
+import { sourceTypeLabelFa } from "@/lib/legal/types";
+
+/** فقط سه گزینه‌ی UI — دسته‌های تازه‌ی didban8 (کنوانسیون/نظریه/اصطلاح‌نامه)
+ *  فقط زیر «همه» در دسترسند، تب اختصاصی ندارند. */
+type AskFilterChoice = "all" | "statute" | "case_law";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/ask")({
@@ -32,7 +37,7 @@ type ChatMessage = {
 
 function Home() {
   const stats = Route.useLoaderData();
-  const [filter, setFilter] = useState<SourceFilter>("all");
+  const [filter, setFilter] = useState<AskFilterChoice>("all");
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -247,9 +252,7 @@ function AssistantBubble({ message }: { message: ChatMessage }) {
               <div className="flex items-center gap-2 text-xs text-muted">
                 <BookOpen className="size-3.5 shrink-0" />
                 <span>منبع {i + 1}</span>
-                <span className="text-subtle">
-                  {s.source_type === "statute" ? "قانون" : "رأی"}
-                </span>
+                <span className="text-subtle">{sourceTypeLabelFa(s.source_type)}</span>
                 <span className="ms-auto tabular-nums text-subtle">
                   {(Math.min(s.score, 1) * 100).toFixed(0)}٪
                 </span>
@@ -286,10 +289,10 @@ function FilterBar({
   value,
   onChange,
 }: {
-  value: SourceFilter;
-  onChange: (v: SourceFilter) => void;
+  value: AskFilterChoice;
+  onChange: (v: AskFilterChoice) => void;
 }) {
-  const items: { id: SourceFilter; label: string }[] = [
+  const items: { id: AskFilterChoice; label: string }[] = [
     { id: "all", label: "همه" },
     { id: "case_law", label: "آرای قضایی" },
     { id: "statute", label: "قوانین" },

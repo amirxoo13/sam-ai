@@ -1,6 +1,7 @@
 import { QWEN_BASE_URL, QWEN_MODEL } from "./config";
 import { qwenApiKey } from "./secrets.server";
 import type { RetrievedChunk } from "./types";
+import { sourceTypeLabelFa } from "./types";
 
 function formatSources(chunks: RetrievedChunk[]): string {
   if (chunks.length === 0) return "هیچ منبعی بازیابی نشد.";
@@ -10,7 +11,7 @@ function formatSources(chunks: RetrievedChunk[]): string {
       const artLabel = c.source_title?.includes("اساسی") ? "اصل" : "ماده";
       const art = c.article_number ? ` — ${artLabel} ${c.article_number}` : "";
       const date = c.law_date ? ` (${c.law_date})` : "";
-      const kind = c.source_type === "statute" ? "قانون موضوعه" : "رأی / رویه قضایی";
+      const kind = sourceTypeLabelFa(c.source_type);
       return `[منبع ${i + 1} | ${kind} | ${title}${art}${date}]\n${c.content}`;
     })
     .join("\n\n---\n\n");
