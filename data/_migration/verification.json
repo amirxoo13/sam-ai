@@ -1,0 +1,47 @@
+{
+  "file_count_match": true,
+  "hash_match": true,
+  "size_match": true,
+  "byte_cmp_samples": true,
+  "json_structure_ok": true,
+  "source_remotes_empty": true,
+  "source_clean": true,
+  "dest_preexisting_untouched": true,
+  "failures": [],
+  "checks": [
+    {
+      "item": "source_moshir_remote",
+      "ok": true
+    },
+    {
+      "item": "source_moshir_clean",
+      "ok": true
+    },
+    {
+      "item": "source_power_remote",
+      "ok": true
+    },
+    {
+      "item": "source_power_clean",
+      "ok": true
+    },
+    {
+      "item": "source_cursor_remote",
+      "ok": true
+    },
+    {
+      "item": "source_cursor_clean",
+      "ok": true
+    },
+    {
+      "item": "source_persian-legal-rag-jsonl_remote",
+      "ok": true
+    },
+    {
+      "item": "source_persian-legal-rag-jsonl_clean",
+      "ok": true
+    }
+  ],
+  "git_status_new_paths": 1,
+  "ALL_OK": true
+}

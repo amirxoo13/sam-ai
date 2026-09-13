@@ -1,0 +1,25 @@
+{
+  "dataset": "QomSSLab/law-text-dataset-fa",
+  "text_column": "text",
+  "rows_used": 44,
+  "chars": 46474,
+  "current_metric": {
+    "hit_rate": 0.5741,
+    "hits": 4678,
+    "tokens": 8148,
+    "note": "preflight.py as used for the 927-file CSV (len<3 never hits)"
+  },
+  "fixed_minlen2_normalized": {
+    "hit_rate": 0.734,
+    "hits": 5699,
+    "tokens": 7764,
+    "note": "yeh/kaf + ZWNJ-strip + diacritics; 2-letter words eligible"
+  },
+  "fixed_minlen3_normalized": {
+    "hit_rate": 0.7139,
+    "hits": 4767,
+    "tokens": 6677,
+    "note": "same normalization; still exclude 1-2 letter tokens from both sides"
+  },
+  "verdict": "نرمال‌سازی اصلاح‌شده معیار را به محدوده قابل قبول نزدیک کرد؛ معیار فعلی برای طبقه‌بندی کافی نیست."
+}

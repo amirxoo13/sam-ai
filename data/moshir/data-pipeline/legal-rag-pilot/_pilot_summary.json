@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "source_file": "کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.pdf",
+      "pages": 66,
+      "removed_pages": 6,
+      "hit_rate": 0.45415262926614913,
+      "lam_corrections": 217,
+      "lam_flagged": 113,
+      "suspicious_numbers": 14,
+      "chunks": 37,
+      "title": "حقوق رسانه",
+      "author": "سیدآریا یادگاری"
+    },
+    {
+      "source_file": "جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.pdf",
+      "pages": 106,
+      "removed_pages": 7,
+      "hit_rate": 0.02031610034725603,
+      "lam_corrections": 0,
+      "lam_flagged": 1,
+      "suspicious_numbers": 0,
+      "chunks": 93,
+      "title": "حقوق تجارت",
+      "author": "سید رضا روزگار"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "laws": 3056,
+  "parsed": 3016,
+  "articles": 132605,
+  "notes": 32834,
+  "clauses": 84594,
+  "chars": 67713696,
+  "catalog": 3056,
+  "statutes": 2243,
+  "cases": 6,
+  "commentary": 807,
+  "hosts": {
+    "qavanin.ir": 1654,
+    "imported": 807,
+    "www.ekhtebar.ir": 589,
+    "ara.jri.ac.ir": 6
+  },
+  "domains": {
+    "registration": 9,
+    "general": 2405,
+    "criminal_special": 27,
+    "commercial": 243,
+    "constitutional": 15,
+    "tax": 92,
+    "administrative": 55,
+    "criminal": 79,
+    "criminal_procedure": 7,
+    "cyber": 9,
+    "family": 56,
+    "civil": 30,
+    "civil_procedure": 14,
+    "labor": 8,
+    "case_law": 6,
+    "insurance": 1
+  },
+  "bytes": 231962745,
+  "updated_at": "2026-09-09T00:02:27.182973+00:00"
+}

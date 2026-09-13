@@ -1,0 +1,482 @@
+{
+  "created_at": "2026-09-13T22:42:17Z",
+  "protocol": "byte-identical copy; sources read-only; dest preexisting files not overwritten",
+  "source_heads": {
+    "moshir": "7108e62963c63f4b1f8336480058293b175aef56",
+    "power": "1e2cb74fac04743c5d36da14ce19058869d24def",
+    "cursor": "d9bcafd56163ffa95df2f5d7c583c3a85de9dd3c",
+    "persian-legal-rag-jsonl": "fe4f1cc5e5b400e4c993a9a248f4c279ca5409a1"
+  },
+  "dest_head_before": "1a3b6d16a4436d98b1ab00f0eb28774ab9edd980",
+  "copied_files": [
+    {
+      "source_repo": "moshir",
+      "source_path": "DATA.md",
+      "dest_path": "data/moshir/DATA.md",
+      "bytes": 7682,
+      "sha256": "23a434fc1b5d9f0cf211729c87842cc94b578804b61463ab541df9bcd683410b",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/didban8/report.json",
+      "dest_path": "data/moshir/data-pipeline/didban8/report.json",
+      "bytes": 1329,
+      "sha256": "6618b58c595f210715a81b42e399ec1cef1dd68956b2893eea3e13b635711794",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_linefreq_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_linefreq_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.json",
+      "bytes": 532376,
+      "sha256": "7020fe5f607b32011ab233d20457feb73f702a0478bcab1578713fdd4697c548",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_linefreq_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_linefreq_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.json",
+      "bytes": 214915,
+      "sha256": "79e3828fa703ae0dba28b4f5bc29119ae38d600aeeea79bebe0d91fb38b0ee39",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_pages_meta_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_pages_meta_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.json",
+      "bytes": 11766,
+      "sha256": "fa7b8cd6b1d1dff72efd7bc4c232137ba97bd12e1f232c81b210db91dafc86bc",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_pages_meta_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_pages_meta_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.json",
+      "bytes": 7405,
+      "sha256": "60e69d0431ae66fb04bf6bb4de13bb0943d5ff678001859c444bd83e703b6e28",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_raw_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_raw_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.txt",
+      "bytes": 252013,
+      "sha256": "b4e104a977ff98b6416c3c1edf57390858eecc14458604def19d891b9b0580da",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_raw_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_raw_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.txt",
+      "bytes": 133860,
+      "sha256": "8a4919db5c512ce3890c9cbd877621bd54806053c432c30de8dc3953fb6fe6c0",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_summary_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_summary_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.txt",
+      "bytes": 1118,
+      "sha256": "ef28a55ebd1d7257ce7a23478966c806120f9554490f1cd09ff468591d534271",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/01_summary_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/01_summary_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.txt",
+      "bytes": 3753,
+      "sha256": "92ce9ea4f06da25faa648994e005f77210bdc09fde6bf44ce3d0490004e3492d",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/02_cleaned_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/02_cleaned_جزوه_جمع_بندی_حقوق_تجارت_کانال_حقوق_بوک.txt",
+      "bytes": 240797,
+      "sha256": "5f3e3de2ec9a7e4bd5148062445774cf6cfa9c2065d5b30d9e732b442ac25556",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/02_cleaned_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/02_cleaned_کتاب_حقوق_رسانه_سید_آریا_یادگاری_کانال_حقوق_بوک_260905_055946.txt",
+      "bytes": 132873,
+      "sha256": "a8ecf65695c8e64606d8b5aed32202125b742710709f794da1627a5bd5fba111",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/02_removed_pages.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/02_removed_pages.json",
+      "bytes": 4353,
+      "sha256": "7b455937bc40585dd011579c068f4026e7ab0fb252bd351b9cde4413835547d7",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/06_chapter_compare.md",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/06_chapter_compare.md",
+      "bytes": 20714,
+      "sha256": "f5c02740dfcd0d48e5a71a40e67f9cc8b526162a8aa5dab3ab66d1ae5c417048",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/_inspect_extract_modes.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/_inspect_extract_modes.txt",
+      "bytes": 11985,
+      "sha256": "e15d1c2413766ab61870903bb4ab0fdce14f5f7086d7cc2b1eb83d37c76a84dd",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/_inspect_raw.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/_inspect_raw.txt",
+      "bytes": 28186,
+      "sha256": "203a7c3edf25068e54649fe71c6b69fc0b565f5e0dbe35cc0c5449b072f59677",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/_pilot_summary.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/_pilot_summary.json",
+      "bytes": 823,
+      "sha256": "61a60c594d86277942745ef8ce9d6dd84522f9b40959151397828dd19ddfe1db",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/_preflight_counts.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/_preflight_counts.json",
+      "bytes": 304,
+      "sha256": "7968ae1399101bc32ce9045fc6a02a60c43ccd4af38fc61f754d26c4ffb3eb16",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/_preflight_samples.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/_preflight_samples.json",
+      "bytes": 4077,
+      "sha256": "249d142478b77502f834a1aec121afcd8537e2f8f9207620b8aa9c7a71f1bd41",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/_stats.txt",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/_stats.txt",
+      "bytes": 3174,
+      "sha256": "b3ad99fb1128cf944d9852beced44ea8ac881621372f44e9a16d0f17235b485a",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/control_hitrate_result.json",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/control_hitrate_result.json",
+      "bytes": 823,
+      "sha256": "7b2ab1501011d1056932aad6ed8675b345d5d0008375088afa91d2a04afbf6a0",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/dataset.jsonl",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/dataset.jsonl",
+      "bytes": 467643,
+      "sha256": "9a20d33b536bdd9f42243d87e2464a3676dbf3de257fc70487b31f06bbf0da7e",
+      "jsonl_records": 130
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/lexicon/fa_lilak.dic",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/lexicon/fa_lilak.dic",
+      "bytes": 1432863,
+      "sha256": "1677dc1cf50db8e52e617d1cedf8bb30f1be2f11cb16077c178fb07a82e50898",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/preflight_state.jsonl",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/preflight_state.jsonl",
+      "bytes": 473104,
+      "sha256": "092b2e234862478176f9f9bf96c8f3fd7d83deefbeddab42bc5a0e600db83365",
+      "jsonl_records": 927
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/report.md",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/report.md",
+      "bytes": 8828,
+      "sha256": "e72d8cdccb269246a37aa2f6871f436e24107aae39376c9ac5d0595fdaf1a99f",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data-pipeline/legal-rag-pilot/tessdata/fas.traineddata",
+      "dest_path": "data/moshir/data-pipeline/legal-rag-pilot/tessdata/fas.traineddata",
+      "bytes": 561272,
+      "sha256": "0b3b15e9ccbe435825187fa7a2bb227f555dd37cf85126c6cf459ca4a69b929f",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/edaalat/national_codes.json",
+      "dest_path": "data/moshir/data/manifests/edaalat/national_codes.json",
+      "bytes": 566,
+      "sha256": "d4258eb01a64eb5a3f84b6de0d2e20df46ab3d0911f7e821dc256d0777469f8d",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/edaalat/scrape_progress_v2.json",
+      "dest_path": "data/moshir/data/manifests/edaalat/scrape_progress_v2.json",
+      "bytes": 270,
+      "sha256": "43b5913784bc02df6068b37b9d4b0dfcd2eb47e3fcf6d393a680a7752a0554a9",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/huggingface-archive-manifest-2.csv",
+      "dest_path": "data/moshir/data/manifests/huggingface-archive-manifest-2.csv",
+      "bytes": 1179252,
+      "sha256": "3efa8784665df7e2b311df0b1f61cb7257db054d84aaba1d8455bb39b2efde55",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/huggingface-archive-manifest.csv",
+      "dest_path": "data/moshir/data/manifests/huggingface-archive-manifest.csv",
+      "bytes": 15717230,
+      "sha256": "2932db6ae1e8b1266fc56bff65e7f5f7a6bcba544a50f5eae6f48af0b61b1b4b",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/persian-legal-rag-jsonl-git/dataset_summary.json",
+      "dest_path": "data/moshir/data/manifests/persian-legal-rag-jsonl-git/dataset_summary.json",
+      "bytes": 770,
+      "sha256": "83e1ce4fa8780613411778a07797ad832567343ce528182731471940e0edccdd",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/persian-legal-rag-jsonl-git/record_schema.json",
+      "dest_path": "data/moshir/data/manifests/persian-legal-rag-jsonl-git/record_schema.json",
+      "bytes": 395,
+      "sha256": "5f5f99b846594087c8ce6ee6d0172dddf0afa18353014f99a0921ae596376d06",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/persian-legal-rag-jsonl-git/sources.json",
+      "dest_path": "data/moshir/data/manifests/persian-legal-rag-jsonl-git/sources.json",
+      "bytes": 98387,
+      "sha256": "b4b2e588683fbbe7b460e3b1d6d046bb3c8a19e0863dbb3da6e444889136f6fd",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/persian-legal-rag/dataset_summary.json",
+      "dest_path": "data/moshir/data/manifests/persian-legal-rag/dataset_summary.json",
+      "bytes": 770,
+      "sha256": "83e1ce4fa8780613411778a07797ad832567343ce528182731471940e0edccdd",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/persian-legal-rag/record_schema.json",
+      "dest_path": "data/moshir/data/manifests/persian-legal-rag/record_schema.json",
+      "bytes": 395,
+      "sha256": "5f5f99b846594087c8ce6ee6d0172dddf0afa18353014f99a0921ae596376d06",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "data/manifests/persian-legal-rag/sources.json",
+      "dest_path": "data/moshir/data/manifests/persian-legal-rag/sources.json",
+      "bytes": 98387,
+      "sha256": "b4b2e588683fbbe7b460e3b1d6d046bb3c8a19e0863dbb3da6e444889136f6fd",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "public/data/articles-index.json",
+      "dest_path": "data/moshir/public/data/articles-index.json",
+      "bytes": 3562981,
+      "sha256": "fa512d61e19dfe4ba7b1af9b6ea7e694ae2cbaecfa80f96223e767079b0a9dc5",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "public/data/catalog.json",
+      "dest_path": "data/moshir/public/data/catalog.json",
+      "bytes": 198710,
+      "sha256": "fdb99b1539ea9f07131d15bce013a16fa0ba21909dfe1a230d5cea282dbdea6c",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "public/data/crawl-status.json",
+      "dest_path": "data/moshir/public/data/crawl-status.json",
+      "bytes": 794,
+      "sha256": "0f0993e9b8e8c9d1db90bc3e2c890d2246278b9f3397ae92efd92056eb9063bd",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "public/data/index.json",
+      "dest_path": "data/moshir/public/data/index.json",
+      "bytes": 2158492,
+      "sha256": "d461ade4113c23a5558f1d4a4e3bd0c64136b4795445c39feb361e8b36f30a70",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "moshir",
+      "source_path": "public/data/stats.json",
+      "dest_path": "data/moshir/public/data/stats.json",
+      "bytes": 742,
+      "sha256": "b09f4847c8fea64b6d4386d35ebef414db49bd4e07a27895f601e9796cf2f55d",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "power",
+      "source_path": "data/edaalat-index/search-index.json.gz",
+      "dest_path": "data/power/data/edaalat-index/search-index.json.gz",
+      "bytes": 4611919,
+      "sha256": "c1c5c0dd7c66b743ed73a3837102ddcae82cfa02bcc9bf2bbc86a12fb5c9414e",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "power",
+      "source_path": "public/data/search-index.json.gz",
+      "dest_path": "data/power/public/data/search-index.json.gz",
+      "bytes": 4611919,
+      "sha256": "c1c5c0dd7c66b743ed73a3837102ddcae82cfa02bcc9bf2bbc86a12fb5c9414e",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "cursor",
+      "source_path": "data/dataset_website-content-crawler_2026-09-08.json.gz",
+      "dest_path": "data/cursor/data/dataset_website-content-crawler_2026-09-08.json.gz",
+      "bytes": 26855815,
+      "sha256": "0479eba03c5c305da3a7de2311738dfcd0401b7f65dfdda84d1a456eebca64c3",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "cursor",
+      "source_path": "data/dataset_website-content-crawler_2026-09-08_18-48-27-553 (1).json",
+      "dest_path": "data/cursor/data/dataset_website-content-crawler_2026-09-08_18-48-27-553 (1).json",
+      "bytes": 160462785,
+      "sha256": "a5e1df45d28495e631dc88252a3ee2812d74b49fed318e567c270e5f73d38018",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": ".gitignore",
+      "dest_path": "data/persian-legal-rag-jsonl/.gitignore",
+      "bytes": 26,
+      "sha256": "b873ea42270726343e27f38da62f2a19efdace47179563b1249889ac6a07fccf",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "README.md",
+      "dest_path": "data/persian-legal-rag-jsonl/README.md",
+      "bytes": 2181,
+      "sha256": "494006e7d81b3e098f689efd2d3e28f3aed7a366416ca08fcc4a6778148d7b56",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "data/dataset_part_00.jsonl",
+      "dest_path": "data/persian-legal-rag-jsonl/data/dataset_part_00.jsonl",
+      "bytes": 89107889,
+      "sha256": "01125f91f5e77cbd301143c2bd8737a48afcca44b7ed1a1266da2bc81505a605",
+      "jsonl_records": 21031
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "data/dataset_part_01.jsonl",
+      "dest_path": "data/persian-legal-rag-jsonl/data/dataset_part_01.jsonl",
+      "bytes": 88718994,
+      "sha256": "2095e05a4842789695bd10fa0d25450d1eae5f45ae221e2064c4b06b1e5b4d37",
+      "jsonl_records": 20820
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "data/dataset_part_02.jsonl",
+      "dest_path": "data/persian-legal-rag-jsonl/data/dataset_part_02.jsonl",
+      "bytes": 89109934,
+      "sha256": "1612635ea19d30f05a79c32d197969577daa6807a8b94e9b088759691778d5e2",
+      "jsonl_records": 17613
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "data/dataset_part_03.jsonl",
+      "dest_path": "data/persian-legal-rag-jsonl/data/dataset_part_03.jsonl",
+      "bytes": 89108211,
+      "sha256": "9306638a2a15185a1cf0933191a664d804b9615715c66546a2aef3d1840d7cf0",
+      "jsonl_records": 20101
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "data/dataset_part_04.jsonl",
+      "dest_path": "data/persian-legal-rag-jsonl/data/dataset_part_04.jsonl",
+      "bytes": 16301937,
+      "sha256": "847cad53c4f7e84098ee0274fefe9b4d0f01540a2e775714e7d0cbe377bc282e",
+      "jsonl_records": 3465
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "metadata/dataset_summary.json",
+      "dest_path": "data/persian-legal-rag-jsonl/metadata/dataset_summary.json",
+      "bytes": 770,
+      "sha256": "83e1ce4fa8780613411778a07797ad832567343ce528182731471940e0edccdd",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "metadata/record_schema.json",
+      "dest_path": "data/persian-legal-rag-jsonl/metadata/record_schema.json",
+      "bytes": 395,
+      "sha256": "5f5f99b846594087c8ce6ee6d0172dddf0afa18353014f99a0921ae596376d06",
+      "jsonl_records": null
+    },
+    {
+      "source_repo": "persian-legal-rag-jsonl",
+      "source_path": "metadata/sources.json",
+      "dest_path": "data/persian-legal-rag-jsonl/metadata/sources.json",
+      "bytes": 98387,
+      "sha256": "b4b2e588683fbbe7b460e3b1d6d046bb3c8a19e0863dbb3da6e444889136f6fd",
+      "jsonl_records": null
+    }
+  ],
+  "conflicts": [],
+  "preexisting_missing_after": [],
+  "totals": {
+    "file_count": 55,
+    "bytes": 596567339,
+    "jsonl_records": 84087,
+    "by_repo": {
+      "moshir": {
+        "files": 41,
+        "bytes": 27576177,
+        "jsonl_records": 1057
+      },
+      "power": {
+        "files": 2,
+        "bytes": 9223838,
+        "jsonl_records": 0
+      },
+      "cursor": {
+        "files": 2,
+        "bytes": 187318600,
+        "jsonl_records": 0
+      },
+      "persian-legal-rag-jsonl": {
+        "files": 10,
+        "bytes": 372448724,
+        "jsonl_records": 83030
+      }
+    }
+  }
+}

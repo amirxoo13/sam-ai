@@ -1,0 +1,43 @@
+{
+ "generated_at": "2026-09-12T09:24:36+00:00",
+ "official_inventory": {
+  "law": 41602,
+  "con": 4239,
+  "opin": 9864,
+  "ara": 612,
+  "termo": 6986
+ },
+ "final_counts": {
+  "laws_articles": 41602,
+  "laws_documents": 1540,
+  "conventions_articles": 4239,
+  "conventions_documents": 136,
+  "opinions": 9864,
+  "opinion_years": 31,
+  "verdicts": 612,
+  "terms": 6986
+ },
+ "total_records": 63303,
+ "expected_total": 63303,
+ "match": {
+  "laws": true,
+  "conventions": true,
+  "opinions": true,
+  "verdicts": true,
+  "terminology": true,
+  "total": true
+ },
+ "all_match": true,
+ "html_crawl_enrichment_coverage": {
+  "law": "41436/41602",
+  "con": "4178/4239",
+  "opin": "9865/9864",
+  "ara": "612/612"
+ },
+ "notes": [
+  "APIهای JSON منبع معتبر و کامل‌اند: شمارش هر پنج بانک دقیقاً با موجودی رسمی برابر است.",
+  "خزش HTML (out/checkpoints) فقط برای افزودن article_label/breadcrumb/date به رکوردها join شد.",
+  "opinion id=6379 در خزش HTML دو بار (در دو هدر سال) رندر شده بود؛ API آن را یک بار دارد (رسمی: 9864).",
+  "قوانین 2798 و 2909 در نمای وب هم خالی‌اند و در API هم موردی ندارند — عنوان بدون ماده در دیتابیس سایت."
+ ]
+}

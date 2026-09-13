@@ -1,0 +1,13 @@
+{
+  "id": "string",
+  "source_file": "original PDF basename",
+  "book_title": "string or empty",
+  "author": "string or empty",
+  "chapter": "string",
+  "chunk_index": "int",
+  "total_chunks_in_file": "int",
+  "text": "cleaned UTF-8 Persian text",
+  "word_count": "int",
+  "had_corrections": "bool, lam-alef only when lexicon-confirmed",
+  "domain": "string, often empty or noisy PDF metadata"
+}

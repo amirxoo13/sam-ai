@@ -1,0 +1,11 @@
+{
+  "stage": "fetch_index",
+  "last_index_page": 500,
+  "max_page": 500,
+  "total_case_ids": 10000,
+  "last_detail_index": 10000,
+  "total_details": 9996,
+  "failed_details": 4,
+  "started_at": "2026-09-10T15:13:17.397900",
+  "updated_at": "2026-09-11T03:41:55.490831"
+}
