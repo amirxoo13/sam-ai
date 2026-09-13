@@ -27,11 +27,10 @@ function ContactPage() {
           تماس با ما
         </p>
         <h1 className="text-[26px] font-extrabold leading-[1.4]">
-          نیاز به بررسی دقیق‌تر پرونده‌ات داری؟
+          نیاز به بررسی دقیق‌تر پرونده دارید؟
         </h1>
         <p className="mt-3 max-w-lg text-[14px] leading-7 text-muted">
-          همین حالا برای مشاوره‌ی تخصصی و اختصاصی با تیم حقوقی SAM AI تماس
-          بگیر.
+          برای مشاورهٔ تخصصی با دفتر مؤسسه حقوقی SAM AI تماس بگیرید.
         </p>
 
         <div className="mt-6 grid gap-2.5 sm:grid-cols-3">

@@ -28,7 +28,20 @@ import type { DraftResult } from "@/lib/legal/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/forms")({
-  loader: () => getCorpusStats(),
+  loader: () =>
+    getCorpusStats().catch(() => ({
+      total: 0,
+      embedded: 0,
+      searchable: 0,
+      byType: {} as Record<string, number>,
+      byDataset: {} as Record<string, number>,
+      backend: "unknown",
+    })),
+  pendingComponent: () => (
+    <div className="grid min-h-dvh place-items-center bg-bg text-sm text-muted" role="status">
+      در حال آماده‌سازی برگه‌ها…
+    </div>
+  ),
   component: FormsPage,
 });
 

@@ -6,9 +6,11 @@ import { gunzipSync } from "node:zlib";
 import { getSql } from "@/lib/db";
 import { anonymizeChunk } from "./anonymize";
 import { parseArticleRefs } from "./article-query";
+import { uniqueById } from "./unique";
 import type { LegalChunk } from "./types";
 
-let seeding: Promise<void> | null = null;
+let originalSeeding: Promise<void> | null = null;
+let extraSeeding: Promise<void> | null = null;
 let seedFilePromise: Promise<SeedFile> | null = null;
 
 type SeedFile = {
@@ -30,7 +32,12 @@ type ExtraChunk = {
   embedding?: number[];
 };
 
-const INSERT_BATCH = 80;
+const INSERT_BATCH = 40;
+const ORIGINAL_EMBEDDED_MIN = 12830;
+/** Unique extra ids measured from the jsonl.gz files (overlapping moshir shards). */
+const EXTRA_UNIQUE_TARGET = 63439;
+const EXTRA_BUDGET_MS = 12_000;
+
 const EXTRA_DATASETS = [
   "amirxo13/iran-legal-corpus",
   "power-edaalat-index",
@@ -71,9 +78,7 @@ function extraCorpusFiles(): string[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((f) =>
-      /^(moshir-iran-corpus-part\d+|power-cases-full|moshir-pilot)\.jsonl\.gz$/.test(
-        f,
-      ),
+      /^(moshir-iran-corpus-part\d+|power-cases-full|moshir-pilot)\.jsonl\.gz$/.test(f),
     )
     .sort()
     .map((f) => join(dir, f));
@@ -86,23 +91,14 @@ function inferArticleNumber(title: string | null, content: string, current: stri
   return hit?.number ?? null;
 }
 
-function loadExtraChunks(): ExtraChunk[] {
-  const out: ExtraChunk[] = [];
-  for (const path of extraCorpusFiles()) {
-    const text = gunzipSync(readFileSync(path)).toString("utf8");
-    for (const line of text.split("\n")) {
-      if (!line.trim()) continue;
-      const parsed = JSON.parse(line) as ExtraChunk;
-      const cleaned = anonymizeChunk(parsed);
-      cleaned.article_number = inferArticleNumber(
-        cleaned.source_title,
-        cleaned.content,
-        cleaned.article_number,
-      );
-      out.push(cleaned);
-    }
-  }
-  return out;
+function prepareExtra(parsed: ExtraChunk): ExtraChunk {
+  const cleaned = anonymizeChunk(parsed);
+  cleaned.article_number = inferArticleNumber(
+    cleaned.source_title,
+    cleaned.content,
+    cleaned.article_number,
+  );
+  return cleaned;
 }
 
 async function loadSeedFile(): Promise<SeedFile> {
@@ -116,25 +112,16 @@ async function loadSeedFile(): Promise<SeedFile> {
   return seedFilePromise;
 }
 
-async function embeddingByContentHash(): Promise<Map<string, number[]>> {
-  const seed = await loadSeedFile();
-  const map = new Map<string, number[]>();
-  for (const chunk of seed.chunks) {
-    if (Array.isArray(chunk.embedding) && chunk.embedding.length > 10) {
-      map.set(textHash(chunk.content), chunk.embedding);
-    }
-  }
-  return map;
-}
-
 async function insertOriginalSlice(
   sql: Awaited<ReturnType<typeof getSql>>,
   slice: LegalChunk[],
   hasVec: boolean,
 ) {
+  const unique = uniqueById(slice);
+  if (unique.length === 0) return;
   if (hasVec) {
     const values: unknown[] = [];
-    const rows = slice.map((chunk, idx) => {
+    const rows = unique.map((chunk, idx) => {
       const b = idx * 11;
       values.push(
         chunk.id,
@@ -161,7 +148,7 @@ async function insertOriginalSlice(
     return;
   }
   const values: unknown[] = [];
-  const rows = slice.map((chunk, idx) => {
+  const rows = unique.map((chunk, idx) => {
     const b = idx * 10;
     values.push(
       chunk.id,
@@ -186,13 +173,13 @@ async function insertOriginalSlice(
   );
 }
 
-async function insertExtraPlain(
-  sql: Awaited<ReturnType<typeof getSql>>,
-  slice: ExtraChunk[],
-) {
+async function insertExtraPlain(sql: Awaited<ReturnType<typeof getSql>>, slice: ExtraChunk[]) {
+  const unique = uniqueById(slice);
+  if (unique.length === 0) return;
   const values: unknown[] = [];
-  const rows = slice.map((chunk, idx) => {
-    const embedding = Array.isArray(chunk.embedding) && chunk.embedding.length > 10 ? chunk.embedding : [];
+  const rows = unique.map((chunk, idx) => {
+    const embedding =
+      Array.isArray(chunk.embedding) && chunk.embedding.length > 10 ? chunk.embedding : [];
     const b = idx * 10;
     values.push(
       chunk.id,
@@ -229,137 +216,101 @@ async function insertExtraPlain(
   );
 }
 
-async function insertExtraEmbedded(
-  sql: Awaited<ReturnType<typeof getSql>>,
-  slice: ExtraChunk[],
-) {
-  const values: unknown[] = [];
-  const rows = slice.map((chunk, idx) => {
-    const embedding = chunk.embedding as number[];
-    const b = idx * 11;
-    values.push(
-      chunk.id,
-      chunk.content,
-      JSON.stringify(embedding),
-      `[${embedding.join(",")}]`,
-      chunk.source_type,
-      chunk.source_title,
-      chunk.article_number,
-      chunk.law_date,
-      chunk.source_url,
-      chunk.source_id,
-      chunk.hf_dataset,
-    );
-    return `($${b + 1},$${b + 2},$${b + 3}::jsonb,$${b + 4}::vector,$${b + 5},$${b + 6},$${b + 7},$${b + 8},$${b + 9},$${b + 10},$${b + 11},${searchTextExpr(b + 2, b + 6, b + 7)})`;
-  });
-  await sql.query(
-    `insert into legal_chunks
-      (id, content, embedding, embedding_vec, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset, search_text)
-     values ${rows.join(",")}
-     on conflict (id) do update set
-       content = excluded.content,
-       source_type = excluded.source_type,
-       source_title = excluded.source_title,
-       article_number = excluded.article_number,
-       law_date = excluded.law_date,
-       source_url = excluded.source_url,
-       source_id = excluded.source_id,
-       hf_dataset = excluded.hf_dataset,
-       search_text = excluded.search_text,
-       embedding = case
-         when jsonb_typeof(legal_chunks.embedding) = 'array' and jsonb_array_length(legal_chunks.embedding) > 10
-         then legal_chunks.embedding else excluded.embedding end,
-       embedding_vec = coalesce(legal_chunks.embedding_vec, excluded.embedding_vec)`,
-    values,
-  );
-}
-
-async function insertExtraSlice(
-  sql: Awaited<ReturnType<typeof getSql>>,
-  slice: ExtraChunk[],
-  hasVec: boolean,
-) {
-  const withEmb = slice.filter((c) => (c.embedding?.length ?? 0) > 10);
-  const without = slice.filter((c) => (c.embedding?.length ?? 0) <= 10);
-  if (without.length > 0) await insertExtraPlain(sql, without);
-  if (withEmb.length === 0) return;
-  if (hasVec) await insertExtraEmbedded(sql, withEmb);
-  else await insertExtraPlain(sql, withEmb);
-}
-
 async function seedOriginal() {
-  const seedFile = await loadSeedFile();
   const sql = await getSql();
   const existing = await sql.query<{ n: number }>(
     `select count(*)::int as n from legal_chunks
-     where jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10`,
+     where jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10
+       and coalesce(hf_dataset, '') <> all($1::text[])`,
+    [EXTRA_DATASETS],
   );
-  if ((existing[0]?.n ?? 0) >= seedFile.chunks.length) return;
+  if ((existing[0]?.n ?? 0) >= ORIGINAL_EMBEDDED_MIN) return;
 
+  const seedFile = await loadSeedFile();
   let hasVec = false;
   try {
     await sql.query("create extension if not exists vector");
-    await sql.query(
-      "alter table legal_chunks add column if not exists embedding_vec vector(384)",
-    );
+    await sql.query("alter table legal_chunks add column if not exists embedding_vec vector(384)");
     hasVec = true;
   } catch {
     hasVec = false;
   }
 
-  for (let i = 0; i < seedFile.chunks.length; i += INSERT_BATCH) {
-    await insertOriginalSlice(
-      sql,
-      seedFile.chunks.slice(i, i + INSERT_BATCH),
-      hasVec,
-    );
+  const chunks = uniqueById(seedFile.chunks);
+  for (let i = 0; i < chunks.length; i += INSERT_BATCH) {
+    await insertOriginalSlice(sql, chunks.slice(i, i + INSERT_BATCH), hasVec);
   }
 }
 
 async function seedExtra() {
   const files = extraCorpusFiles();
   if (files.length === 0) return;
-  const extra = loadExtraChunks();
-  if (extra.length === 0) return;
   const sql = await getSql();
   const existing = await sql.query<{ n: number }>(
-    `select count(*)::int as n from legal_chunks
-     where hf_dataset = any($1::text[])`,
+    `select count(*)::int as n from legal_chunks where hf_dataset = any($1::text[])`,
     [EXTRA_DATASETS],
   );
-  if ((existing[0]?.n ?? 0) >= extra.length) return;
+  if ((existing[0]?.n ?? 0) >= EXTRA_UNIQUE_TARGET) return;
 
-  const reused = await embeddingByContentHash();
-  for (const chunk of extra) {
-    const hit = reused.get(textHash(chunk.content));
-    if (hit) chunk.embedding = hit;
+  const already = await sql.query<{ id: string }>(
+    `select id from legal_chunks where hf_dataset = any($1::text[])`,
+    [EXTRA_DATASETS],
+  );
+  const seen = new Set(already.map((r) => r.id));
+  const started = Date.now();
+  let batch: ExtraChunk[] = [];
+
+  const flush = async () => {
+    if (batch.length === 0) return;
+    await insertExtraPlain(sql, batch);
+    batch = [];
+  };
+
+  for (const path of files) {
+    if (Date.now() - started > EXTRA_BUDGET_MS) break;
+    const text = gunzipSync(readFileSync(path)).toString("utf8");
+    for (const line of text.split("\n")) {
+      if (Date.now() - started > EXTRA_BUDGET_MS) break;
+      if (!line.trim()) continue;
+      let parsed: ExtraChunk;
+      try {
+        parsed = JSON.parse(line) as ExtraChunk;
+      } catch {
+        continue;
+      }
+      if (!parsed.id || seen.has(parsed.id)) continue;
+      seen.add(parsed.id);
+      batch.push(prepareExtra(parsed));
+      if (batch.length >= INSERT_BATCH) await flush();
+    }
   }
+  await flush();
+}
 
-  let hasVec = false;
+async function seedOriginalSafe() {
   try {
-    await sql.query("create extension if not exists vector");
-    await sql.query(
-      "alter table legal_chunks add column if not exists embedding_vec vector(384)",
-    );
-    hasVec = true;
-  } catch {
-    hasVec = false;
-  }
-
-  for (let i = 0; i < extra.length; i += INSERT_BATCH) {
-    await insertExtraSlice(sql, extra.slice(i, i + INSERT_BATCH), hasVec);
+    await seedOriginal();
+  } catch (err) {
+    console.error("seedOriginal failed", err);
   }
 }
 
-async function seedOnce() {
-  await seedOriginal();
-  await seedExtra();
+async function seedExtraSafe() {
+  try {
+    await seedExtra();
+  } catch (err) {
+    console.error("seedExtra failed", err);
+  }
 }
 
+/** Blocks only until the original 12_830 embedded statutes/cases are present. Extra corpus is filled in the background. */
 export function ensureSeeded(): Promise<void> {
-  seeding ??= seedOnce().catch((err) => {
-    seeding = null;
+  originalSeeding ??= seedOriginalSafe().catch((err) => {
+    originalSeeding = null;
     throw err;
   });
-  return seeding;
+  extraSeeding ??= seedExtraSafe().finally(() => {
+    extraSeeding = null;
+  });
+  return originalSeeding;
 }

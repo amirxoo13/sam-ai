@@ -16,6 +16,7 @@ const NEXT_ROUTES = ["/", "/ask", "/forms", "/residency", "/profile", "/sources"
 type NextRoute = (typeof NEXT_ROUTES)[number];
 
 function safeNext(next: string): NextRoute {
+  if (next === "/login") return "/ask";
   return (NEXT_ROUTES as readonly string[]).includes(next) ? (next as NextRoute) : "/ask";
 }
 
