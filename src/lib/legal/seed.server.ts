@@ -199,19 +199,7 @@ async function insertExtraPlain(sql: Awaited<ReturnType<typeof getSql>>, slice: 
     `insert into legal_chunks
       (id, content, embedding, source_type, source_title, article_number, law_date, source_url, source_id, hf_dataset, search_text)
      values ${rows.join(",")}
-     on conflict (id) do update set
-       content = excluded.content,
-       source_type = excluded.source_type,
-       source_title = excluded.source_title,
-       article_number = excluded.article_number,
-       law_date = excluded.law_date,
-       source_url = excluded.source_url,
-       source_id = excluded.source_id,
-       hf_dataset = excluded.hf_dataset,
-       search_text = excluded.search_text,
-       embedding = case
-         when jsonb_typeof(legal_chunks.embedding) = 'array' and jsonb_array_length(legal_chunks.embedding) > 10
-         then legal_chunks.embedding else excluded.embedding end`,
+     on conflict (id) do nothing`,
     values,
   );
 }

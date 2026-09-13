@@ -39,7 +39,7 @@ describe("rankRows", () => {
     ], 8);
     assert.equal(ranked[0].id, "civil10");
     assert.equal(ranked[0].matchKind, "exact_article");
-    assert.ok(ranked[0].score > ranked[1].score);
+    assert.equal(ranked.find((r) => r.id === "other"), undefined);
   });
 
   it("keeps a full-text hit even without a vector score", () => {
@@ -78,5 +78,28 @@ describe("rankRows", () => {
       }),
     ], 8);
     assert.equal(ranked[0].id, "civil10");
+  });
+
+  it("does not rank آیین دادرسی مدنی as the civil-code article", () => {
+    const q = "ماده ۱۰ قانون مدنی چه می‌گوید؟";
+    const refs = parseArticleRefs(q);
+    const ranked = rankRows(q, refs, [
+      row({
+        id: "procedure10",
+        source_title: "آیین دادرسی مدنی",
+        article_number: "10",
+        content: "ماده 10 - رسیدگی نخستین به دعاوی حسب مورد در صلاحیت دادگاههای عمومی است.",
+        matchKind: "exact_article",
+      }),
+      row({
+        id: "civil10",
+        source_title: "قانون مدنی",
+        article_number: "10",
+        content: "ماده 10 - قراردادهای خصوصی نسبت به کسانی که آن را منعقد نموده‌اند نافذ است.",
+        matchKind: "exact_article",
+      }),
+    ], 8);
+    assert.equal(ranked[0].id, "civil10");
+    assert.equal(ranked.find((r) => r.id === "procedure10"), undefined);
   });
 });

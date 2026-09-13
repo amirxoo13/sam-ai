@@ -1,10 +1,10 @@
-import { dbSource, getSql } from "@/lib/db";
+import { getDbSource, getSql } from "@/lib/db";
 
 let vectorEnsured = false;
 
 /** روی PGLite (preview) کاری نمی‌کند — همان مسیر jsonb-only کافی است. */
 export async function ensureVectorColumn(): Promise<void> {
-  if (dbSource !== "neon" || vectorEnsured) return;
+  if (getDbSource() !== "neon" || vectorEnsured) return;
   const sql = await getSql();
   try {
     await sql.query("create extension if not exists vector");
@@ -37,7 +37,7 @@ export async function replaceChunksForSourceUrl(
   const sql = await getSql();
   await sql.query("delete from legal_chunks where source_url = $1", [sourceUrl]);
   for (const r of rows) {
-    if (dbSource === "neon") {
+    if (getDbSource() === "neon") {
       const vecLiteral = `[${r.embedding.join(",")}]`;
       await sql.query(
         `insert into legal_chunks

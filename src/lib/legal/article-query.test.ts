@@ -12,7 +12,7 @@ describe("article-query", () => {
     assert.equal(refs.length, 1);
     assert.equal(refs[0].kind, "article");
     assert.equal(refs[0].number, "10");
-    assert.equal(refs[0].lawHint, "مدنی");
+    assert.equal(refs[0].lawHint, "قانون مدنی");
   });
 
   it("parses constitution principle 35", () => {
@@ -29,6 +29,12 @@ describe("article-query", () => {
 
   it("detects check law", () => {
     assert.equal(detectLawHint("قانون صدور چک"), "چک");
+  });
+
+  it("does not treat آیین دادرسی مدنی as قانون مدنی", () => {
+    assert.equal(detectLawHint("ماده ۱۰ قانون مدنی"), "قانون مدنی");
+    assert.equal(detectLawHint("ماده ۱۰ آیین دادرسی مدنی"), "آیین دادرسی مدنی");
+    assert.equal(detectLawHint("ماده ۱ قانون مسئولیت مدنی"), "مسئولیت مدنی");
   });
 
   it("includes persian digits in sql match values", () => {

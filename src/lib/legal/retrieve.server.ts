@@ -1,4 +1,4 @@
-import { dbSource, getSql } from "@/lib/db";
+import { getDbSource, getSql } from "@/lib/db";
 import { TOP_K } from "./config";
 import { cosine, embedQuery } from "./embeddings.server";
 import { ensureSeeded } from "./seed.server";
@@ -58,7 +58,7 @@ async function retrieveExact(refs: ReturnType<typeof parseArticleRefs>, sourceTy
     let hintSql = "";
     if (useHint && hint) {
       const idx = params.push(`%${hint}%`);
-      hintSql = ` and (source_title ilike $${idx} or content ilike $${idx})`;
+      hintSql = ` and source_title ilike $${idx}`;
     }
     return sql.query<Row>(
       `select id, content, source_type, source_title, article_number, law_date, source_url
@@ -127,7 +127,7 @@ async function retrieveFts(question: string, sourceType: SourceFilter): Promise<
 }
 
 async function retrieveViaPgvector(queryVec: number[], sourceType: SourceFilter): Promise<RankRow[]> {
-  if (dbSource !== "neon") return [];
+  if (getDbSource() !== "neon") return [];
   const sql = await getSql();
   const vecLiteral = `[${queryVec.join(",")}]`;
   const typed = typeClause(sourceType, 2);
@@ -210,7 +210,7 @@ export async function retrieveChunks(
 }
 
 export async function corpusStats() {
-  await ensureSeeded();
+  void ensureSeeded().catch((err) => console.error("ensureSeeded", err));
   const sql = await getSql();
   const rows = await sql.query<{ source_type: string; n: number }>(
     "select source_type, count(*)::int as n from legal_chunks group by source_type",
@@ -233,6 +233,6 @@ export async function corpusStats() {
     searchable: withSearch[0]?.n ?? 0,
     byType: Object.fromEntries(rows.map((r) => [r.source_type, r.n])) as Record<string, number>,
     byDataset: Object.fromEntries(extra.map((r) => [r.hf_dataset, r.n])) as Record<string, number>,
-    backend: dbSource,
+    backend: getDbSource(),
   };
 }

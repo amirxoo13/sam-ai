@@ -21,13 +21,16 @@ function articleExact(row: RankRow, refs: ParsedArticleRef[]): number {
   const art = toEnDigits(row.article_number ?? "");
   if (art.length > 6) return 0;
   const title = normalizeFa(row.source_title ?? "");
-  const content = normalizeFa(row.content);
   let best = 0;
   for (const ref of refs) {
     const numHit = art === ref.number || art === `${ref.number}مکرر`;
-    const hintHit = !ref.lawHint || title.includes(ref.lawHint) || content.includes(ref.lawHint);
-    if (numHit && hintHit) best = Math.max(best, 1);
-    else if (numHit) best = Math.max(best, 0.72);
+    if (!numHit) continue;
+    if (!ref.lawHint) {
+      best = Math.max(best, 0.72);
+      continue;
+    }
+    const titleHit = title.includes(ref.lawHint);
+    best = Math.max(best, titleHit ? 1 : 0.35);
   }
   return best;
 }
@@ -62,7 +65,11 @@ export function rankRows(
       authorityWeight(authority) * 0.12 +
       urlBonus;
     const matchKind: RetrievedChunk["matchKind"] =
-      exact >= 0.72 ? "exact_article" : row.matchKind ?? (semantic > 0.15 ? "vector" : "fts");
+      exact >= 0.72
+        ? "exact_article"
+        : row.matchKind === "exact_article"
+          ? "fts"
+          : row.matchKind ?? (semantic > 0.15 ? "vector" : "fts");
     const next: RetrievedChunk = {
       id: row.id,
       content: row.content,
@@ -78,8 +85,29 @@ export function rankRows(
     const prev = byId.get(next.id);
     if (!prev || next.score > prev.score) byId.set(next.id, next);
   }
-  return [...byId.values()]
-    .filter((r) => r.matchKind === "exact_article" || r.matchKind === "fts" || r.score > 0.18)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, topK);
+  const hinted = refs.filter((r) => r.lawHint);
+  let ranked = [...byId.values()].filter(
+    (r) => r.matchKind === "exact_article" || r.matchKind === "fts" || r.score > 0.18,
+  );
+  if (hinted.length > 0) {
+    const hasTitleHit = ranked.some((r) =>
+      hinted.some(
+        (h) =>
+          r.matchKind === "exact_article" &&
+          normalizeFa(r.source_title ?? "").includes(h.lawHint),
+      ),
+    );
+    if (hasTitleHit) {
+      ranked = ranked.filter((r) => {
+        const title = normalizeFa(r.source_title ?? "");
+        const art = toEnDigits(r.article_number ?? "");
+        if (art.length > 6) return true;
+        const otherLawSameArticle = hinted.some(
+          (h) => (art === h.number || art === `${h.number}مکرر`) && !title.includes(h.lawHint),
+        );
+        return !otherLawSameArticle;
+      });
+    }
+  }
+  return ranked.sort((a, b) => b.score - a.score).slice(0, topK);
 }
