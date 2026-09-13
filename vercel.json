@@ -4,10 +4,5 @@
       "path": "/api/cron/crawl",
       "schedule": "*/10 * * * *"
     }
-  ],
-  "functions": {
-    "api/**": {
-      "maxDuration": 120
-    }
-  }
+  ]
 }
