@@ -44,7 +44,6 @@ const SHARD_NAMES = Array.from({ length: 256 }, (_, i) => i.toString(16).padStar
 
 const CACHE_PATH = join(ROOT, "data/raw/moshir-documents/embed-cache.json");
 const FILELIST_CACHE_PATH = join(ROOT, "data/raw/moshir-documents/filelist-cache.json");
-const BATCH = 8;
 const CHUNK_MAX = 1400;
 
 if (!HF_TOKEN) {

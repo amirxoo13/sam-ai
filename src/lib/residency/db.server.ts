@@ -6,8 +6,6 @@
 // متغیر محیطی: RESIDENCY_DATABASE_URL — دقیقاً همان مقداری که در پروژه‌ی
 // cursor زیر اسم DATABASE_URL ست شده (کپی‌اش کن، عوضش نکن).
 
-type Row = Record<string, unknown>;
-
 let poolPromise: Promise<import("pg").Pool> | null = null;
 
 async function getPool(): Promise<import("pg").Pool> {

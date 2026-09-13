@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -48,10 +47,6 @@ function searchTextExpr(contentP: number, titleP: number, articleP: number): str
   return `to_tsvector('simple', coalesce($${titleP}, '') || ' ' || coalesce($${articleP}, '') || ' ' || left($${contentP}, 40000))`;
 }
 
-function textHash(s: string): string {
-  return createHash("sha256").update(s.replace(/\s+/g, " ").trim()).digest("hex");
-}
-
 function resolveSeedPath(): string {
   const cwd = process.cwd();
   const candidates = [
@@ -96,7 +91,7 @@ function inferArticleNumber(title: string | null, content: string, current: stri
  * letting the whole insert batch fail with "invalid byte sequence for
  * encoding UTF8: 0x00". */
 function stripNullBytes<T>(value: T): T {
-  return typeof value === "string" ? (value.replace(/\u0000/g, "") as unknown as T) : value;
+  return typeof value === "string" ? (value.replaceAll("\0", "") as unknown as T) : value;
 }
 
 function prepareExtra(parsed: ExtraChunk): ExtraChunk {
