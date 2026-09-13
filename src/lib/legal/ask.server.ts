@@ -81,7 +81,8 @@ export async function runAsk(input: {
   let usedFallback = false;
   try {
     answer = await generateAnswer(input.question, sources, input.matterExcerpts);
-  } catch {
+  } catch (err) {
+    console.error("legal generateAnswer failed", err);
     answer = fallbackFromSources(input.question, sources);
     usedFallback = true;
   }
@@ -150,7 +151,8 @@ export async function runAskStream(input: {
   let usedFallback = false;
   try {
     answer = await streamAnswer(input.question, chunks, input.matterExcerpts, input.onDelta);
-  } catch {
+  } catch (err) {
+    console.error("legal streamAnswer failed", err);
     answer = fallbackFromSources(input.question, chunks);
     usedFallback = true;
     input.onDelta(answer);

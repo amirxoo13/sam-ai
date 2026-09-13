@@ -91,6 +91,14 @@ function inferArticleNumber(title: string | null, content: string, current: stri
   return hit?.number ?? null;
 }
 
+/** Postgres text columns reject the null byte (0x00). Corrupted source files
+ * (e.g. mis-decoded Word docs) occasionally carry one — strip it instead of
+ * letting the whole insert batch fail with "invalid byte sequence for
+ * encoding UTF8: 0x00". */
+function stripNullBytes<T>(value: T): T {
+  return typeof value === "string" ? (value.replace(/\u0000/g, "") as unknown as T) : value;
+}
+
 function prepareExtra(parsed: ExtraChunk): ExtraChunk {
   const cleaned = anonymizeChunk(parsed);
   cleaned.article_number = inferArticleNumber(
@@ -98,6 +106,13 @@ function prepareExtra(parsed: ExtraChunk): ExtraChunk {
     cleaned.content,
     cleaned.article_number,
   );
+  cleaned.content = stripNullBytes(cleaned.content);
+  cleaned.source_title = stripNullBytes(cleaned.source_title);
+  cleaned.article_number = stripNullBytes(cleaned.article_number);
+  cleaned.law_date = stripNullBytes(cleaned.law_date);
+  cleaned.source_url = stripNullBytes(cleaned.source_url);
+  cleaned.source_id = stripNullBytes(cleaned.source_id);
+  cleaned.hf_dataset = stripNullBytes(cleaned.hf_dataset);
   return cleaned;
 }
 
