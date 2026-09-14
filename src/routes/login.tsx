@@ -63,6 +63,25 @@ function LoginPage() {
         const { error: err } = await authClient.signIn.email({ email, password });
         if (err) throw new Error("ورود انجام نشد. ایمیل یا رمز را بررسی کنید.");
       }
+      // انبارهٔ سشن کلاینت را پیش از رفتن رفرش کن.
+      // بدون این، navigate بلافاصله اجرا می‌شد در حالی که useSession هنوز
+      // مقدار قدیمی (user=null, isPending=false) داشت؛ RequireAuth مقصد آن را
+      // «خارج‌شده» می‌خواند و کاربر را همان لحظه به /login برمی‌گرداند — یعنی
+      // ورود موفق (۲۰۰) ولی کاربر هرگز داخل نمی‌شد. مسیر OAuth در
+      // lib/auth/client.ts از قبل همین کار را می‌کند.
+      let sessionReady = false;
+      try {
+        const { data } = await authClient.getSession({ query: { disableCookieCache: true } });
+        sessionReady = Boolean(data?.user);
+      } catch {
+        sessionReady = false;
+      }
+      if (!sessionReady && typeof window !== "undefined") {
+        // انبار به هر دلیلی به‌روز نشد. ناوبری سخت، بارگذاری تازه با همان کوکی
+        // است و سشن سمت سرور حل می‌شود — کاربر هرگز در حلقهٔ /login گیر نمی‌کند.
+        window.location.assign(safeNext(next));
+        return;
+      }
       await navigate({ to: safeNext(next) });
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطای غیرمنتظره");
