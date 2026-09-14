@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
+import { residencyAskBodySchema } from "@/lib/legal/request-schemas";
 
 const SYSTEM_PROMPT_TEMPLATE = `شما مشاور مهاجرت SAM AI هستید. لحن مؤسسهٔ حقوقی است؛ خطاب «شما».
 فقط بر اساس متون رسمی بازیابی‌شده پاسخ دهید. اگر کافی نبود، بگویید در منابع نیست.
@@ -12,24 +12,24 @@ const SYSTEM_PROMPT_TEMPLATE = `شما مشاور مهاجرت SAM AI هستید
 پرسش:
 {{USER_QUESTION}}{{USER_FILES_CONTEXT}}`;
 
-/**
- * سقف طول ورودی همسان با `/api/ask` و `/api/legal-ask` است. بدون سقف، متن
- * دلخواه بزرگ مستقیم به rewrite + embedding + prompt مدل می‌رفت و سهمیه را
- * می‌سوزاند (BUG-003).
- */
-const bodySchema = z.object({
-  question: z.string().trim().min(4).max(2000),
-  jurisdiction: z.enum(["US", "EU"]).optional(),
-  country: z.string().trim().max(20).optional(),
-});
-
 export const Route = createFileRoute("/api/residency-ask")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        let rawBody: unknown;
         let sessionUser: { id: string; email: string | null };
+
+        // احراز هویت و گارد ایزولاسیون در بلوک خودشان.
+        //
+        // قبلاً این دو با `await request.json()` در یک try مشترک بودند و
+        // catch آن بدون توجه به نوع خطا «بدنه درخواست باید JSON معتبر باشد»
+        // با کد ۴۰۰ برمی‌گرداند. یعنی یک CrossSiteRequestError یا خطای
+        // Better Auth هم به‌شکل «JSON بد» گزارش می‌شد — هم پیام غلط، هم
+        // پنهان‌شدن کامل خطای واقعی.
         try {
+          // SEC-004: این مسیر هم مثل /api/draft گارد same-site نداشت.
+          const { assertSameSiteRequest } = await import("@/lib/auth/isolation.server");
+          assertSameSiteRequest();
+
           const { getSessionUser } = await import("@/lib/auth/verify.server");
           const resolvedUser = await getSessionUser();
           if (!resolvedUser) {
@@ -39,12 +39,31 @@ export const Route = createFileRoute("/api/residency-ask")({
             );
           }
           sessionUser = resolvedUser;
+        } catch (err) {
+          const status = (err as { status?: number } | null)?.status === 403 ? 403 : 500;
+          const { logAndBuildErrorResponse } = await import("@/lib/server-error");
+          return logAndBuildErrorResponse(
+            "api/residency-ask",
+            err,
+            status === 403 ? "درخواست پذیرفته نشد." : "خطای غیرمنتظره در پردازش سؤال",
+            status,
+          );
+        }
+
+        const { consumeRateLimit, rateLimitedResponse, ASK_RATE_LIMIT } = await import(
+          "@/lib/rate-limit.server"
+        );
+        const decision = await consumeRateLimit(`residency-ask:${sessionUser.id}`, ASK_RATE_LIMIT);
+        if (!decision.allowed) return rateLimitedResponse(decision);
+
+        let rawBody: unknown;
+        try {
           rawBody = await request.json();
         } catch {
           return Response.json({ error: "بدنه درخواست باید JSON معتبر باشد" }, { status: 400 });
         }
 
-        const parsed = bodySchema.safeParse(rawBody);
+        const parsed = residencyAskBodySchema.safeParse(rawBody);
         if (!parsed.success) {
           return Response.json(
             { error: "ورودی نامعتبر است", details: parsed.error.flatten() },
@@ -108,7 +127,10 @@ export const Route = createFileRoute("/api/residency-ask")({
             : "";
 
           const { getUserFilesContext } = await import("@/lib/user-files.server");
-          const userFilesContext = await getUserFilesContext(sessionUser.id, question).catch(() => "");
+          const userFilesContext = await getUserFilesContext(sessionUser.id, question).catch((err) => {
+            console.warn("[api/residency-ask] user file context unavailable", err);
+            return "";
+          });
           const userFilesBlock = userFilesContext
             ? `\n\nپرونده(های) خصوصی این کاربر (فقط اگر مرتبط بود استفاده کن):\n${userFilesContext}`
             : "";
@@ -128,6 +150,12 @@ export const Route = createFileRoute("/api/residency-ask")({
           const loggedStream = new ReadableStream<Uint8Array>({
             async start(controller) {
               const reader = upstream.getReader();
+              let closed = false;
+              const closeOnce = () => {
+                if (closed) return;
+                closed = true;
+                controller.close();
+              };
               try {
                 while (true) {
                   const { done, value } = await reader.read();
@@ -139,17 +167,32 @@ export const Route = createFileRoute("/api/residency-ask")({
                   for (const line of lines) {
                     if (!line.trim()) continue;
                     try {
-                      const parsed = JSON.parse(line);
-                      if (parsed.t === "c" && typeof parsed.d === "string") answerBuffer += parsed.d;
+                      const parsedLine = JSON.parse(line);
+                      if (parsedLine.t === "c" && typeof parsedLine.d === "string") {
+                        answerBuffer += parsedLine.d;
+                      }
                     } catch {
-                      /* نادیده گرفته می‌شود */
+                      /* خط NDJSON ناقص — قطعهٔ بعدی کاملش می‌کند */
                     }
                   }
                 }
+              } catch (streamErr) {
+                // بدون این، خطای upstream از داخل start() بیرون می‌زد در حالی
+                // که finally هم‌زمان controller را می‌بست.
+                console.error("[api/residency-ask] upstream stream failed", streamErr);
               } finally {
-                controller.close();
+                reader.releaseLock();
+                closeOnce();
                 if (answerBuffer.trim()) {
-                  await saveChatMessage(sessionUser.id, "residency", "assistant", answerBuffer);
+                  // نوشتن تاریخچه نباید بتواند یک unhandled rejection بسازد.
+                  await saveChatMessage(
+                    sessionUser.id,
+                    "residency",
+                    "assistant",
+                    answerBuffer,
+                  ).catch((saveErr) => {
+                    console.error("[api/residency-ask] saveChatMessage failed", saveErr);
+                  });
                 }
               }
             },
