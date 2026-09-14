@@ -1,13 +1,16 @@
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { gunzipSync } from "node:zlib";
+import { promisify } from "node:util";
+import { gunzip } from "node:zlib";
 import { getSql } from "@/lib/db";
 import { anonymizeChunk } from "./anonymize";
 import { parseArticleRefs } from "./article-query";
 import { uniqueById } from "./unique";
 import type { LegalChunk } from "./types";
+
+const gunzipAsync = promisify(gunzip);
 
 let originalSeeding: Promise<void> | null = null;
 let extraSeeding: Promise<void> | null = null;
@@ -239,9 +242,16 @@ async function seedOriginal() {
     hasVec = false;
   }
 
-  const chunks = uniqueById(seedFile.chunks);
-  for (let i = 0; i < chunks.length; i += INSERT_BATCH) {
-    await insertOriginalSlice(sql, chunks.slice(i, i + INSERT_BATCH), hasVec);
+  try {
+    const chunks = uniqueById(seedFile.chunks);
+    for (let i = 0; i < chunks.length; i += INSERT_BATCH) {
+      await insertOriginalSlice(sql, chunks.slice(i, i + INSERT_BATCH), hasVec);
+    }
+  } finally {
+    // پیکرهٔ seed چند ده مگابایت JSON پارس‌شده است و پس از درج دیگر لازم
+    // نیست. تا وقتی این promise زنده بود، آن آرایه هم برای همیشه در heap
+    // فرایند می‌ماند. رهایش کن تا GC بتواند آزادش کند.
+    seedFilePromise = null;
   }
 }
 
@@ -271,7 +281,11 @@ async function seedExtra() {
 
   for (const path of files) {
     if (Date.now() - started > EXTRA_BUDGET_MS) break;
-    const text = gunzipSync(readFileSync(path)).toString("utf8");
+    // قبلاً `gunzipSync(readFileSync(path))` بود: هر دو عملیات روی یک فایل
+    // ~۳۵ مگابایتی، به‌صورت همگام. در Node این یعنی event loop کل فرایند تا
+    // پایان باز کردن فایل قفل می‌شود و هر درخواست هم‌زمانِ دیگری — از جمله
+    // درخواست‌هایی که هیچ ربطی به seed ندارند — پشت آن معطل می‌ماند.
+    const text = (await gunzipAsync(await readFile(path))).toString("utf8");
     for (const line of text.split("\n")) {
       if (Date.now() - started > EXTRA_BUDGET_MS) break;
       if (!line.trim()) continue;
@@ -290,29 +304,38 @@ async function seedExtra() {
   await flush();
 }
 
-async function seedOriginalSafe() {
-  try {
-    await seedOriginal();
-  } catch (err) {
-    console.error("seedOriginal failed", err);
-  }
-}
-
-async function seedExtraSafe() {
-  try {
-    await seedExtra();
-  } catch (err) {
-    console.error("seedExtra failed", err);
-  }
-}
-
-/** Blocks only until the original 12_830 embedded statutes/cases are present. Extra corpus is filled in the background. */
+/**
+ * Blocks only until the original 12_830 embedded statutes/cases are present.
+ * Extra corpus is filled in the background.
+ *
+ * ── باگ قبلی (BUG-003) ───────────────────────────────────────────────────
+ * کد قبلی این بود:
+ *
+ *     extraSeeding ??= seedExtraSafe().finally(() => { extraSeeding = null; });
+ *
+ * یعنی به‌محض اینکه یک پاس seed تمام می‌شد، memo پاک می‌شد و *درخواست بعدی*
+ * یک پاس کاملاً تازه شروع می‌کرد. و `ensureSeeded()` سر هر `retrieveChunks`
+ * (هر پرسش) و هر `corpusStats()` (هر بار باز شدن /ask و هر /api/stats) صدا
+ * زده می‌شود. نتیجه: تا ۱۲ ثانیه gunzip + JSON.parse + ۶۳ هزار id به RAM،
+ * بارها و بارها، روی مسیر داغ درخواست.
+ *
+ * همچنین `seedOriginalSafe` خطا را می‌بلعید و promiseِ موفق برمی‌گرداند، پس
+ * یک seed شکست‌خورده برای همیشه به‌عنوان «انجام شد» memo می‌شد و هرگز دوباره
+ * تلاش نمی‌کرد.
+ *
+ * ── رفتار جدید ───────────────────────────────────────────────────────────
+ * موفقیت → برای همیشه memo می‌شود (دیگر هیچ پاس تکراری).
+ * شکست   → لاگ می‌شود و memo پاک می‌شود تا درخواست بعدی دوباره تلاش کند.
+ * در هر دو حالت `ensureSeeded()` مثل قبل reject نمی‌کند، تا یک پیکرهٔ ناقص
+ * باعث ۵۰۰ شدن کل پرسش نشود.
+ */
 export function ensureSeeded(): Promise<void> {
-  originalSeeding ??= seedOriginalSafe().catch((err) => {
-    originalSeeding = null;
-    throw err;
+  originalSeeding ??= seedOriginal().catch((err) => {
+    console.error("seedOriginal failed", err);
+    originalSeeding = null; // اجازهٔ تلاش مجدد در درخواست بعدی
   });
-  extraSeeding ??= seedExtraSafe().finally(() => {
+  extraSeeding ??= seedExtra().catch((err) => {
+    console.error("seedExtra failed", err);
     extraSeeding = null;
   });
   return originalSeeding;
