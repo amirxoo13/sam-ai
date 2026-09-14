@@ -42,6 +42,7 @@ function ResidencyPage() {
   const [input, setInput] = useState("");
   const [country, setCountry] = useState("ALL");
   const [turns, setTurns] = useState<ChatTurn[]>([]);
+  const [busy, setBusy] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,14 +51,30 @@ function ResidencyPage() {
   }, [turns]);
 
   async function ask(question: string) {
-    if (!question.trim()) return;
+    // گاردِ ارسال هم‌زمان. به‌روزرسانی وضعیت پایین با
+    // `next[next.length - 1]` فرض می‌کند آخرین turn همان turnِ جاری است؛
+    // دو ارسال هم‌زمان این فرض را می‌شکست و پاسخ یک پرسش روی پرسش دیگر
+    // نوشته می‌شد. جلوی هزینهٔ دوبارهٔ embedding + مدل را هم می‌گیرد.
+    if (!question.trim() || busy) return;
     setInput("");
+    setBusy(true);
     setTurns((prev) => [...prev, { question, loading: true }]);
+
+    /** فقط آخرین turn را به‌روز می‌کند. */
+    const patchLast = (patch: Partial<ChatTurn>) => {
+      setTurns((prev) => {
+        if (prev.length === 0) return prev;
+        const next = [...prev];
+        next[next.length - 1] = { ...next[next.length - 1], ...patch };
+        return next;
+      });
+    };
 
     try {
       const res = await fetch("/api/residency-ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           question,
           country: country === "ALL" ? undefined : country,
@@ -67,18 +84,19 @@ function ResidencyPage() {
       // پاسخ موفق NDJSON استریم است: هر خط {"t":"r"|"c","d":"..."} — "r" تکه‌ای
       // از فکرکردنِ زنده‌ی مدل، "c" تکه‌ای از جواب نهایی. فقط خطاها JSON یک‌جا هستند.
       if (!res.ok || !res.body) {
-        let message = "خطای ناشناخته";
+        // بدنهٔ خطای سرور از قبل پیام امن و فارسی است (server-error.ts)، پس
+        // نمایشش اشکالی ندارد. برای ۴۲۹ پیام اختصاصی سقف نرخ.
+        let message =
+          res.status === 429
+            ? "تعداد درخواست‌های شما بیش از حد مجاز است. کمی بعد دوباره تلاش کنید."
+            : "پاسخ در حال حاضر آماده نشد. لطفاً دوباره تلاش کنید.";
         try {
-          const data = await res.json();
-          message = data.error || message;
+          const data = (await res.json()) as { error?: unknown };
+          if (typeof data.error === "string" && data.error.trim()) message = data.error;
         } catch {
           /* بدنه JSON نبود */
         }
-        setTurns((prev) => {
-          const next = [...prev];
-          next[next.length - 1] = { ...next[next.length - 1], error: message, loading: false };
-          return next;
-        });
+        patchLast({ error: message, loading: false });
         return;
       }
 
@@ -103,26 +121,29 @@ function ResidencyPage() {
           }
           if (parsed.t === "c" && typeof parsed.d === "string") answerSoFar += parsed.d;
         }
-        setTurns((prev) => {
-          const next = [...prev];
-          next[next.length - 1] = {
-            ...next[next.length - 1],
-            loading: answerSoFar.length === 0,
-            answer: answerSoFar || undefined,
-          };
-          return next;
+        patchLast({
+          loading: answerSoFar.length === 0,
+          answer: answerSoFar || undefined,
+        });
+      }
+      // استریم بدون هیچ قطعهٔ "c" تمام شد: نباید تا ابد در حالت loading بماند.
+      if (!answerSoFar) {
+        patchLast({
+          loading: false,
+          error: "پاسخی از منابع تهیه نشد. پرسش را دقیق‌تر بنویسید یا دوباره تلاش کنید.",
         });
       }
     } catch (err) {
-      setTurns((prev) => {
-        const next = [...prev];
-        next[next.length - 1] = {
-          ...next[next.length - 1],
-          error: err instanceof Error ? err.message : "خطای شبکه",
-          loading: false,
-        };
-        return next;
+      // پیام خام خطای JS (مثلاً «Failed to fetch» یا جزئیات TypeError) به
+      // کاربر نشان داده نمی‌شود؛ در کنسول می‌ماند و کاربر یک پیام قابل‌فهم
+      // و قابل‌اقدام می‌گیرد.
+      console.error("[residency] ask failed", err);
+      patchLast({
+        error: "ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+        loading: false,
       });
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -130,20 +151,26 @@ function ResidencyPage() {
     <RequireAuth>
     <div className="min-h-dvh bg-bg text-fg">
       <AppHeader active="residency" corpusLabel="قوانین مهاجرت اروپا و آمریکا" />
-      <main className="mx-auto w-full max-w-4xl px-4 py-8">
+      <main id="main" className="mx-auto w-full max-w-4xl px-4 py-8">
         <div className="grid min-w-0 gap-7 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
           {/* SIDEBAR */}
           <aside className="order-2 flex flex-col gap-5 md:order-1">
             <div className="rounded-2xl border border-border bg-elevated-2 p-5">
-              <div className="mb-1 text-[13px] font-bold text-fg">کشور مورد نظر را انتخاب کنید</div>
-              <div className="mb-3 text-[11.5px] leading-7 text-subtle">
+              {/* پیش از این یک <div> بود، نه <label>: هیچ پیوند برنامه‌ای
+                  میان نوشته و کنترل وجود نداشت، پس screen reader این
+                  select را بی‌نام می‌خواند (WCAG 3.3.2 / 4.1.2). */}
+              <label htmlFor="residency-country" className="mb-1 block text-[13px] font-bold text-fg">
+                کشور مورد نظر را انتخاب کنید
+              </label>
+              <p id="residency-country-hint" className="mb-3 text-[11.5px] leading-7 text-subtle">
                 پاسخ‌ها بر اساس قوانین همان کشور جست‌وجو می‌شوند. این خدمت مشاورهٔ وکیل مجاز کشور مقصد نیست.
-              </div>
+              </p>
               <select
+                id="residency-country"
+                aria-describedby="residency-country-hint"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                className="w-full cursor-pointer rounded-[10px] border px-3 py-[11px] text-sm"
-                style={{ borderColor: "var(--color-warn)", background: "rgba(217,178,92,0.08)", color: "var(--color-accent-light)" }}
+                className="h-11 min-h-11 w-full cursor-pointer rounded-[10px] border border-warn bg-accent-soft px-3 text-sm text-accent-light"
               >
                 {COUNTRY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value} className="bg-elevated text-fg">
@@ -154,13 +181,15 @@ function ResidencyPage() {
             </div>
 
             <div className="rounded-2xl border border-border bg-elevated-2 p-5">
-              <div className="mb-3 text-[13px] font-bold text-fg">نمونه سؤال‌ها</div>
+              <h2 className="mb-3 text-[13px] font-bold text-fg">نمونه سؤال‌ها</h2>
               <div className="flex flex-col gap-2">
                 {SUGGESTED_QUESTIONS.map((q) => (
                   <button
                     key={q}
-                    onClick={() => ask(q)}
-                    className="rounded-[10px] border border-border bg-elevated px-3 py-[10px] text-right text-[13px] leading-7 text-muted hover:text-fg"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void ask(q)}
+                    className="min-h-11 rounded-[10px] border border-border bg-elevated px-3 py-2.5 text-start text-[13px] leading-7 text-muted transition-colors hover:border-accent/40 hover:text-fg disabled:opacity-50"
                   >
                     {q}
                   </button>
@@ -178,10 +207,19 @@ function ResidencyPage() {
               </p>
             </div>
 
-            <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-5">
+            {/* ناحیهٔ زنده: پاسخ استریم می‌شود، پس بدون این، کاربر screen
+                reader هیچ‌وقت متن پاسخ را نمی‌شنود (WCAG 4.1.3). */}
+            <div
+              className="flex flex-1 flex-col gap-5 overflow-y-auto p-5"
+              role="log"
+              aria-label="گفت‌وگوی اقامتی"
+              aria-live="polite"
+              aria-relevant="additions text"
+              aria-busy={busy}
+            >
               {turns.length === 0 && (
                 <div className="flex flex-1 flex-col items-center justify-center gap-2.5 text-center text-sm text-subtle">
-                  <div className="text-4xl">⚖️</div>
+                  <div className="text-4xl" aria-hidden="true">⚖️</div>
                   سؤالی درباره قوانین مهاجرت بنویسید یا یکی از نمونه‌ها را انتخاب کنید.
                 </div>
               )}
@@ -189,24 +227,24 @@ function ResidencyPage() {
               {turns.map((turn, i) => (
                 <div key={i} className="flex flex-col gap-2.5">
                   <div
-                    className="self-end rounded-[16px_16px_3px_16px] px-4 py-[11px] text-[14.5px] text-white"
-                    style={{ maxWidth: "82%", background: "linear-gradient(135deg, #1a8fa3 0%, #0e5f70 100%)" }}
+                    className="self-end rounded-[16px_16px_3px_16px] bg-[linear-gradient(135deg,var(--color-cyan-dim)_0%,#0e5f70_100%)] px-4 py-[11px] text-[14.5px] text-white"
+                    style={{ maxWidth: "82%" }}
                   >
                     {turn.question}
                   </div>
 
                   {turn.loading ? (
-                      <div className="flex items-center gap-2 text-[13.5px] text-muted">
-                        <span className="pulse-dot" /> در حال تهیه پاسخ از منابع رسمی…
+                      <div className="flex items-center gap-2 text-[13.5px] text-muted" role="status">
+                        <span className="pulse-dot" aria-hidden="true" /> در حال تهیه پاسخ از منابع رسمی…
                       </div>
                     ) : null}
 
                   {turn.error && (
                     <div
-                      className="rounded-[10px] border px-3.5 py-3 text-[13.5px]"
-                      style={{ background: "rgba(239,68,68,0.08)", borderColor: "var(--color-danger)", color: "#fca5a5", whiteSpace: "pre-wrap" }}
+                      className="whitespace-pre-wrap break-words rounded-[10px] border border-danger bg-danger-soft px-3.5 py-3 text-[13.5px] text-danger-fg"
+                      role="alert"
                     >
-                      خطا: {turn.error}
+                      {turn.error}
                     </div>
                   )}
 
@@ -226,41 +264,34 @@ function ResidencyPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                ask(input);
+                void ask(input);
               }}
               className="flex gap-2.5 border-t border-border bg-surface p-4"
             >
+              <label htmlFor="residency-composer" className="sr-only">
+                پرسش خود درباره قوانین مهاجرت
+              </label>
               <input
+                id="residency-composer"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                enterKeyHint="send"
+                maxLength={2000}
+                disabled={busy}
                 placeholder="پرسش خود را درباره قوانین مهاجرت بنویسید…"
-                className="flex-1 rounded-[10px] border border-border bg-elevated px-4 py-[13px] text-[14.5px] text-fg"
+                className="h-11 min-h-11 flex-1 rounded-[10px] border border-border bg-elevated px-4 text-[14.5px] text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:opacity-60"
               />
               <button
                 type="submit"
-                className="rounded-xl px-6 py-3 text-sm font-bold"
-                style={{ background: "linear-gradient(135deg, var(--color-accent-light), var(--color-accent) 60%, var(--color-warn))", color: "#1a1305" }}
+                disabled={busy || input.trim().length === 0}
+                className="h-11 min-h-11 shrink-0 rounded-xl bg-[image:var(--gradient-gold)] px-6 text-sm font-bold text-accent-fg transition-[filter] hover:brightness-[1.06] disabled:opacity-50"
               >
-                پرسیدن
+                {busy ? "در حال پرسش…" : "پرسیدن"}
               </button>
             </form>
           </section>
         </div>
       </main>
-
-      <style>{`
-        .pulse-dot {
-          width: 8px; height: 8px; border-radius: 50%;
-          background: var(--color-cyan);
-          box-shadow: 0 0 0 0 rgba(52,214,232,0.6);
-          animation: residency-pulse 1.4s infinite;
-        }
-        @keyframes residency-pulse {
-          0% { box-shadow: 0 0 0 0 rgba(52,214,232,0.5); }
-          70% { box-shadow: 0 0 0 8px rgba(52,214,232,0); }
-          100% { box-shadow: 0 0 0 0 rgba(52,214,232,0); }
-        }
-      `}</style>
     </div>
     </RequireAuth>
   );
