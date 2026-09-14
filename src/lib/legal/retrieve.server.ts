@@ -19,7 +19,7 @@ type Row = {
   score?: number;
 };
 
-/** شرط «این ردیف بردار واقعی دارد» — در چند کوئری تکرار می‌شود. */
+/** ردیفی که واقعاً بردار دارد — در چند کوئری تکرار می‌شود. */
 const EMBEDDED_PREDICATE =
   "jsonb_typeof(embedding) = 'array' and jsonb_array_length(embedding) > 10";
 
@@ -29,6 +29,8 @@ const JSONB_CANDIDATE_LIMIT = 4000;
 const JSONB_LEXICAL_CANDIDATES = 1500;
 /** تعداد ردیفی که پس از rerank با محتوای کامل برگردانده می‌شود. */
 const VECTOR_RESULT_LIMIT = 30;
+
+type CandidateRow = { id: string; embedding: unknown };
 
 function parseEmbedding(value: unknown): number[] {
   if (Array.isArray(value)) return value.map(Number);
@@ -205,7 +207,7 @@ async function retrieveJsonbVectors(
   const sql = await getSql();
   const candidates = new Map<string, number[]>();
 
-  const collect = (rows: { id: string; embedding: unknown }[]) => {
+  const collect = (rows: CandidateRow[]) => {
     for (const row of rows) {
       if (candidates.size >= JSONB_CANDIDATE_LIMIT) return;
       if (candidates.has(row.id)) continue;
@@ -220,7 +222,7 @@ async function retrieveJsonbVectors(
   try {
     const typed = typeClause(sourceType, 2);
     collect(
-      await sql.query<{ id: string; embedding: unknown }>(
+      await sql.query<CandidateRow>(
         `select id, embedding
          from legal_chunks
          where search_text @@ plainto_tsquery('simple', $1)
@@ -241,7 +243,7 @@ async function retrieveJsonbVectors(
     try {
       const typed = typeClause(sourceType, 1);
       collect(
-        await sql.query<{ id: string; embedding: unknown }>(
+        await sql.query<CandidateRow>(
           `select id, embedding
            from legal_chunks
            where ${EMBEDDED_PREDICATE}${typed.sql}
@@ -266,13 +268,18 @@ async function retrieveJsonbVectors(
   const top = scored.slice(0, VECTOR_RESULT_LIMIT);
   if (top.length === 0) return [];
 
-  const semanticById = new Map(top.map((s) => [s.id, s.semantic]));
+  // صریحاً tuple: سازندهٔ Map امضای `readonly [K, V][]` می‌خواهد و استنتاج
+  // پیش‌فرضِ `.map()` روی این شکل `(string | number)[][]` می‌شود.
+  const semanticById = new Map<string, number>(
+    top.map((s): [string, number] => [s.id, s.semantic]),
+  );
+  const topIds = top.map((s) => s.id);
   try {
     const rows = await sql.query<Row>(
       `select id, content, source_type, source_title, article_number, law_date, source_url
        from legal_chunks
        where id = any($1::text[])`,
-      [top.map((s) => s.id)],
+      [topIds],
     );
     return rows.map((row) => ({
       ...cleanRow(row),
