@@ -8,6 +8,20 @@ export type ExtractedCite = {
   kind: "article" | "principle" | "ruling";
 };
 
+/**
+ * متاکاراکترهای regex را خنثی می‌کند.
+ *
+ * لازم است چون `quoteSpan` مقدار `article_number` را — که مستقیماً از دیتابیس
+ * می‌آید و بخشی از آن توسط `inferArticleNumber` از متن خام منابع کرال‌شده و
+ * jsonl های بیرونی استخراج می‌شود — مستقیم داخل `new RegExp` می‌گذاشت.
+ * یک مقدار مثل `"12("` یا `"5[a"` کافی بود تا ساختن regex throw کند و کل
+ * ساخت citation برای آن پاسخ شکست بخورد (PR-02). بعد از escape، ساخت
+ * regex دیگر نمی‌تواند throw کند و رفتار برای مقادیر سالم دقیقاً همان قبل است.
+ */
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export function extractCitedNumbers(answer: string): ExtractedCite[] {
   const q = normalizeFa(answer);
   const out: ExtractedCite[] = [];
@@ -83,7 +97,7 @@ export function quoteSpan(chunk: RetrievedChunk, max = 420): string {
   }
   if (chunk.article_number) {
     const n = toEnDigits(chunk.article_number);
-    const re = new RegExp(`(?:ماده|اصل)\\s*${n}[^.۔]*[.۔]?`);
+    const re = new RegExp(`(?:ماده|اصل)\\s*${escapeRegExp(n)}[^.۞]*[.۞]?`);
     const m = text.match(re);
     if (m) return m[0].slice(0, max);
   }

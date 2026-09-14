@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { cronAuthorized } from "@/lib/cron-auth";
 
 /**
  * Vercel Cron این مسیر را طبق زمان‌بندی‌ی vercel.json صدا می‌زند (هر بار یک
@@ -10,19 +11,17 @@ import { createFileRoute } from "@tanstack/react-router";
  * CRON_SECRET تنظیم شده باشد) یکی باشد.
  *
  * fail-closed: اگر CRON_SECRET تنظیم نشده باشد این مسیر 401 می‌دهد و کرال
- * اجرا نمی‌شود. نبودِ secret هرگز نباید endpoint را عمومی کند (BUG-001).
+ * اجرا نمی‌شود. خود تصمیم در `@/lib/cron-auth` زندگی می‌کند تا تست رگرسیون
+ * بتواند همین تابع را بسنجد و نه یک کپی از آن.
  */
 export const Route = createFileRoute("/api/cron/crawl")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const secret = process.env.CRON_SECRET?.trim();
-        if (!secret) {
-          console.error("cron/crawl: CRON_SECRET is not set — refusing to run");
-          return Response.json({ error: "unauthorized" }, { status: 401 });
-        }
-        const auth = request.headers.get("authorization");
-        if (auth !== `Bearer ${secret}`) {
+        if (!cronAuthorized(process.env.CRON_SECRET, request.headers.get("authorization"))) {
+          if (!process.env.CRON_SECRET?.trim()) {
+            console.error("cron/crawl: CRON_SECRET is not set — refusing to run");
+          }
           return Response.json({ error: "unauthorized" }, { status: 401 });
         }
         try {
@@ -30,11 +29,10 @@ export const Route = createFileRoute("/api/cron/crawl")({
           const result = await runCrawlBatch(15);
           return Response.json({ ok: true, ...result });
         } catch (err) {
-          console.error("crawl tick failed:", err);
-          return Response.json(
-            { ok: false, error: err instanceof Error ? err.message : "خطای ناشناخته" },
-            { status: 500 },
-          );
+          // پیام خام خطا دیگر در بدنهٔ پاسخ نمی‌رود؛ کاملش در لاگ سرور
+          // با یک correlation id می‌نشیند.
+          const { logAndBuildErrorResponse } = await import("@/lib/server-error");
+          return logAndBuildErrorResponse("api/cron/crawl", err, "crawl tick failed");
         }
       },
     },
