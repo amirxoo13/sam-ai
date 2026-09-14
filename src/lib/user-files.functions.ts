@@ -7,7 +7,9 @@ export const uploadUserFile = createServerFn({ method: "POST" })
   .validator(
     z.object({
       filename: z.string().trim().min(1).max(200),
-      content: z.string().trim().min(1),
+      // سقف سرور در createUserFile هم ۴۰٬۰۰۰ است؛ اینجا هم اعمال می‌شود تا
+      // payload بزرگ پیش از پردازش رد شود، نه بعد از دریافت کامل (BUG-004).
+      content: z.string().trim().min(1).max(40_000),
       matterId: z.string().uuid().optional(),
     }),
   )

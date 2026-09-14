@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 
 const SYSTEM_PROMPT_TEMPLATE = `شما مشاور مهاجرت SAM AI هستید. لحن مؤسسهٔ حقوقی است؛ خطاب «شما».
 فقط بر اساس متون رسمی بازیابی‌شده پاسخ دهید. اگر کافی نبود، بگویید در منابع نیست.
@@ -11,17 +12,22 @@ const SYSTEM_PROMPT_TEMPLATE = `شما مشاور مهاجرت SAM AI هستید
 پرسش:
 {{USER_QUESTION}}{{USER_FILES_CONTEXT}}`;
 
-interface ChatRequestBody {
-  question?: string;
-  jurisdiction?: "US" | "EU";
-  country?: string;
-}
+/**
+ * سقف طول ورودی همسان با `/api/ask` و `/api/legal-ask` است. بدون سقف، متن
+ * دلخواه بزرگ مستقیم به rewrite + embedding + prompt مدل می‌رفت و سهمیه را
+ * می‌سوزاند (BUG-003).
+ */
+const bodySchema = z.object({
+  question: z.string().trim().min(4).max(2000),
+  jurisdiction: z.enum(["US", "EU"]).optional(),
+  country: z.string().trim().max(20).optional(),
+});
 
 export const Route = createFileRoute("/api/residency-ask")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        let body: ChatRequestBody;
+        let rawBody: unknown;
         let sessionUser: { id: string; email: string | null };
         try {
           const { getSessionUser } = await import("@/lib/auth/verify.server");
@@ -33,17 +39,21 @@ export const Route = createFileRoute("/api/residency-ask")({
             );
           }
           sessionUser = resolvedUser;
-          body = await request.json();
+          rawBody = await request.json();
         } catch {
           return Response.json({ error: "بدنه درخواست باید JSON معتبر باشد" }, { status: 400 });
         }
 
-        const question = body.question?.trim();
-        if (!question) {
-          return Response.json({ error: "فیلد question الزامی است" }, { status: 400 });
+        const parsed = bodySchema.safeParse(rawBody);
+        if (!parsed.success) {
+          return Response.json(
+            { error: "ورودی نامعتبر است", details: parsed.error.flatten() },
+            { status: 400 },
+          );
         }
-        const jurisdiction = body.jurisdiction === "US" || body.jurisdiction === "EU" ? body.jurisdiction : undefined;
-        const rawCountry = body.country?.trim();
+        const question = parsed.data.question;
+        const jurisdiction = parsed.data.jurisdiction;
+        const rawCountry = parsed.data.country;
 
         try {
           const { COUNTRY_LABEL_FA } = await import("@/lib/residency/countries");
@@ -152,9 +162,12 @@ export const Route = createFileRoute("/api/residency-ask")({
             },
           });
         } catch (err) {
-          console.error("خطا در پردازش /api/residency-ask:", err);
-          const message = err instanceof Error ? err.message : "خطای غیرمنتظره در پردازش سؤال";
-          return Response.json({ error: message }, { status: 500 });
+          const { logAndBuildErrorResponse } = await import("@/lib/server-error");
+          return logAndBuildErrorResponse(
+            "api/residency-ask",
+            err,
+            "خطای غیرمنتظره در پردازش سؤال",
+          );
         }
       },
     },

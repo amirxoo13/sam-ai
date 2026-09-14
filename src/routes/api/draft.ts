@@ -34,8 +34,8 @@ export const Route = createFileRoute("/api/draft")({
           const result = await runDraft(parsed.data);
           return Response.json({ ...result, disclaimer: DRAFT_DISCLAIMER });
         } catch (err) {
-          const message = err instanceof Error ? err.message : "خطای ناشناخته";
-          return Response.json({ error: message }, { status: 500 });
+          const { logAndBuildErrorResponse } = await import("@/lib/server-error");
+          return logAndBuildErrorResponse("api/draft", err, "خطای غیرمنتظره در تولید پیش‌نویس");
         }
       },
     },

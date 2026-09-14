@@ -8,17 +8,22 @@ import { createFileRoute } from "@tanstack/react-router";
  * env لازم: CRON_SECRET — یک رشته‌ی تصادفی که هم اینجا و هم در تنظیمات
  * Cron پروژه (Vercel خودش هدر Authorization را با همین مقدار می‌فرستد وقتی
  * CRON_SECRET تنظیم شده باشد) یکی باشد.
+ *
+ * fail-closed: اگر CRON_SECRET تنظیم نشده باشد این مسیر 401 می‌دهد و کرال
+ * اجرا نمی‌شود. نبودِ secret هرگز نباید endpoint را عمومی کند (BUG-001).
  */
 export const Route = createFileRoute("/api/cron/crawl")({
   server: {
     handlers: {
       GET: async ({ request }) => {
         const secret = process.env.CRON_SECRET?.trim();
-        if (secret) {
-          const auth = request.headers.get("authorization");
-          if (auth !== `Bearer ${secret}`) {
-            return Response.json({ error: "unauthorized" }, { status: 401 });
-          }
+        if (!secret) {
+          console.error("cron/crawl: CRON_SECRET is not set — refusing to run");
+          return Response.json({ error: "unauthorized" }, { status: 401 });
+        }
+        const auth = request.headers.get("authorization");
+        if (auth !== `Bearer ${secret}`) {
+          return Response.json({ error: "unauthorized" }, { status: 401 });
         }
         try {
           const { runCrawlBatch } = await import("@/lib/crawler/run.server");
