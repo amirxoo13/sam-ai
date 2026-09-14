@@ -10,15 +10,53 @@
  * injection. When deployed the deployer injects a per-app
  * `GROK_AUTH_*` that overrides these (see `server.ts`).
  *
- * These MUST equal the broker's `GROK_PREVIEW_CLIENT_ID` /
- * `GROK_PREVIEW_CLIENT_SECRET` (set in the broker's Vercel env; the broker stores
- * only the secret's `base64url(SHA-256)` hash). This is a dedicated, low-privilege
- * client (preview-only, `*.grok-sandbox.com`) — rotate it by regenerating the
- * broker env var and this constant together.
+ * ⚠️ SEC-001 — KNOWN, UNRESOLVED ISSUE. `PREVIEW_CLIENT_SECRET` below is a live
+ * credential committed to version control. It is reachable by anyone with read
+ * access to this repository AND by anyone who can read its git history. Moving
+ * it to an environment variable (done below) does NOT undo that: the literal is
+ * still in every historical commit.
+ *
+ * The only real remediation is, in this order:
+ *   1. Regenerate `GROK_PREVIEW_CLIENT_SECRET` in the broker's Vercel env (the
+ *      broker stores only its `base64url(SHA-256)` hash).
+ *   2. Set `GROK_PREVIEW_CLIENT_SECRET` in this app's env to the new value.
+ *   3. Purge the old literal from git history and force-push.
+ * Step 1 requires broker access this repository does not have, so it cannot be
+ * automated from here.
+ *
+ * What changed: both values are now read from the environment first, so the
+ * credential can be rotated by setting an env var instead of editing and
+ * redeploying source. The baked constants remain as the fallback ONLY so the
+ * sandbox live preview keeps working exactly as before — removing them would
+ * silently break real sign-in in preview, which is a shipped feature.
+ *
+ * This is a dedicated, low-privilege client (preview-only,
+ * `*.grok-sandbox.com`). Deployed apps do not use it: the deployer injects
+ * `GROK_AUTH_CLIENT_ID` / `GROK_AUTH_CLIENT_SECRET`, which take precedence in
+ * `server.ts`.
  */
-export const PREVIEW_CLIENT_ID = "grok_preview";
-export const PREVIEW_CLIENT_SECRET =
+
+/** Read an env var, treating empty/whitespace as unset. Safe if `process` is absent. */
+function envValue(key: string): string | undefined {
+  if (typeof process === "undefined" || !process.env) return undefined;
+  const value = process.env[key]?.trim();
+  return value ? value : undefined;
+}
+
+/** Baked fallback — see the SEC-001 note above before changing. */
+const BAKED_PREVIEW_CLIENT_ID = "grok_preview";
+const BAKED_PREVIEW_CLIENT_SECRET =
   "8bcdb7fc5a33874ad933ca568918d5790388a0795e44c4d1dea691f801b17ec5";
+
+export const PREVIEW_CLIENT_ID =
+  envValue("GROK_PREVIEW_CLIENT_ID") ?? BAKED_PREVIEW_CLIENT_ID;
+
+export const PREVIEW_CLIENT_SECRET =
+  envValue("GROK_PREVIEW_CLIENT_SECRET") ?? BAKED_PREVIEW_CLIENT_SECRET;
+
+/** True when the process is still relying on the committed fallback credential. */
+export const usingBakedPreviewSecret =
+  PREVIEW_CLIENT_SECRET === BAKED_PREVIEW_CLIENT_SECRET;
 
 /** The shared auth broker issuer (OIDC discovery lives under it). */
 export const GROK_ISSUER_DEFAULT = "https://auth.grok.me";

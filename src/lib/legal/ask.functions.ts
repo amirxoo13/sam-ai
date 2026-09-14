@@ -1,23 +1,22 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-
-const askSchema = z.object({
-  question: z.string().trim().min(4).max(2000),
-  sourceType: z.enum(["all", "statute", "case_law", "convention", "advisory_opinion", "terminology"]).default("all"),
-  matterId: z.string().uuid().optional(),
-});
+import { askFunctionSchema, draftFunctionSchema } from "./request-schemas";
 
 export const askLegal = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(askSchema)
+  .validator(askFunctionSchema)
   .handler(async ({ data, context }) => {
     const { runAsk } = await import("./ask.server");
-    const { getOrCreateDefaultMatter, assertMatterOwner, retrieveMatterExcerpts } = await import("@/lib/matter.server");
-    const matter = data.matterId
-      ? ((await assertMatterOwner(context.userId, data.matterId)) ? { id: data.matterId } : await getOrCreateDefaultMatter(context.userId))
-      : await getOrCreateDefaultMatter(context.userId);
-    const matterExcerpts = await retrieveMatterExcerpts(context.userId, matter.id, data.question).catch(() => "");
+    const { resolveMatterForUser, retrieveMatterExcerpts } = await import("@/lib/matter.server");
+    const matter = await resolveMatterForUser(context.userId, data.matterId);
+    const matterExcerpts = await retrieveMatterExcerpts(
+      context.userId,
+      matter.id,
+      data.question,
+    ).catch((err) => {
+      console.warn("[askLegal] matter excerpt retrieval failed", err);
+      return "";
+    });
     const result = await runAsk({
       question: data.question,
       sourceType: data.sourceType,
@@ -35,30 +34,9 @@ export const getCorpusStats = createServerFn({ method: "GET" }).handler(async ()
   return corpusStats();
 });
 
-const fieldSchema = z
-  .object({
-    story: z.string().optional(),
-    claimant: z.string().optional(),
-    respondent: z.string().optional(),
-    city: z.string().optional(),
-    amount: z.string().optional(),
-    date: z.string().optional(),
-    docs: z.string().optional(),
-    caseNo: z.string().optional(),
-    judgment: z.string().optional(),
-  })
-  .partial();
-
-const draftSchema = z.object({
-  story: z.string().trim().min(8).max(8000),
-  formId: z.string().trim().max(80).optional(),
-  answers: fieldSchema.optional(),
-  hasJudgment: z.boolean().optional(),
-});
-
 export const draftLegal = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(draftSchema)
+  .validator(draftFunctionSchema)
   .handler(async ({ data, context }) => {
     const { runDraft } = await import("./draft.server");
     const result = await runDraft(data);

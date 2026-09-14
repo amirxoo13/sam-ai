@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
 import { LEGAL_DISCLAIMER } from "@/lib/legal/config";
-
-const bodySchema = z.object({
-  question: z.string().trim().min(4).max(2000),
-  sourceType: z
-    .enum(["all", "statute", "case_law", "convention", "advisory_opinion", "terminology"])
-    .optional(),
-  matterId: z.string().uuid().optional(),
-});
+import { askBodySchema } from "@/lib/legal/request-schemas";
 
 export const Route = createFileRoute("/api/ask")({
   server: {
@@ -25,22 +17,29 @@ export const Route = createFileRoute("/api/ask")({
               { status: 401 },
             );
           }
-          const parsed = bodySchema.safeParse(await request.json());
+
+          const { consumeRateLimit, rateLimitedResponse, ASK_RATE_LIMIT } = await import(
+            "@/lib/rate-limit.server"
+          );
+          const decision = await consumeRateLimit(`ask:${sessionUser.id}`, ASK_RATE_LIMIT);
+          if (!decision.allowed) return rateLimitedResponse(decision);
+
+          const parsed = askBodySchema.safeParse(await request.json());
           if (!parsed.success) {
             return Response.json({ error: "پرسش نامعتبر است" }, { status: 400 });
           }
-          const { getOrCreateDefaultMatter, assertMatterOwner, retrieveMatterExcerpts } =
-            await import("@/lib/matter.server");
-          const matter = parsed.data.matterId
-            ? (await assertMatterOwner(sessionUser.id, parsed.data.matterId))
-              ? { id: parsed.data.matterId }
-              : await getOrCreateDefaultMatter(sessionUser.id)
-            : await getOrCreateDefaultMatter(sessionUser.id);
+          const { resolveMatterForUser, retrieveMatterExcerpts } = await import(
+            "@/lib/matter.server"
+          );
+          const matter = await resolveMatterForUser(sessionUser.id, parsed.data.matterId);
           const excerpts = await retrieveMatterExcerpts(
             sessionUser.id,
             matter.id,
             parsed.data.question,
-          ).catch(() => "");
+          ).catch((err) => {
+            console.warn("[api/ask] matter excerpt retrieval failed", err);
+            return "";
+          });
           const { runAsk } = await import("@/lib/legal/ask.server");
           const result = await runAsk({
             question: parsed.data.question,
@@ -49,8 +48,18 @@ export const Route = createFileRoute("/api/ask")({
             userId: sessionUser.id,
           });
           return Response.json({ ...result, disclaimer: LEGAL_DISCLAIMER });
-        } catch {
-          return Response.json({ error: "پاسخ در حال حاضر آماده نشد." }, { status: 500 });
+        } catch (err) {
+          // قبلاً `catch {}` خالی بود: هر خطایی — از جمله
+          // CrossSiteRequestError که باید ۴۰۳ می‌شد — به یک ۵۰۰ِ بی‌نشان
+          // تبدیل می‌شد و هیچ ردی در لاگ نمی‌ماند.
+          const status = (err as { status?: number } | null)?.status === 403 ? 403 : 500;
+          const { logAndBuildErrorResponse } = await import("@/lib/server-error");
+          return logAndBuildErrorResponse(
+            "api/ask",
+            err,
+            status === 403 ? "درخواست پذیرفته نشد." : "پاسخ در حال حاضر آماده نشد.",
+            status,
+          );
         }
       },
     },

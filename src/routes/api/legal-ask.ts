@@ -1,13 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
-
-const bodySchema = z.object({
-  question: z.string().trim().min(4).max(2000),
-  sourceType: z
-    .enum(["all", "statute", "case_law", "convention", "advisory_opinion", "terminology"])
-    .optional(),
-  matterId: z.string().uuid().optional(),
-});
+import { askBodySchema } from "@/lib/legal/request-schemas";
 
 export const Route = createFileRoute("/api/legal-ask")({
   server: {
@@ -24,7 +16,14 @@ export const Route = createFileRoute("/api/legal-ask")({
               { status: 401 },
             );
           }
-          const parsed = bodySchema.safeParse(await request.json());
+
+          const { consumeRateLimit, rateLimitedResponse, ASK_RATE_LIMIT } = await import(
+            "@/lib/rate-limit.server"
+          );
+          const decision = await consumeRateLimit(`legal-ask:${sessionUser.id}`, ASK_RATE_LIMIT);
+          if (!decision.allowed) return rateLimitedResponse(decision);
+
+          const parsed = askBodySchema.safeParse(await request.json());
           if (!parsed.success) {
             return Response.json({ error: "پرسش نامعتبر است" }, { status: 400 });
           }
@@ -35,18 +34,18 @@ export const Route = createFileRoute("/api/legal-ask")({
                 controller.enqueue(encoder.encode(`${JSON.stringify(obj)}\n`));
               };
               try {
-                const { getOrCreateDefaultMatter, assertMatterOwner, retrieveMatterExcerpts } =
-                  await import("@/lib/matter.server");
-                const matter = parsed.data.matterId
-                  ? (await assertMatterOwner(sessionUser.id, parsed.data.matterId))
-                    ? { id: parsed.data.matterId }
-                    : await getOrCreateDefaultMatter(sessionUser.id)
-                  : await getOrCreateDefaultMatter(sessionUser.id);
+                const { resolveMatterForUser, retrieveMatterExcerpts } = await import(
+                  "@/lib/matter.server"
+                );
+                const matter = await resolveMatterForUser(sessionUser.id, parsed.data.matterId);
                 const excerpts = await retrieveMatterExcerpts(
                   sessionUser.id,
                   matter.id,
                   parsed.data.question,
-                ).catch(() => "");
+                ).catch((err) => {
+                  console.warn("[api/legal-ask] matter excerpt retrieval failed", err);
+                  return "";
+                });
                 const { runAskStream } = await import("@/lib/legal/ask.server");
                 const result = await runAskStream({
                   question: parsed.data.question,
@@ -82,11 +81,14 @@ export const Route = createFileRoute("/api/legal-ask")({
                   eval: result.eval,
                 });
               } catch (err) {
+                // پیش‌تر فقط `void err` بود: کاربر پیام خطا می‌دید ولی هیچ
+                // چیزی در لاگ سرور نمی‌نشست، پس خرابی مسیر جریانی
+                // عملاً غیرقابل عیب‌یابی بود.
+                console.error("[api/legal-ask] stream handler failed", err);
                 send({
                   t: "error",
                   error: "پاسخ در حال حاضر آماده نشد. لطفاً دوباره تلاش کنید.",
                 });
-                void err;
               } finally {
                 controller.close();
               }
@@ -99,8 +101,9 @@ export const Route = createFileRoute("/api/legal-ask")({
             },
           });
         } catch (err) {
-          const status = (err as { status?: number }).status === 403 ? 403 : 500;
-          return Response.json({ error: "درخواست پذیرفته نشد." }, { status });
+          const status = (err as { status?: number } | null)?.status === 403 ? 403 : 500;
+          const { logAndBuildErrorResponse } = await import("@/lib/server-error");
+          return logAndBuildErrorResponse("api/legal-ask", err, "درخواست پذیرفته نشد.", status);
         }
       },
     },

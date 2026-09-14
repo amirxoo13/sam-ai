@@ -78,9 +78,13 @@ const PHRASE_BOOSTS: { re: RegExp; formId: string; weight: number }[] = [
   { re: /نظریه کارشناس|اعتراض به کارشناس/, formId: "expert-objection", weight: 6 },
 ];
 
-import { REFUSE_RE } from "./refuse.ts";
+import { shouldRefuseDraft } from "./refuse.ts";
 const JUDGMENT_RE =
   /رأی|رای دادگاه|دادنامه|حکم صادر|حکم دادگاه|قرار منع|قرار موقوفی|کیفرخواست صادر/;
+
+/** پیام واحد امتناع — در هر دو نقطهٔ بررسی یکی است. */
+const REFUSAL_REASON =
+  "برای این موضوع قالب ثبت‌شده در سامانه وجود ندارد. پیش‌نویس صادر نمی‌شود؛ به وکیل دادگستری مراجعه کنید.";
 
 function scoreForm(text: string, form: LegalForm): number {
   let score = 0;
@@ -102,12 +106,24 @@ export function classifyMatter(input: {
   const text = normalize(`${input.story}`);
   const hasJudgment = Boolean(input.hasJudgment) || JUDGMENT_RE.test(text);
 
-  if (!input.formId && REFUSE_RE.test(text)) {
+  // سیاست امتناع باید مستقل از انتخاب قالب اعمال شود.
+  //
+  // باگ قبلی (BUG-002): شرط `!input.formId && REFUSE_RE.test(text)` بود. یعنی
+  // به‌محض اینکه کلاینت هر `formId` معتبری می‌فرستاد — و `formId` یک ورودی
+  // کاملاً تحت کنترل کلاینت است که در `/api/draft` و `draftLegal` فقط با
+  // `z.string().max(80)` اعتبارسنجی می‌شود — بررسی امتناع کاملاً رد می‌شد و
+  // تابع در شاخهٔ بعدی با `confidence: "high"` برمی‌گشت. یعنی گاردِ موضوعاتی
+  // مثل جرائم منافی عفت و مواد مخدر با یک فیلد اختیاری در بدنهٔ درخواست دور
+  // می‌خورد و مدل عملاً پیش‌نویس صادر می‌کرد.
+  //
+  // حالا بررسی روی خودِ روایت کاربر و پیش از هر شاخهٔ دیگری انجام می‌شود، و
+  // از همان `shouldRefuseDraft` استفاده می‌کند که تست دارد — تا سیاست یک
+  // منبع حقیقت داشته باشد و دو نرمال‌سازیِ متفاوت از هم جدا نیفتند.
+  if (shouldRefuseDraft(input.story)) {
     const fallback = LEGAL_FORMS.find((f) => f.id === "claim-money")!;
     return pack({
       form: fallback,
-      reason:
-        "برای این موضوع قالب ثبت‌شده در سامانه وجود ندارد. پیش‌نویس صادر نمی‌شود؛ به وکیل دادگستری مراجعه کنید.",
+      reason: REFUSAL_REASON,
       confidence: "none",
       hasJudgment,
       refuseToDraft: true,
@@ -150,12 +166,13 @@ export function classifyMatter(input: {
 
   if (ranked.length === 0) {
     const criminalHint = /کلاه|فریب|سرقت|دزد|تهدید|فحش|کتک|جرح/.test(text);
-    if (REFUSE_RE.test(text)) {
+    // لایهٔ دوم همان سیاست. با گاردِ بالا عملاً به اینجا نمی‌رسیم، ولی اگر
+    // کسی بعداً شاخهٔ بالا را جابه‌جا کرد، این نقطه هم امتناع را حفظ می‌کند.
+    if (shouldRefuseDraft(input.story)) {
       const fallback = LEGAL_FORMS.find((f) => f.id === "claim-money")!;
       return pack({
         form: fallback,
-        reason:
-          "برای این موضوع قالب ثبت‌شده در سامانه وجود ندارد. پیش‌نویس صادر نمی‌شود؛ به وکیل دادگستری مراجعه کنید.",
+        reason: REFUSAL_REASON,
         confidence: "none",
         hasJudgment,
         refuseToDraft: true,

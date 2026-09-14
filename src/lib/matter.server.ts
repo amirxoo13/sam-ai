@@ -54,6 +54,32 @@ export async function assertMatterOwner(userId: string, matterId: string): Promi
 }
 
 /**
+ * پروندهٔ مورد استفادهٔ یک درخواست را تعیین می‌کند: اگر کاربر `matterId` داده و
+ * واقعاً مالک آن است همان، وگرنه پروندهٔ پیش‌فرض خودش.
+ *
+ * چرا اینجا و نه در هر route؟ دقیقاً همین چند خط در سه جای مستقل تکرار شده
+ * بود (`/api/ask`، `/api/legal-ask`، `askLegal`). همان تکرار علت SEC-004 بود:
+ * وقتی گاردی به یک نسخه اضافه شد، به نسخه‌های دیگر اضافه نشد. مالکیت همچنان
+ * با `assertMatterOwner` و بر اساس `userId` سشنِ احراز‌شده بررسی می‌شود — نه
+ * ورودی کاربر — و رفتار در هر سه فراخوان دقیقاً مثل قبل است.
+ */
+export async function resolveMatterForUser(
+  userId: string,
+  matterId?: string,
+): Promise<MatterRow> {
+  if (matterId && (await assertMatterOwner(userId, matterId))) {
+    const sql = await getSql();
+    const rows = await sql.query<MatterRow>(
+      `select id, title, status, created_at::text as created_at
+       from matter where id = $1 and user_id = $2`,
+      [matterId, userId],
+    );
+    if (rows[0]) return rows[0];
+  }
+  return getOrCreateDefaultMatter(userId);
+}
+
+/**
  * پرونده را به‌صورت شیء بازیابی می‌کند: فقط بندهایی که با پرسش همپوشانی دارند.
  * کل فایل به prompt ریخته نمی‌شود.
  */

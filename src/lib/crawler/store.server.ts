@@ -2,6 +2,9 @@ import { getDbSource, getSql } from "@/lib/db";
 
 let vectorEnsured = false;
 
+/** برچسب `hf_dataset` همهٔ ردیف‌هایی که کرالر می‌نویسد. */
+export const CRAWLER_DATASET = "crawler";
+
 /** روی PGLite (preview) کاری نمی‌کند — همان مسیر jsonb-only کافی است. */
 export async function ensureVectorColumn(): Promise<void> {
   if (getDbSource() !== "neon" || vectorEnsured) return;
@@ -27,15 +30,26 @@ export interface CrawledChunkRow {
 }
 
 /**
- * همه‌ی chunk‌های قبلیِ این URL را پاک می‌کند و نسخه‌ی تازه را می‌نویسد —
+ * همهٔ chunk‌های قبلیِ این URL را پاک می‌کند و نسخهٔ تازه را می‌نویسد —
  * چون با تغییر محتوای صفحه، مرزهای chunk هم ممکن است جابه‌جا شده باشند.
+ *
+ * مهم (BUG-006): حذف باید فقط ردیف‌های خودِ کرالر را هدف بگیرد. نسخهٔ قبلی
+ * `delete from legal_chunks where source_url = $1` بود — بدون هیچ قیدی روی منبع.
+ * اما `source_url` روی ردیف‌های پیکرهٔ seed‌شده (qavanin.ir، rc.majlis.ir و همان
+ * نشانی‌هایی که دقیقاً هدف کرال هم هستند) هم پر است؛ پس هر بار کرالر یک
+ * صفحه را تازه می‌کرد، ممکن بود مواد قانونیِ اصلی و embedding‌دارِ همان نشانی را
+ * بی‌صدا حذف کند و با متن خامِ HTML جایگزین کند. دادهٔ رفته بازگشتنی نبود
+ * مگر با seed کامل مجدد.
  */
 export async function replaceChunksForSourceUrl(
   sourceUrl: string,
   rows: CrawledChunkRow[],
 ): Promise<void> {
   const sql = await getSql();
-  await sql.query("delete from legal_chunks where source_url = $1", [sourceUrl]);
+  await sql.query("delete from legal_chunks where source_url = $1 and hf_dataset = $2", [
+    sourceUrl,
+    CRAWLER_DATASET,
+  ]);
   for (const r of rows) {
     if (getDbSource() === "neon") {
       const vecLiteral = `[${r.embedding.join(",")}]`;
@@ -44,7 +58,7 @@ export async function replaceChunksForSourceUrl(
           (id, content, embedding, embedding_vec, source_type, source_title, source_url, source_id, hf_dataset, search_text)
          values ($1,$2,$3::jsonb,$4::vector,$5,$6,$7,$8,$9, to_tsvector('simple', coalesce($6,'') || ' ' || left($2, 40000)))
          on conflict (id) do nothing`,
-        [r.id, r.content, JSON.stringify(r.embedding), vecLiteral, "statute", r.source_title, sourceUrl, r.sourceId, "crawler"],
+        [r.id, r.content, JSON.stringify(r.embedding), vecLiteral, "statute", r.source_title, sourceUrl, r.sourceId, CRAWLER_DATASET],
       );
     } else {
       await sql.query(
@@ -52,7 +66,7 @@ export async function replaceChunksForSourceUrl(
           (id, content, embedding, source_type, source_title, source_url, source_id, hf_dataset, search_text)
          values ($1,$2,$3::jsonb,$4,$5,$6,$7,$8, to_tsvector('simple', coalesce($5,'') || ' ' || left($2, 40000)))
          on conflict (id) do nothing`,
-        [r.id, r.content, JSON.stringify(r.embedding), "statute", r.source_title, sourceUrl, r.sourceId, "crawler"],
+        [r.id, r.content, JSON.stringify(r.embedding), "statute", r.source_title, sourceUrl, r.sourceId, CRAWLER_DATASET],
       );
     }
   }
