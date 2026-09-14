@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import { createHash } from "node:crypto";
 import { getSql } from "@/lib/db";
 import { embedTexts } from "@/lib/legal/embeddings.server";
+import { isHostAllowed } from "./host";
 import { isAllowed } from "./robots.server";
 import { ensureVectorColumn, replaceChunksForSourceUrl } from "./store.server";
 
@@ -225,7 +226,9 @@ export async function runCrawlBatch(limit = 15): Promise<CrawlTickResult> {
           } catch {
             continue;
           }
-          if (!host.endsWith(source.allowed_host)) continue;
+          // مرز دامنه باید واقعی باشد: `endsWith` خالی به "evilmajlis.ir"
+          // اجازه‌ی ورود به صف کرال می‌داد (SEC-006).
+          if (!isHostAllowed(host, source.allowed_host)) continue;
           const inserted = await sql.query<{ url: string }>(
             "insert into crawl_page (url, source_id) values ($1,$2) on conflict (url) do nothing returning url",
             [abs, source.id],
