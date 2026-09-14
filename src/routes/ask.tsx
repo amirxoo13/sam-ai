@@ -310,7 +310,7 @@ function MatterBar({
       </label>
       <select
         id="matter-select"
-        className="h-10 flex-1 rounded-md border border-border bg-surface px-2 text-sm text-fg"
+        className="h-10 w-full min-w-0 flex-1 rounded-md border border-border bg-surface px-2 text-sm text-fg"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -371,7 +371,7 @@ function EmptyState({
 function UserBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-start">
-      <div className="max-w-[85%] rounded-xl rounded-tr-sm bg-elevated px-4 py-3 text-sm leading-6">
+      <div className="max-w-[85%] break-words rounded-xl rounded-tr-sm bg-elevated px-4 py-3 text-sm leading-6">
         {text}
       </div>
     </div>
@@ -394,7 +394,7 @@ function AssistantBubble({ message }: { message: ChatMessage }) {
           <span className="text-danger">بازیابی بدون مدل تولید</span>
         ) : null}
       </div>
-      <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-fg">{message.text}</div>
+      <div className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-fg">{message.text}</div>
       {message.sources && message.sources.length > 0 ? (
         <ul className="mt-4 grid gap-2">
           {message.sources.map((s, i) => (
@@ -485,7 +485,10 @@ function FilterBar({
           aria-selected={value === item.id}
           onClick={() => onChange(item.id)}
           className={cn(
-            "h-11 min-h-11 flex-1 rounded-md text-sm transition-colors duration-150",
+            // min-w-0 لازم است: پیش‌فرض flex item برابر min-width:auto است و
+            // زیر عرض محتوا کوچک نمی‌شود، پس برچسب بلندی مثل «نظریات مشورتی»
+            // ردیف را از عرض صفحه پهن‌تر می‌کرد.
+            "h-11 min-h-11 min-w-0 flex-1 rounded-md px-1 text-[13px] leading-tight transition-colors duration-150 sm:text-sm",
             value === item.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
           )}
         >

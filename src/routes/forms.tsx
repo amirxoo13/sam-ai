@@ -595,7 +595,7 @@ function ResultCard({
         </p>
         {c.advice ? <p className="mt-1 text-sm leading-6 text-muted">{c.advice}</p> : null}
       </div>
-      <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-elevated px-4 py-3 text-sm leading-7 text-fg">
+      <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap break-words rounded-lg border border-border bg-elevated px-4 py-3 text-sm leading-7 text-fg">
         {result.draft}
       </pre>
       <p className="text-xs text-subtle">

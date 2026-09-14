@@ -131,7 +131,7 @@ function ResidencyPage() {
     <div className="min-h-dvh bg-bg text-fg">
       <AppHeader active="residency" corpusLabel="قوانین مهاجرت اروپا و آمریکا" />
       <main className="mx-auto w-full max-w-4xl px-4 py-8">
-        <div className="grid gap-7 md:grid-cols-[280px_1fr]">
+        <div className="grid min-w-0 gap-7 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
           {/* SIDEBAR */}
           <aside className="order-2 flex flex-col gap-5 md:order-1">
             <div className="rounded-2xl border border-border bg-elevated-2 p-5">
@@ -212,7 +212,7 @@ function ResidencyPage() {
 
                   {turn.answer && (
                     <div
-                      className="self-start rounded-[16px_16px_16px_3px] border border-border bg-elevated px-[18px] py-4 text-[14.5px] leading-8"
+                      className="self-start break-words rounded-[16px_16px_16px_3px] border border-border bg-elevated px-[18px] py-4 text-[14.5px] leading-8"
                       style={{ maxWidth: "95%", whiteSpace: "pre-wrap" }}
                     >
                       {turn.answer}
