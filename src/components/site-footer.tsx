@@ -1,45 +1,64 @@
 import { Link } from "@tanstack/react-router";
+import { BrandMark } from "@/components/brand-mark";
+import { BRAND } from "@/lib/brand";
+
+const PLATFORM_LINKS = [
+  { to: "/", label: "خانه" },
+  { to: "/ask", label: "پرسش حقوقی" },
+  { to: "/residency", label: "پرسش اقامتی" },
+  { to: "/forms", label: "برگه‌ها و دادرسی" },
+  { to: "/sources", label: "منابع و روش‌شناسی" },
+  { to: "/about", label: "درباره ما" },
+] as const;
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border-soft bg-surface/60">
-      <div className="mx-auto grid w-full max-w-4xl gap-8 px-4 py-10 sm:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-12 sm:grid-cols-3">
         <div>
-          <div className="mb-2 flex items-center gap-2">
-            <img src="/logo.png" alt="SAM AI" width={28} height={28} className="rounded-full" />
-            <span className="text-[15px] font-extrabold">
-              SAM<span className="text-cyan">AI</span>
-            </span>
-          </div>
-          <p className="text-[12.5px] leading-6 text-subtle">
-            SAM AI — Smart Attorney Mind — دستیار حقوقی و اقامتی هوشمند، بر
-            اساس متن قانون و اسناد رسمی، زیر نظر دکتر سیداکبر موسوی، وکیل
-            پایه‌یک دادگستری، عضو کانون وکلای مرکز.
+          <BrandMark size="sm" subtitle={null} />
+          <p className="mt-3 text-[12.5px] leading-7 text-subtle">
+            {BRAND.name} — دستیار حقوقی و اقامتی، بر اساس متن قانون و اسناد
+            رسمی، زیر نظر دکتر سیداکبر موسوی، وکیل پایه‌یک دادگستری، عضو
+            کانون وکلای مرکز.
           </p>
         </div>
 
-        <div>
-          <p className="mb-3 text-[12.5px] font-bold text-fg">پلتفرم</p>
-          <ul className="grid gap-2 text-[12.5px] text-muted">
-            <li><Link to="/" className="hover:text-fg">خانه</Link></li>
-            <li><Link to="/ask" className="hover:text-fg">پرسش حقوقی</Link></li>
-            <li><Link to="/residency" className="hover:text-fg">پرسش اقامتی</Link></li>
-            <li><Link to="/forms" className="hover:text-fg">برگه‌ها و دادرسی</Link></li>
-            <li><Link to="/sources" className="hover:text-fg">منابع و روش‌شناسی</Link></li>
-            <li><Link to="/about" className="hover:text-fg">درباره ما</Link></li>
+        <nav aria-labelledby="footer-platform">
+          <h2 id="footer-platform" className="mb-3 text-[12.5px] font-bold text-fg">
+            پلتفرم
+          </h2>
+          <ul className="grid gap-1 text-[12.5px] text-muted">
+            {PLATFORM_LINKS.map((l) => (
+              <li key={l.to}>
+                <Link
+                  to={l.to}
+                  className="inline-flex min-h-9 items-center rounded transition-colors hover:text-fg"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
           </ul>
-        </div>
+        </nav>
 
         <div>
-          <p className="mb-3 text-[12.5px] font-bold text-fg">ارتباط</p>
-          <ul className="grid gap-2 text-[12.5px] text-muted" dir="ltr">
+          <h2 className="mb-3 text-[12.5px] font-bold text-fg">ارتباط</h2>
+          <ul className="grid gap-1 text-[12.5px] text-muted">
             <li>
-              <a href="mailto:akbarmousavi1356@gmail.com" className="hover:text-fg" dir="rtl">
+              <a
+                href="mailto:akbarmousavi1356@gmail.com"
+                className="inline-flex min-h-9 items-center rounded transition-colors hover:text-fg"
+                dir="ltr"
+              >
                 akbarmousavi1356@gmail.com
               </a>
             </li>
             <li>
-              <a href="tel:+989122168512" className="hover:text-fg" dir="rtl">
+              <a
+                href="tel:+989122168512"
+                className="inline-flex min-h-9 items-center rounded transition-colors hover:text-fg"
+              >
                 ۰۹۱۲۲۱۶۸۵۱۲
               </a>
             </li>
@@ -48,10 +67,10 @@ export function SiteFooter() {
                 href="https://wa.me/989122168512"
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-fg"
-                dir="rtl"
+                className="inline-flex min-h-9 items-center rounded transition-colors hover:text-fg"
               >
                 واتس‌اپ
+                <span className="sr-only"> (باز شدن در زبانهٔ جدید)</span>
               </a>
             </li>
             <li>
@@ -59,22 +78,25 @@ export function SiteFooter() {
                 href="https://www.instagram.com/s.a.mousavi56/"
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-fg"
-                dir="rtl"
+                className="inline-flex min-h-9 items-center rounded transition-colors hover:text-fg"
               >
                 اینستاگرام
+                <span className="sr-only"> (باز شدن در زبانهٔ جدید)</span>
               </a>
             </li>
             <li>
-              <Link to="/contact" className="hover:text-fg" dir="rtl">
+              <Link
+                to="/contact"
+                className="inline-flex min-h-9 items-center rounded transition-colors hover:text-fg"
+              >
                 فرم تماس
               </Link>
             </li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-border-soft px-4 py-4 text-center text-[11.5px] text-subtle">
-        © ۲۰۲۶ SAM AI — Smart Attorney Mind
+      <div className="border-t border-border-soft px-4 py-5 text-center text-[11.5px] text-subtle">
+        © ۲۰۲۶ {BRAND.name}
       </div>
     </footer>
   );

@@ -1,20 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand-mark";
+import { BRAND } from "@/lib/brand";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
-/**
- * این هدر عمداً پیکسل‌به‌پیکسل شبیه Navbar سایت اقامت (cursor/SAMAI) ساخته
- * شده — همان لوگوی دایره‌ای با حلقه‌ی طلایی، همان آرم «SAM<span
- * cyan>AI</span>»، همان زیرنویس «Smart Attorney Mind»، همان استایل تب‌های
- * فعال/غیرفعال — تا با اینکه این دو بخش (اقامت + وکیل حقوقی) از دو کدبیس
- * جدا سرو می‌شوند، از دید کاربر کاملاً یک سایت واحد به‌نظر برسند.
- */
+type NavKey = "home" | "ask" | "forms" | "residency" | "about" | "sources" | "contact";
 
-const NAV_LINKS: {
-  to: string;
-  label: string;
-  key: "home" | "ask" | "forms" | "residency" | "about" | "sources" | "contact";
-}[] = [
+const NAV_LINKS: { to: string; label: string; key: NavKey }[] = [
   { to: "/", label: "خانه", key: "home" },
   { to: "/ask", label: "پرسش حقوقی", key: "ask" },
   { to: "/forms", label: "برگه‌ها", key: "forms" },
@@ -26,13 +18,17 @@ const NAV_LINKS: {
 
 function AccountChip() {
   const { user, isPending } = useCurrentUserState();
-  if (isPending) return <div className="h-9 w-9 shrink-0 rounded-full bg-surface sm:h-10 sm:w-10" />;
+  // اندازهٔ اسکلت باید دقیقاً با ارتفاع نهایی برابر باشد تا هدر هنگام
+  // حل‌شدن سشن نپرد (CLS).
+  if (isPending) {
+    return <div className="size-11 shrink-0 rounded-xl bg-surface" aria-hidden="true" />;
+  }
   if (!user) {
     return (
       <Link
         to="/login"
         search={{ next: "/ask" }}
-        className="shrink-0 rounded-lg border border-accent/40 px-3 py-2 text-[12.5px] font-bold text-accent-light hover:bg-accent/10 sm:text-[13px]"
+        className="inline-flex h-11 min-h-11 shrink-0 items-center rounded-xl bg-[image:var(--gradient-gold)] px-4 text-[13px] font-bold text-accent-fg transition-[filter] hover:brightness-[1.06]"
       >
         ورود
       </Link>
@@ -42,15 +38,15 @@ function AccountChip() {
   return (
     <Link
       to="/profile"
-      className="flex shrink-0 items-center gap-2 rounded-lg border border-border px-2 py-1.5 hover:border-accent/40"
+      className="inline-flex h-11 min-h-11 shrink-0 items-center gap-2 rounded-xl border border-border px-2 transition-colors hover:border-accent/40"
       aria-label="پروفایل کاربری"
     >
       {user.profileImageUrl ? (
-        <img src={user.profileImageUrl} alt="" className="size-7 rounded-full object-cover" />
+        <img src={user.profileImageUrl} alt="" className="size-7 rounded-lg object-cover" />
       ) : (
         <span
-          className="grid size-7 shrink-0 place-items-center rounded-full text-[12px] font-bold text-[#1a1305]"
-          style={{ background: "linear-gradient(135deg,var(--color-accent-light),var(--color-accent))" }}
+          className="grid size-7 shrink-0 place-items-center rounded-lg bg-[image:var(--gradient-gold)] text-[12px] font-bold text-accent-fg"
+          aria-hidden="true"
         >
           {label.charAt(0).toUpperCase()}
         </span>
@@ -67,58 +63,81 @@ export function AppHeader({
   active,
 }: {
   corpusLabel?: string;
-  active: "home" | "ask" | "forms" | "residency" | "profile" | "about" | "sources" | "contact";
+  active: NavKey | "profile";
 }) {
   return (
-    <header
-      className="sticky top-0 z-20 border-b border-border-soft backdrop-blur-sm"
-      style={{ background: "rgba(5, 7, 13, 0.72)" }}
-    >
-      <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
-        <Link to="/" className="flex items-center gap-2.5 sm:gap-3" aria-label="SAM AI">
-          <img
-            src="/logo.png"
-            alt="SAM AI — Smart Attorney Mind"
-            width={38}
-            height={38}
-            className="size-9 shrink-0 rounded-full sm:size-[42px]"
-            style={{ boxShadow: "0 0 0 1px rgba(217,178,92,0.35)" }}
-          />
-          <span className="flex min-w-0 flex-col leading-tight">
-            <span className="flex items-baseline gap-2">
-              <span className="text-[16px] font-extrabold tracking-tight sm:text-[18px]">
-                SAM<span className="text-cyan">AI</span>
-              </span>
-              <span className="hidden text-xs text-subtle sm:inline">مؤسسه حقوقی</span>
-            </span>
-            <span className="hidden truncate text-[11px] text-muted sm:block">
-              {corpusLabel ?? "دستیار حقوقی و اقامتی هوشمند"}
-            </span>
-          </span>
+    <header className="sticky top-0 z-30 border-b border-border-soft bg-bg/80 backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-2.5">
+        <Link
+          to="/"
+          className="shrink-0 rounded-lg"
+          aria-label={`${BRAND.name} — خانه`}
+        >
+          <BrandMark size="md" subtitle={corpusLabel ?? BRAND.tagline} />
         </Link>
 
+        {/* ناوبری دسکتاپ — در وسط، با وزن بصری کمتر از آرم و CTA. */}
         <nav
-          className="flex w-full items-center gap-1 overflow-x-auto rounded-lg bg-surface p-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mr-auto sm:w-auto [&::-webkit-scrollbar]:hidden"
+          className="mx-auto hidden items-center gap-0.5 lg:flex"
           aria-label="بخش‌ها"
         >
-          {NAV_LINKS.map((link) => (
+          {NAV_LINKS.map((link) => {
+            const isActive = active === link.key;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "relative flex h-11 min-h-11 shrink-0 items-center rounded-lg px-3 text-[13.5px] font-medium transition-colors",
+                  isActive ? "text-accent-light" : "text-muted hover:text-fg",
+                )}
+              >
+                {link.label}
+                {/* نشانگر بخش فعال — علاوه بر رنگ، یک نشانهٔ شکلی
+                    دارد تا فقط با رنگ منتقل نشود (WCAG 1.4.1). */}
+                {isActive ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-accent"
+                  />
+                ) : null}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="ms-auto flex items-center gap-2 lg:ms-0">
+          <AccountChip />
+        </div>
+      </div>
+
+      {/* ناوبری موبایل/تبلت — ردیف جداگانه، قابل اسکرول.
+          ماسک محوشونده در لبه نشان می‌دهد که ردیف ادامه دارد — قبلاً
+          اسکرول‌بار مخفی بود و هیچ نشانه‌ای از وجود تب‌های بیشتر نبود. */}
+      <nav
+        className="flex items-center gap-1 overflow-x-auto border-t border-border-soft px-4 py-1.5 [-ms-overflow-style:none] [mask-image:linear-gradient(to_left,transparent,#000_24px,#000_calc(100%-24px),transparent)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+        aria-label="بخش‌ها"
+      >
+        {NAV_LINKS.map((link) => {
+          const isActive = active === link.key;
+          return (
             <Link
               key={link.to}
               to={link.to}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex h-9 shrink-0 items-center rounded-md px-3 text-[12.5px] font-medium transition-colors sm:h-10 sm:text-[13.5px]",
-                active === link.key
-                  ? "bg-elevated-2 text-accent-light"
+                "flex h-11 min-h-11 shrink-0 items-center rounded-lg px-3 text-[13px] font-medium transition-colors",
+                isActive
+                  ? "bg-accent-soft text-accent-light"
                   : "text-muted hover:text-fg",
               )}
             >
               {link.label}
             </Link>
-          ))}
-        </nav>
-
-        <AccountChip />
-      </div>
+          );
+        })}
+      </nav>
     </header>
   );
 }
