@@ -10,10 +10,12 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
  * جدا سرو می‌شوند، از دید کاربر کاملاً یک سایت واحد به‌نظر برسند.
  */
 
+type NavKey = "home" | "ask" | "forms" | "residency" | "about" | "sources" | "contact";
+
 const NAV_LINKS: {
   to: string;
   label: string;
-  key: "home" | "ask" | "forms" | "residency" | "about" | "sources" | "contact";
+  key: NavKey;
 }[] = [
   { to: "/", label: "خانه", key: "home" },
   { to: "/ask", label: "پرسش حقوقی", key: "ask" },
@@ -26,13 +28,16 @@ const NAV_LINKS: {
 
 function AccountChip() {
   const { user, isPending } = useCurrentUserState();
-  if (isPending) return <div className="h-9 w-9 shrink-0 rounded-full bg-surface sm:h-10 sm:w-10" />;
+  // اندازهٔ اسکلت باید دقیقاً با ارتفاع نهایی برابر باشد؛ پیش‌تر
+  // 36/40px بود و به یک چیپ بلندتر حل می‌شد، یعنی هر بار بارگذاری یک
+  // پرش چیدمان (CLS) در هدر داشتیم.
+  if (isPending) return <div className="size-11 shrink-0 rounded-full bg-surface" aria-hidden="true" />;
   if (!user) {
     return (
       <Link
         to="/login"
         search={{ next: "/ask" }}
-        className="shrink-0 rounded-lg border border-accent/40 px-3 py-2 text-[12.5px] font-bold text-accent-light hover:bg-accent/10 sm:text-[13px]"
+        className="inline-flex h-11 min-h-11 shrink-0 items-center rounded-lg border border-accent/40 px-3 text-[12.5px] font-bold text-accent-light transition-colors hover:bg-accent/10 sm:text-[13px]"
       >
         ورود
       </Link>
@@ -42,15 +47,15 @@ function AccountChip() {
   return (
     <Link
       to="/profile"
-      className="flex shrink-0 items-center gap-2 rounded-lg border border-border px-2 py-1.5 hover:border-accent/40"
+      className="inline-flex h-11 min-h-11 shrink-0 items-center gap-2 rounded-lg border border-border px-2 transition-colors hover:border-accent/40"
       aria-label="پروفایل کاربری"
     >
       {user.profileImageUrl ? (
         <img src={user.profileImageUrl} alt="" className="size-7 rounded-full object-cover" />
       ) : (
         <span
-          className="grid size-7 shrink-0 place-items-center rounded-full text-[12px] font-bold text-[#1a1305]"
-          style={{ background: "linear-gradient(135deg,var(--color-accent-light),var(--color-accent))" }}
+          className="grid size-7 shrink-0 place-items-center rounded-full bg-[image:var(--gradient-gold)] text-[12px] font-bold text-accent-fg"
+          aria-hidden="true"
         >
           {label.charAt(0).toUpperCase()}
         </span>
@@ -67,22 +72,18 @@ export function AppHeader({
   active,
 }: {
   corpusLabel?: string;
-  active: "home" | "ask" | "forms" | "residency" | "profile" | "about" | "sources" | "contact";
+  active: NavKey | "profile";
 }) {
   return (
-    <header
-      className="sticky top-0 z-20 border-b border-border-soft backdrop-blur-sm"
-      style={{ background: "rgba(5, 7, 13, 0.72)" }}
-    >
+    <header className="sticky top-0 z-20 border-b border-border-soft bg-bg/70 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
-        <Link to="/" className="flex items-center gap-2.5 sm:gap-3" aria-label="SAM AI">
+        <Link to="/" className="flex items-center gap-2.5 sm:gap-3" aria-label="SAM AI — خانه">
           <img
             src="/logo.png"
-            alt="SAM AI — Smart Attorney Mind"
+            alt=""
             width={38}
             height={38}
-            className="size-9 shrink-0 rounded-full sm:size-[42px]"
-            style={{ boxShadow: "0 0 0 1px rgba(217,178,92,0.35)" }}
+            className="size-9 shrink-0 rounded-full ring-1 ring-accent/35 sm:size-[42px]"
           />
           <span className="flex min-w-0 flex-col leading-tight">
             <span className="flex items-baseline gap-2">
@@ -101,20 +102,27 @@ export function AppHeader({
           className="flex w-full items-center gap-1 overflow-x-auto rounded-lg bg-surface p-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:mr-auto sm:w-auto [&::-webkit-scrollbar]:hidden"
           aria-label="بخش‌ها"
         >
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={cn(
-                "flex h-9 shrink-0 items-center rounded-md px-3 text-[12.5px] font-medium transition-colors sm:h-10 sm:text-[13.5px]",
-                active === link.key
-                  ? "bg-elevated-2 text-accent-light"
-                  : "text-muted hover:text-fg",
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = active === link.key;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                // حالت فعال تا امروز فقط با رنگ منتقل می‌شد (WCAG 1.4.1) و
+                // هیچ معادل برنامه‌ای نداشت؛ aria-current به screen reader
+                // می‌گوید کاربر الان در کدام بخش است.
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  // h-11 برای رسیدن به هدف لمس ۴۴px (WCAG 2.5.8).
+                  // پیش‌تر روی موبایل ۳۶px بود.
+                  "flex h-11 min-h-11 shrink-0 items-center rounded-md px-3 text-[12.5px] font-medium transition-colors sm:text-[13.5px]",
+                  isActive ? "bg-elevated-2 text-accent-light" : "text-muted hover:text-fg",
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <AccountChip />
