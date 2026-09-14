@@ -58,8 +58,17 @@ test("non-.sql entries are dropped (readdir also yields the auth/ directory)", (
 
 test("the auth schema ships outside the globbed directory", () => {
   const migrationsDir = join(projectRoot(), "migrations");
-  assert.deepEqual(pendingMigrations(readdirSync(migrationsDir), []), []);
-  assert.ok(readdirSync(join(migrationsDir, "auth")).includes("0001_auth.sql"));
+  // The invariant is that the Better Auth schema is NOT picked up by the glob
+  // over `migrations/*.sql` — it lives in `migrations/auth/` and is applied
+  // deliberately. Asserting the whole top-level list is empty only held while
+  // the template shipped no migrations of its own; this app now has its own
+  // 0002..0010, which are supposed to be globbed.
+  const globbed = pendingMigrations(readdirSync(migrationsDir), []).map((m) => m.name);
+  assert.ok(
+    !globbed.includes(AUTH_MIGRATION),
+    `${AUTH_MIGRATION} must not sit in the globbed migrations/ directory`,
+  );
+  assert.ok(readdirSync(join(migrationsDir, "auth")).includes(AUTH_MIGRATION));
 });
 
 test("this workspace's auth schema copy is byte-identical to its source", () => {
