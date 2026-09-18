@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "@/components/brand-mark";
 import { BRAND } from "@/lib/brand";
@@ -16,45 +17,94 @@ const NAV_LINKS: { to: string; label: string; key: NavKey }[] = [
   { to: "/contact", label: "تماس", key: "contact" },
 ];
 
-function AccountChip() {
+/**
+ * هدر در بالای صفحه بی‌قاب است (هم‌رنگ بوم، بدون خط و سایه) و فقط پس از
+ * اسکرول، خط جداکننده و پس‌زمینهٔ نیمه‌شفاف می‌گیرد.
+ *
+ * دلیلش صرفاً زیبایی نیست: هدرِ چسبانی که همیشه قاب دارد، در بالای صفحه
+ * با تیتر hero سر تضاد بصری رقابت می‌کند. وقتی محتوا زیرش می‌رود، همان
+ * خط لازم می‌شود تا لبهٔ ناحیهٔ ثابت مشخص باشد.
+ */
+function useScrolled(threshold = 8) {
+  // مقدار اولیه روی سرور و کلاینت یکسان است (false)، پس hydration
+  // ناهمخوانی نمی‌گیرد؛ اولین افکت وضعیت واقعی را تنظیم می‌کند.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > threshold);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
+  return scrolled;
+}
+
+function AccountArea() {
   const { user, isPending } = useCurrentUserState();
-  // اندازهٔ اسکلت باید دقیقاً با ارتفاع نهایی برابر باشد تا هدر هنگام
-  // حل‌شدن سشن نپرد (CLS).
+
+  // اسکلت باید دقیقاً هم‌ارتفاع نتیجهٔ نهایی باشد تا هدر هنگام حل‌شدن
+  // سشن نپرد (CLS). مستطیل خالی نه — اسکلتِ درخشان، تا معلوم باشد چیزی
+  // در راه است.
   if (isPending) {
-    return <div className="size-11 shrink-0 rounded-xl bg-surface" aria-hidden="true" />;
-  }
-  if (!user) {
     return (
-      <Link
-        to="/login"
-        search={{ next: "/ask" }}
-        className="inline-flex h-11 min-h-11 shrink-0 items-center rounded-xl bg-[image:var(--gradient-gold)] px-4 text-[13px] font-bold text-accent-fg transition-[filter] hover:brightness-[1.06]"
-      >
-        ورود
-      </Link>
+      <div
+        className="skeleton control-h w-28 shrink-0 rounded-sm"
+        aria-hidden="true"
+      />
     );
   }
+
+  if (!user) {
+    return (
+      <div className="flex shrink-0 items-center gap-1">
+        {/* اقدام فرعی: متن ساده، عمداً بدون وزن بصری دکمه. */}
+        <Link
+          to="/login"
+          search={{ next: "/profile" }}
+          className="control-h hidden items-center rounded-sm px-3 text-[13.5px] font-medium text-muted transition-colors hover:text-fg sm:inline-flex"
+        >
+          ورود
+        </Link>
+        {/* اقدام اصلی — همان فعلی که در کل سایت تکرار می‌شود. */}
+        <Link
+          to="/login"
+          search={{ next: "/ask" }}
+          className="control-h inline-flex shrink-0 items-center rounded-sm bg-fg px-4 text-[13.5px] font-medium text-bg transition-colors hover:bg-n800"
+        >
+          {BRAND.cta}
+        </Link>
+      </div>
+    );
+  }
+
   const label = user.displayName ?? user.primaryEmail ?? "کاربر";
   return (
-    <Link
-      to="/profile"
-      className="inline-flex h-11 min-h-11 shrink-0 items-center gap-2 rounded-xl border border-border px-2 transition-colors hover:border-accent/40"
-      aria-label="پروفایل کاربری"
-    >
-      {user.profileImageUrl ? (
-        <img src={user.profileImageUrl} alt="" className="size-7 rounded-lg object-cover" />
-      ) : (
-        <span
-          className="grid size-7 shrink-0 place-items-center rounded-lg bg-[image:var(--gradient-gold)] text-[12px] font-bold text-accent-fg"
-          aria-hidden="true"
-        >
-          {label.charAt(0).toUpperCase()}
+    <div className="flex shrink-0 items-center gap-1.5">
+      <Link
+        to="/profile"
+        className="control-h inline-flex shrink-0 items-center gap-2 rounded-sm px-2 transition-colors hover:bg-elevated"
+        aria-label="پروفایل کاربری"
+      >
+        {user.profileImageUrl ? (
+          <img src={user.profileImageUrl} alt="" className="size-7 rounded-sm object-cover" />
+        ) : (
+          <span
+            className="grid size-7 shrink-0 place-items-center rounded-sm bg-fg text-[12px] font-medium text-bg"
+            aria-hidden="true"
+          >
+            {label.charAt(0).toUpperCase()}
+          </span>
+        )}
+        <span className="hidden max-w-24 truncate text-[12.5px] font-medium text-fg sm:inline">
+          {label}
         </span>
-      )}
-      <span className="hidden max-w-24 truncate text-[12.5px] font-medium text-fg sm:inline">
-        {label}
-      </span>
-    </Link>
+      </Link>
+      <Link
+        to="/ask"
+        className="control-h hidden shrink-0 items-center rounded-sm bg-fg px-4 text-[13.5px] font-medium text-bg transition-colors hover:bg-n800 sm:inline-flex"
+      >
+        {BRAND.cta}
+      </Link>
+    </div>
   );
 }
 
@@ -65,22 +115,28 @@ export function AppHeader({
   corpusLabel?: string;
   active: NavKey | "profile";
 }) {
+  const scrolled = useScrolled();
+
   return (
-    <header className="sticky top-0 z-30 border-b border-border-soft bg-bg/80 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-2.5">
+    <header
+      className={cn(
+        "sticky top-0 z-30 transition-[background-color,border-color] duration-200",
+        scrolled
+          ? "border-b border-border bg-bg/85 backdrop-blur-md"
+          : "border-b border-transparent bg-bg",
+      )}
+    >
+      <div className="container-wide flex h-[68px] items-center gap-3 lg:h-[84px]">
         <Link
           to="/"
-          className="shrink-0 rounded-lg"
+          className="control-h inline-flex shrink-0 items-center rounded-sm"
           aria-label={`${BRAND.name} — خانه`}
         >
           <BrandMark size="md" subtitle={corpusLabel ?? BRAND.tagline} />
         </Link>
 
         {/* ناوبری دسکتاپ — در وسط، با وزن بصری کمتر از آرم و CTA. */}
-        <nav
-          className="mx-auto hidden items-center gap-0.5 lg:flex"
-          aria-label="بخش‌ها"
-        >
+        <nav className="mx-auto hidden items-center gap-0.5 lg:flex" aria-label="بخش‌ها">
           {NAV_LINKS.map((link) => {
             const isActive = active === link.key;
             return (
@@ -89,17 +145,17 @@ export function AppHeader({
                 to={link.to}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "relative flex h-11 min-h-11 shrink-0 items-center rounded-lg px-3 text-[13.5px] font-medium transition-colors",
-                  isActive ? "text-accent-light" : "text-muted hover:text-fg",
+                  "control-h relative flex shrink-0 items-center rounded-sm px-3 text-[13.5px] transition-colors",
+                  isActive ? "font-medium text-fg" : "font-normal text-muted hover:text-fg",
                 )}
               >
                 {link.label}
-                {/* نشانگر بخش فعال — علاوه بر رنگ، یک نشانهٔ شکلی
-                    دارد تا فقط با رنگ منتقل نشود (WCAG 1.4.1). */}
+                {/* نشانگر بخش فعال — علاوه بر رنگ، یک نشانهٔ شکلی دارد تا
+                    فقط با رنگ منتقل نشود (WCAG 1.4.1). */}
                 {isActive ? (
                   <span
                     aria-hidden="true"
-                    className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-accent"
+                    className="absolute inset-x-3 bottom-1.5 h-px bg-fg"
                   />
                 ) : null}
               </Link>
@@ -107,16 +163,16 @@ export function AppHeader({
           })}
         </nav>
 
-        <div className="ms-auto flex items-center gap-2 lg:ms-0">
-          <AccountChip />
+        <div className="ms-auto flex items-center lg:ms-0">
+          <AccountArea />
         </div>
       </div>
 
-      {/* ناوبری موبایل/تبلت — ردیف جداگانه، قابل اسکرول.
-          ماسک محوشونده در لبه نشان می‌دهد که ردیف ادامه دارد — قبلاً
-          اسکرول‌بار مخفی بود و هیچ نشانه‌ای از وجود تب‌های بیشتر نبود. */}
+      {/* ناوبری موبایل/تبلت — ردیف جداگانه و قابل اسکرول. ماسک محوشونده در
+          لبه نشان می‌دهد که ردیف ادامه دارد؛ بدون آن هیچ نشانه‌ای از وجود
+          تب‌های بیشتر نیست چون اسکرول‌بار مخفی است. */}
       <nav
-        className="flex items-center gap-1 overflow-x-auto border-t border-border-soft px-4 py-1.5 [-ms-overflow-style:none] [mask-image:linear-gradient(to_left,transparent,#000_24px,#000_calc(100%-24px),transparent)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+        className="flex items-center gap-1 border-t border-border-soft px-4 py-1.5 overflow-x-auto [-ms-overflow-style:none] [mask-image:linear-gradient(to_left,transparent,#000_24px,#000_calc(100%-24px),transparent)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
         aria-label="بخش‌ها"
       >
         {NAV_LINKS.map((link) => {
@@ -127,10 +183,10 @@ export function AppHeader({
               to={link.to}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex h-11 min-h-11 shrink-0 items-center rounded-lg px-3 text-[13px] font-medium transition-colors",
+                "flex h-11 min-h-11 shrink-0 items-center rounded-sm px-3 text-[13px] transition-colors",
                 isActive
-                  ? "bg-accent-soft text-accent-light"
-                  : "text-muted hover:text-fg",
+                  ? "bg-elevated font-medium text-fg"
+                  : "font-normal text-muted hover:text-fg",
               )}
             >
               {link.label}

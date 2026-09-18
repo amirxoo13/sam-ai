@@ -11,7 +11,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: BRAND.title },
       { name: "description", content: BRAND.description },
-      { name: "theme-color", content: "#05070d" },
+      { name: "theme-color", content: "#fafaf9" },
       { property: "og:title", content: BRAND.title },
       { property: "og:description", content: BRAND.description },
       { property: "og:type", content: "website" },
@@ -32,8 +32,12 @@ export const Route = createRootRoute({
         crossOrigin: "anonymous",
       },
       {
+        // فقط سه وزنی که مقیاس تایپوگرافی واقعاً استفاده می‌کند. پیش‌تر
+        // ۷۰۰ و ۸۰۰ هم بار می‌شدند، در حالی که پس از حذف font-extrabold
+        // هیچ عنصری آن‌ها را نمی‌خواهد — دو فایل فونت فارسی اضافه روی
+        // هر بازدید.
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600&display=swap",
       },
     ],
   }),
@@ -50,7 +54,7 @@ export const Route = createRootRoute({
         */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-accent-fg"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-sm focus:bg-fg focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-bg"
         >
           پرش به محتوای اصلی
         </a>

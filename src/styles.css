@@ -1,65 +1,98 @@
 @import "tailwindcss";
 
-/* این پالت دقیقاً همان توکن‌های app/globals.css در سایت اقامت (cursor/SAMAI)
-   است — چون هدف این است که هر دو بخش (پرسش‌وپاسخ اقامتی + وکیل هوش‌مصنوعی)
-   روی یک دامنه، بی‌هیچ تفاوت بصری محسوسی، یک سایت واحد به‌نظر برسند. اگر
-   پالت دامنه‌ی اصلی روزی عوض شد، فقط همین‌جا و globals.css آن‌طرف را با هم
-   به‌روزرسانی کن. */
-@theme {
-  --color-bg: #05070d;
-  --color-surface: #0c1120;
-  --color-elevated: #171f3d;
-  --color-elevated-2: #121830;
-  --color-fg: #eef1fa;
-  --color-muted: #8b93b0;
-  --color-subtle: #5b6485;
-  --color-accent: #d9b25c;
-  --color-accent-light: #f0d78c;
-  --color-accent-fg: #1a1305;
-  --color-cyan: #34d6e8;
-  --color-cyan-dim: #1a8fa3;
-  --color-border: #212a48;
-  --color-border-soft: #171e38;
-  --color-danger: #ef4444;
-  --color-warn: #9c7f3a;
+/* ════════════════════════════════════════════════════════════════════════
+   سیستم طراحی — یک رمپ خنثای گرم، از عاج تا جوهر.
 
-  /* ── توکن‌های معنایی که تا امروز وجود نداشتند ─────────────────────────
-     پیش از این هر جای پروژه که به این رنگ‌ها نیاز داشت، مقدار را
-     hard-code می‌کرد: `text-[#fca5a5]` در login.tsx و residency.tsx،
-     `#1a1305` در index.tsx / login.tsx / app-header.tsx، و
-     `#1a8fa3`/`#0e5f70` در حباب پرسشِ residency.tsx. یعنی تغییر پالت
-     عملاً نیازمند grep زدن در کل کدبیس بود.
-     نام‌ها معنایی‌اند (نقش، نه مقدار) تا در صورت افزودن Light Mode فقط
-     همین بلوک عوض شود. */
-  --color-danger-soft: rgba(239, 68, 68, 0.08);
-  --color-danger-fg: #fca5a5;
-  --color-success: #34d399;
-  --color-success-soft: rgba(52, 211, 153, 0.1);
-  --color-info: #60a5fa;
-  --color-info-soft: rgba(96, 165, 250, 0.1);
-  --color-accent-soft: rgba(217, 178, 92, 0.1);
+   چرا این شکل: پیش‌تر پالت «تیرهٔ سرمه‌ای + گرادیان طلا» بود و رنگ اکسنت
+   در خودِ پوستهٔ سایت (دکمه، هدر، بج، لینک) پخش شده بود. آن الگو ظاهر
+   «استارتاپی» می‌دهد نه «مؤسسهٔ حقوقی». در زبان طراحی مرجع، کل پوستهٔ
+   سایت با یک رمپ خنثی ساخته می‌شود و هیچ رنگ اشباع‌شده‌ای در chrome
+   وجود ندارد؛ رنگ فقط جایی می‌آید که معنا دارد (خطا، موفقیت، مسیر پرونده).
+
+   نام توکن‌ها عمداً دست‌نخورده مانده است. کل کدبیس با کلاس‌های معنایی
+   (bg-bg، text-fg، text-muted، border-border) نوشته شده، پس تغییر مقدارِ
+   همین بلوک، تم را در تمام صفحات عوض می‌کند بدون آنکه یک خط از منطق
+   صفحات دست بخورد.
+   ════════════════════════════════════════════════════════════════════ */
+@theme {
+  /* ── رمپ پایه ───────────────────────────────────────────────────────
+     خنثای گرم (نه خاکستری سرد). هر پله عمداً فاصلهٔ ادراکی یکنواخت دارد. */
+  --color-n50: #fafaf9;
+  --color-n100: #f4f3f2;
+  --color-n150: #eceae8;
+  --color-n200: #e2e0dd;
+  --color-n300: #cbc8c3;
+  --color-n400: #918e88;
+  --color-n500: #6e6b66;
+  --color-n600: #57544f;
+  --color-n700: #403d39;
+  --color-n800: #33312c;
+  --color-n900: #1f1d1a;
+  --color-n950: #0f0e0d;
+
+  /* ── نقش‌ها (همان نام‌های قبلی، مقدار جدید) ───────────────────────── */
+  --color-bg: var(--color-n50); /* بوم صفحه — عاجی */
+  --color-surface: var(--color-n100); /* فیلد ورودی، نوار تب، پنل فرعی */
+  --color-elevated: var(--color-n150); /* hover، حباب پرسش، چیپ */
+  --color-elevated-2: #ffffff; /* کارت — سفید روی عاجی */
+  --color-fg: var(--color-n950); /* جوهر — متن اصلی */
+  /* نسبت‌های زیر اندازه‌گیری‌شده‌اند، نه تخمینی:
+     muted  روی عاجی ۷٫۲:۱ و روی کارت سفید ۷٫۵:۱
+     subtle روی عاجی ۵٫۱:۱ و روی سطح فرورفته ۴٫۸:۱ — یعنی حتی روی
+            تیره‌ترین پس‌زمینهٔ روشنِ سیستم هم از کف ۴٫۵ عبور می‌کند.
+     n400   روی عاجی ۳٫۱:۱ — فقط متن درشت (≥۲۴px) و عناصر غیرمتنی. */
+  --color-muted: var(--color-n600);
+  --color-subtle: var(--color-n500);
+  --color-border: var(--color-n200);
+  --color-border-soft: #ebe9e6;
+
+  /* «accent» دیگر طلا نیست: دو سر همین رمپ خنثی.
+     نام توکن حفظ شده تا هر ارجاع قدیمی (text-accent، border-accent،
+     bg-accent-soft) همچنان معتبر و هماهنگ رندر شود. */
+  --color-accent: var(--color-n950);
+  --color-accent-light: var(--color-n900);
+  --color-accent-fg: var(--color-n50); /* متن روی سطح جوهری */
+  --color-accent-soft: rgba(15, 14, 13, 0.05);
+
+  /* توکن‌های قدیمی فیروزه‌ای — به خنثی نگاشته شدند تا هیچ ارجاع
+     جامانده‌ای رنگ بیگانه به صفحه تزریق نکند. */
+  --color-cyan: var(--color-n800);
+  --color-cyan-dim: var(--color-n400);
+
+  /* ── رنگ معنایی ─────────────────────────────────────────────────────
+     تنها جایی که رنگ اشباع مجاز است: وضعیت. همه روی پس‌زمینهٔ عاجی
+     حداقل AA هستند. */
+  --color-danger: #b42318;
+  --color-danger-fg: #912018;
+  --color-danger-soft: rgba(180, 35, 24, 0.07);
+  --color-success: #067647;
+  --color-success-soft: rgba(6, 118, 71, 0.08);
+  --color-info: #175cd3;
+  --color-info-soft: rgba(23, 92, 211, 0.08);
+  /* «هر دو مسیر» در تشخیص پرونده — کهربایی تیره، نه طلای تزئینی. */
+  --color-warn: #8a6a16;
 
   --font-sans: "Vazirmatn", "Segoe UI", system-ui, sans-serif;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+
+  /* ── شعاع گوشه ──────────────────────────────────────────────────────
+     یک مقدار، همه‌جا. کل مقیاس Tailwind روی ۴ پیکسل جمع شده تا حتی
+     کلاس‌های موجود (rounded-xl، rounded-2xl) هم همان لبهٔ کوتاه و
+     ویرایشی را بدهند و لازم نباشد تک‌تک عوض شوند. */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-2xl: 6px;
+  --radius-3xl: 8px;
+  --radius-4xl: 8px;
+
   --text-micro: 0.75rem;
 }
 
-/* گرادیان طلایی «اقدام اصلی».
-   دقیقاً همین سه-توقفه در button.tsx (variant=premium)، index.tsx (دو بار)،
-   login.tsx و residency.tsx به‌صورت inline تکرار شده بود. یک منبع حقیقت تا
-   واریانت‌ها از هم جدا نیفتند. خارج از @theme تعریف شده چون یک مقدار
-   ترکیبی است، نه یک توکن رنگِ تک. */
 :root {
-  --gradient-gold: linear-gradient(
-    135deg,
-    var(--color-accent-light),
-    var(--color-accent) 60%,
-    var(--color-warn)
-  );
-  --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px rgba(217, 178, 92, 0.65);
+  /* حلقهٔ فوکوس: دو لایه (بوم + جوهر) تا روی هر پس‌زمینه‌ای دیده شود. */
+  --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-n800);
 }
 
 @layer base {
@@ -72,19 +105,15 @@
 
   body {
     min-height: 100dvh;
-    /* همان درخشش رادیال دو رنگ (طلایی/فیروزه‌ای) پس‌زمینه‌ی سایت اقامت */
-    background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(52, 214, 232, 0.08), transparent 60%),
-      radial-gradient(1000px 500px at 100% 0%, rgba(217, 178, 92, 0.07), transparent 55%),
-      var(--color-bg);
+    /* بوم تخت. درخشش رادیالِ طلایی/فیروزه‌ای قبلی حذف شد: در یک پوستهٔ
+       خنثی، هر gradient پس‌زمینه دقیقاً همان چیزی است که ظاهر را
+       «قالبی» می‌کند. */
+    background: var(--color-bg);
   }
 
-  /* گارد سراسری سرریز افقی.
-     متن پیکره گاهی توکن بلندِ بدون فاصله دارد — مثلاً عنوان خرابِ یک فایل
-     Word که به‌صورت `<4D6963726F736F66742...>` رندر می‌شود. چنین رشته‌ای
-     هیچ نقطه‌ی شکست طبیعی ندارد، پس کانتینر را از عرض صفحه پهن‌تر می‌کند و
-     کل صفحه روی موبایل به‌صورت افقی اسکرول می‌خورد (فضای خالی کنار صفحه).
-     `overflow-wrap: anywhere` اجازه می‌دهد چنین رشته‌ای هرجا شکسته شود. */
+  /* گارد سراسری سرریز افقی. متن پیکره گاهی توکن بلندِ بدون فاصله دارد
+     (مثلاً عنوان خرابِ یک فایل Word) که هیچ نقطهٔ شکست طبیعی ندارد و
+     صفحه را روی موبایل افقی اسکرول می‌کند. */
   p,
   li,
   span,
@@ -98,7 +127,6 @@
     overflow-wrap: anywhere;
   }
 
-  /* هیچ فرزندی نباید ریشه را افقی بکشد. */
   html,
   body {
     overflow-x: clip;
@@ -110,25 +138,20 @@
   }
 
   /* ── پایهٔ سراسری فوکوس (WCAG 2.4.7 / 2.4.11) ────────────────────────
-     مشکل واقعی: بیشترِ عناصر تعاملی این پروژه با `<Link>` یا `<button>`
-     خام و کلاس‌های دستی ساخته شده‌اند، نه با `components/ui/button.tsx` —
-     و تنها همان فایل است که `focus-visible:ring` دارد. پس ناوبری با
-     کیبورد روی هدر (۷ لینک)، CTAهای صفحهٔ خانه، نمونه‌سؤال‌های
-     residency و تمام لینک‌های فوتر هیچ نشانگر فوکوسِ طراحی‌شده‌ای نداشت.
-
-     این قاعده در @layer base است، پس هر کامپوننتی که یوتیلیتی فوکوس خودش
-     را دارد (login/contact/forms با `focus:ring-2`) همچنان برنده می‌شود و
-     ظاهرش عوض نمی‌شود — لایهٔ utilities بر base اولویت دارد.
-
+     بیشترِ عناصر تعاملی پروژه با <Link> یا <button> خام ساخته شده‌اند،
+     نه با components/ui/button.tsx. این قاعده در @layer base است، پس هر
+     کامپوننتی که یوتیلیتی فوکوس خودش را دارد همچنان برنده می‌شود.
      :focus-visible و نه :focus — تا کلیک ماوس حلقه نگیرد. */
   a:focus-visible,
   button:focus-visible,
+  input:focus-visible,
   select:focus-visible,
+  textarea:focus-visible,
   summary:focus-visible,
   [role="button"]:focus-visible,
   [role="tab"]:focus-visible,
   [tabindex]:not([tabindex="-1"]):focus-visible {
-    outline: 2px solid var(--color-accent-light);
+    outline: 2px solid var(--color-n900);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
@@ -149,35 +172,207 @@
   }
 
   ::selection {
-    background: rgba(217, 178, 92, 0.35);
+    background: rgba(15, 14, 13, 0.12);
+  }
+
+  /* فرم‌های مرورگر (چک‌باکس، رادیو) هم باید جوهری باشند نه آبیِ پیش‌فرض. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-n950);
   }
 }
 
 @layer components {
-  /* نشانگر «در حال تهیه پاسخ» صفحهٔ اقامت.
-     قبلاً این keyframe در یک <style> درون‌خطی داخل خودِ کامپوننت
-     residency.tsx بود، یعنی با هر رندر آن مسیر یک تگ style سراسری به DOM
-     تزریق می‌شد. حالا یک بار در شیت اصلی می‌آید و گاردِ
-     prefers-reduced-motion پایین‌تر هم واقعاً شاملش می‌شود. */
+  /* ═══════════════════════════════════════════════════════════════════
+     مقیاس تایپوگرافی
+
+     نسبت‌ها از زبان طراحی مرجع گرفته شده (تیتر با وزن معمولی، نه bold؛
+     ارتفاع خط فشرده در تیتر و باز در متن؛ tracking منفیِ اندک).
+
+     دو انحراف عمدی، چون خط فارسی است نه لاتین:
+     ۱) line-height تیتر ۱٫۱۴ است نه ۱٫۰۵ — فارسی زیرواکه و دنبالهٔ
+        حروف دارد و در ۱٫۰۵ خطوط روی هم می‌افتند.
+     ۲) tracking مثبت روی فارسی ممنوع است: letter-spacing اتصال حروف را
+        بصری می‌شکند («قانون» → «ق ا ن و ن»). eyebrowهای قبلی پروژه
+        tracking-[0.18em] داشتند و دقیقاً همین ایراد را داشتند. اینجا
+        سلسله‌مراتب با وزن و رنگ ساخته می‌شود، نه با فاصلهٔ حروف.
+     ═══════════════════════════════════════════════════════════════════ */
+  .t-display {
+    font-size: clamp(2rem, 5.4vw, 4.25rem);
+    font-weight: 500;
+    line-height: 1.14;
+    letter-spacing: -0.012em;
+  }
+
+  .t-h1 {
+    font-size: clamp(1.625rem, 3.4vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.22;
+    letter-spacing: -0.008em;
+  }
+
+  .t-h2 {
+    font-size: clamp(1.3125rem, 2.4vw, 2rem);
+    font-weight: 500;
+    line-height: 1.28;
+    letter-spacing: -0.006em;
+  }
+
+  .t-h3 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+
+  /* برچسب بالای تیتر. فقط وزن + رنگ — بدون uppercase (روی فارسی بی‌اثر
+     است) و بدون tracking (اتصال حروف را می‌شکند). */
+  .t-eyebrow {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-subtle);
+  }
+
+  /* تنها جایی که tracking مجاز است: رشتهٔ لاتین. */
+  .t-eyebrow-latin {
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-subtle);
+  }
+
+  .t-body {
+    font-size: 1rem;
+    line-height: 1.95;
+  }
+
+  .t-small {
+    font-size: 0.875rem;
+    line-height: 1.85;
+  }
+
+  .t-caption {
+    font-size: 0.75rem;
+    line-height: 1.7;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     کانتینرها
+
+     دو عرض، نه هفت. پوسته (هدر/فوتر/صفحهٔ خانه) پهن است تا از عرض واقعی
+     دسکتاپ استفاده کند؛ متن خواندنی باریک می‌ماند چون طول سطر بلند،
+     خواندن فارسی را سخت می‌کند.
+     ═══════════════════════════════════════════════════════════════════ */
+  .container-wide {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 82rem;
+    padding-inline: 1rem;
+  }
+
+  .container-prose {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 44rem;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-wide,
+    .container-prose {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container-wide {
+      padding-inline: 3.5rem;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     ارتفاع کنترل‌ها
+
+     دکمهٔ مرجع ۳۲ پیکسل است — عمداً کوچک و بی‌ادعا. اما ۳۲ پیکسل هدف
+     لمسی قابل قبولی نیست (WCAG 2.5.8 حداقل ۲۴ و AAA حداقل ۴۴ می‌خواهد و
+     این پروژه از قبل ۴۴ را رعایت کرده بود). راه‌حل: ۴۰ پیکسل روی اشارهٔ
+     دقیق (ماوس) و ۴۴ پیکسل روی اشارهٔ درشت (لمس). انضباط بصری روی
+     دسکتاپ حفظ می‌شود بدون آنکه دسترسی‌پذیری موبایل قربانی شود.
+     ═══════════════════════════════════════════════════════════════════ */
+  .control-h {
+    height: 2.5rem;
+  }
+
+  .control-h-lg {
+    height: 2.75rem;
+  }
+
+  @media (pointer: coarse) {
+    .control-h {
+      min-height: 2.75rem;
+    }
+  }
+
+  /* لینک درون‌متنی: افوردنس صریح. لینکی که فقط با رنگِ متنِ بدنه رندر
+     شود دیده نمی‌شود — به‌خصوص وقتی پالت تک‌رنگ است. */
+  .link-inline {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-decoration-color: var(--color-n300);
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 0.15s ease;
+  }
+
+  .link-inline:hover {
+    text-decoration-color: var(--color-fg);
+  }
+
+  /* نشانگر «در حال تهیه پاسخ». یک بار در شیت اصلی تعریف می‌شود تا با هر
+     رندرِ مسیر اقامت یک تگ <style> به DOM تزریق نشود و گاردِ
+     prefers-reduced-motion واقعاً شاملش شود. */
   .pulse-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--color-cyan);
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.6);
+    background: var(--color-n500);
+    box-shadow: 0 0 0 0 rgba(121, 118, 113, 0.5);
     animation: sam-pulse 1.4s infinite;
+  }
+
+  /* اسکلت بارگذاری. جایگزین مستطیل خالی برای هر بلوکی که ناهمگام
+     می‌آید — کاربر باید بفهمد چیزی در راه است، نه اینکه فضای خالی ببیند. */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-n100) 25%,
+      var(--color-n150) 37%,
+      var(--color-n100) 63%
+    );
+    background-size: 400% 100%;
+    animation: sam-shimmer 1.4s ease infinite;
   }
 }
 
 @keyframes sam-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.5);
+    box-shadow: 0 0 0 0 rgba(121, 118, 113, 0.45);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(52, 214, 232, 0);
+    box-shadow: 0 0 0 8px rgba(121, 118, 113, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0);
+    box-shadow: 0 0 0 0 rgba(121, 118, 113, 0);
+  }
+}
+
+@keyframes sam-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
   }
 }
 

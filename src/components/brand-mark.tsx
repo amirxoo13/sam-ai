@@ -4,17 +4,22 @@ import { cn } from "@/lib/utils";
 /**
  * آرم مشترک برند.
  *
- * پیش‌تر هدر، فوتر و صفحهٔ ورود هر کدام نسخهٔ دستی خودشان را از آرم
- * می‌ساختند با اندازه و box-shadow متفاوت. یک کامپوننت، سه اندازهٔ تعریف‌شده.
+ * یک کامپوننت، سه اندازهٔ تعریف‌شده — تا هدر، فوتر و صفحهٔ ورود هرکدام
+ * نسخهٔ دستی خودشان را نسازند.
  *
  * نوشتار فارسی‌محور است چون کل محصول فارسی و RTL است؛ آرم لاتین فقط در
  * لایهٔ دسترسی‌پذیری و متادیتا می‌ماند.
+ *
+ * نقطهٔ فیروزه‌ایِ بعد از نام حذف شد: در پوسته‌ای که هیچ رنگ اکسنتی
+ * ندارد، یک نقطهٔ رنگی تنها، دقیقاً همان جزئی است که چشم را می‌گیرد و
+ * ظاهر را «استارتاپی» می‌کند. وزن نام هم از extrabold به ۵۵۰ آمد تا با
+ * مقیاس تایپوگرافی ویرایشی هم‌خانواده شود.
  */
 
 const SIZES = {
-  sm: { img: "size-8", name: "text-[15px]", sub: "text-[10.5px]" },
-  md: { img: "size-10", name: "text-[19px]", sub: "text-[11px]" },
-  lg: { img: "size-14", name: "text-[26px]", sub: "text-[13px]" },
+  sm: { img: "size-7", name: "text-[15px]", sub: "text-[10.5px]" },
+  md: { img: "size-9", name: "text-[18px]", sub: "text-[11px]" },
+  lg: { img: "size-12", name: "text-[24px]", sub: "text-[12.5px]" },
 } as const;
 
 export function BrandMark({
@@ -34,20 +39,16 @@ export function BrandMark({
       <img
         src={BRAND.logoSrc}
         alt=""
-        width={56}
-        height={56}
-        className={cn(
-          s.img,
-          "shrink-0 rounded-xl object-cover ring-1 ring-accent/35",
-        )}
+        width={48}
+        height={48}
+        className={cn(s.img, "shrink-0 rounded-sm object-cover ring-1 ring-border")}
       />
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className={cn(s.name, "font-extrabold tracking-tight text-fg")}>
+        <span className={cn(s.name, "font-semibold tracking-[-0.01em] text-fg")}>
           {BRAND.short}
-          <span className="text-cyan">.</span>
         </span>
         {sub ? (
-          <span className={cn(s.sub, "truncate text-muted")}>{sub}</span>
+          <span className={cn(s.sub, "truncate font-normal text-subtle")}>{sub}</span>
         ) : null}
       </span>
     </span>

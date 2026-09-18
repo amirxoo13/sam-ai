@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getCrawlerStats } from "@/lib/crawler/functions";
@@ -24,25 +25,30 @@ function SourcesPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader active="sources" />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-12">
-        <p className="mb-2 text-[12px] font-bold tracking-[0.18em] text-accent uppercase">
-          منابع و روش‌شناسی
-        </p>
-        <h1 className="text-[26px] font-extrabold leading-[1.4]">
-          بازیابی ماده‌به‌ماده از متن رسمی
-        </h1>
-        <p className="mt-4 text-[14px] leading-8 text-muted">
-          نخست شماره ماده و نام قانون تطبیق داده می‌شود، سپس جستجوی متنی تمام‌متن،
-          و در صورت وجود بردار واقعی Hugging Face. پاسخ فقط از قطعات بازیابی‌شده
-          نوشته می‌شود. ارجاعی که در منبع نباشد علامت می‌خورد. هویت اشخاص در
-          پرونده‌های رویه حذف شده است. درصد شباهت برداری به‌عنوان اطمینان نمایش
-          داده نمی‌شود.
+      <main id="main" className="container-prose flex-1 py-14 lg:py-20">
+        <p className="t-eyebrow">منابع و روش‌شناسی</p>
+        <h1 className="t-h1 mt-3 text-fg">بازیابی ماده‌به‌ماده از متن رسمی</h1>
+        <p className="t-body mt-5 text-muted">
+          نخست شماره ماده و نام قانون تطبیق داده می‌شود، سپس جست‌وجوی متنی
+          تمام‌متن، و در صورت وجود بردار واقعی Hugging Face. پاسخ فقط از قطعات
+          بازیابی‌شده نوشته می‌شود. ارجاعی که در منبع نباشد علامت می‌خورد. هویت
+          اشخاص در پرونده‌های رویه حذف شده است. درصد شباهت برداری به‌عنوان
+          اطمینان نمایش داده نمی‌شود.
         </p>
 
-        <div className="mt-8 grid gap-4">
+        {/* آمار واقعی پیکره. اگر خواندن شکست بخورد، بلوک اصلاً نمی‌آید —
+            عدد صفرِ گمراه‌کننده نمایش داده نمی‌شود. */}
+        {stats.total > 0 ? (
+          <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-7 border-y border-border py-8 sm:grid-cols-3">
+            <Stat value={stats.total} label="قطعه در پیکره" />
+            <Stat value={stats.embedded} label="بردار معنایی کامل" />
+            <Stat value={stats.searchable} label="قطعهٔ قابل جست‌وجو" />
+          </dl>
+        ) : null}
+
+        <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-border bg-border">
           <SourceCard
-            title="پیکره‌ی حقوقی و کیفری ایران"
-            stat={`${stats.total.toLocaleString("fa-IR")} قطعه · ${Number(stats.embedded ?? 0).toLocaleString("fa-IR")} بردار کامل`}
+            title="پیکرهٔ حقوقی و کیفری ایران"
             items={[
               "قوانین اصلی ایران (مدنی، مجازات، تجارت، آیین دادرسی، کار، خانواده، اساسی)",
               "قوانین خاص و لوایح قانونی",
@@ -52,7 +58,7 @@ function SourcesPage() {
             ]}
           />
           <SourceCard
-            title="پیکره‌ی اقامتی — اروپا و آمریکا"
+            title="پیکرهٔ اقامتی — اروپا و آمریکا"
             items={[
               "eCFR — Code of Federal Regulations آمریکا",
               "Federal Register آمریکا",
@@ -68,25 +74,46 @@ function SourcesPage() {
           />
         </div>
 
-        <p className="mt-8 rounded-xl border border-border bg-elevated-2 p-4 text-[13px] leading-6 text-subtle">
-          پیکره‌ی حقوقی ایران با یک کرال‌کننده‌ی خودکار و محترمانه (پیرو
-          robots.txt) هر چند دقیقه یک دسته‌ی کوچک از صفحات جدید یا
-          تغییرکرده را می‌خواند و به‌روزرسانی می‌کند. اسناد اقامتی مستقیماً
-          از منابع رسمی بالا بازیابی می‌گردند.
+        <p className="t-small mt-8 border-s-2 border-n300 ps-5 text-subtle">
+          پیکرهٔ حقوقی ایران با یک کرال‌کنندهٔ خودکار و محترمانه (پیرو
+          robots.txt) هر چند دقیقه یک دستهٔ کوچک از صفحات جدید یا تغییرکرده را
+          می‌خواند و به‌روزرسانی می‌کند. اسناد اقامتی مستقیماً از منابع رسمی بالا
+          بازیابی می‌گردند.
         </p>
 
         {crawler.bySource.length > 0 ? (
-          <div className="mt-4 rounded-xl border border-border bg-elevated-2 p-4">
-            <p className="mb-2 text-[12px] font-bold text-fg">وضعیت کرال‌کننده</p>
-            <div className="grid gap-1.5 text-[12px] text-subtle" dir="ltr">
-              {crawler.bySource.map((row) => (
-                <div key={`${row.source_id}-${row.status}`} className="flex justify-between" dir="rtl">
-                  <span>{row.source_id} — {row.status}</span>
-                  <span className="tabular-nums text-fg">{row.n.toLocaleString("fa-IR")}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <section className="mt-10" aria-labelledby="crawler-status">
+            <h2 id="crawler-status" className="t-h3 text-fg">
+              وضعیت کرال‌کننده
+            </h2>
+            <table className="mt-4 w-full border-collapse text-[13px]">
+              <thead>
+                <tr className="border-b border-border text-start">
+                  <th scope="col" className="py-2.5 text-start font-medium text-subtle">
+                    منبع و وضعیت
+                  </th>
+                  <th scope="col" className="py-2.5 text-end font-medium text-subtle">
+                    تعداد
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {crawler.bySource.map((row) => (
+                  <tr
+                    key={`${row.source_id}-${row.status}`}
+                    className="border-b border-border-soft"
+                  >
+                    <td className="py-2.5 text-muted">
+                      {row.source_id} — {row.status}
+                    </td>
+                    <td className="py-2.5 text-end tabular-nums text-fg">
+                      {row.n.toLocaleString("fa-IR")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
         ) : null}
       </main>
       <SiteFooter />
@@ -94,40 +121,54 @@ function SourcesPage() {
   );
 }
 
+function Stat({ value, label }: { value: number; label: string }) {
+  return (
+    <div>
+      <dt className="sr-only">{label}</dt>
+      <dd>
+        <span className="block text-[clamp(1.5rem,2.6vw,2rem)] font-medium leading-none tracking-[-0.02em] text-fg tabular-nums">
+          {Number(value ?? 0).toLocaleString("fa-IR")}
+        </span>
+        <span className="t-caption mt-2 block text-muted">{label}</span>
+      </dd>
+    </div>
+  );
+}
+
 function SourceCard({
   title,
-  stat,
   items,
   links,
 }: {
   title: string;
-  stat?: string;
   items: string[];
   links?: { href: string; label: string }[];
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-elevated-2 p-5">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-[15px] font-bold text-fg">{title}</h2>
-        {stat ? <span className="text-[12px] text-accent">{stat}</span> : null}
-      </div>
-      <ul className="grid gap-2 text-[13px] leading-6 text-muted">
+    <div className="bg-elevated-2 p-7 sm:p-8">
+      <h2 className="t-h3 text-fg">{title}</h2>
+      <ul className="mt-4 grid gap-2.5 text-[13.5px] leading-7 text-muted">
         {items.map((item) => (
-          <li key={item}>— {item}</li>
+          <li key={item} className="flex gap-3">
+            <span aria-hidden="true" className="mt-3 h-px w-3 shrink-0 bg-n300" />
+            <span className="min-w-0 flex-1">{item}</span>
+          </li>
         ))}
       </ul>
       {links ? (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-2">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-[12px] text-muted hover:text-fg"
+              className="inline-flex h-9 items-center gap-1.5 rounded-sm border border-border px-3 text-[12.5px] font-medium text-fg transition-colors hover:border-n300 hover:bg-elevated"
               dir="ltr"
             >
               {l.label}
+              <ArrowLeft className="size-3 rotate-180" aria-hidden="true" />
+              <span className="sr-only"> (باز شدن در زبانهٔ جدید)</span>
             </a>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Scale } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/app-header";
 import { RequireAuth } from "@/components/require-auth";
@@ -151,18 +152,18 @@ function ResidencyPage() {
     <RequireAuth>
     <div className="min-h-dvh bg-bg text-fg">
       <AppHeader active="residency" corpusLabel="قوانین مهاجرت اروپا و آمریکا" />
-      <main id="main" className="mx-auto w-full max-w-4xl px-4 py-8">
-        <div className="grid min-w-0 gap-7 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
+      <main id="main" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+        <div className="grid min-w-0 gap-6 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
           {/* SIDEBAR */}
           <aside className="order-2 flex flex-col gap-5 md:order-1">
-            <div className="rounded-2xl border border-border bg-elevated-2 p-5">
+            <div className="rounded-xl border border-border bg-elevated-2 p-6">
               {/* پیش از این یک <div> بود، نه <label>: هیچ پیوند برنامه‌ای
                   میان نوشته و کنترل وجود نداشت، پس screen reader این
                   select را بی‌نام می‌خواند (WCAG 3.3.2 / 4.1.2). */}
-              <label htmlFor="residency-country" className="mb-1 block text-[13px] font-bold text-fg">
+              <label htmlFor="residency-country" className="mb-1.5 block text-[13.5px] font-medium text-fg">
                 کشور مورد نظر را انتخاب کنید
               </label>
-              <p id="residency-country-hint" className="mb-3 text-[11.5px] leading-7 text-subtle">
+              <p id="residency-country-hint" className="mb-4 text-[12px] leading-6 text-subtle">
                 پاسخ‌ها بر اساس قوانین همان کشور جست‌وجو می‌شوند. این خدمت مشاورهٔ وکیل مجاز کشور مقصد نیست.
               </p>
               <select
@@ -170,26 +171,26 @@ function ResidencyPage() {
                 aria-describedby="residency-country-hint"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                className="h-11 min-h-11 w-full cursor-pointer rounded-[10px] border border-warn bg-accent-soft px-3 text-sm text-accent-light"
+                className="h-12 w-full cursor-pointer rounded-sm border border-border bg-bg px-3 text-sm text-fg transition-colors hover:border-n300 focus:border-fg focus:outline-none"
               >
                 {COUNTRY_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-elevated text-fg">
+                  <option key={opt.value} value={opt.value} className="bg-elevated-2 text-fg">
                     {opt.label}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="rounded-2xl border border-border bg-elevated-2 p-5">
-              <h2 className="mb-3 text-[13px] font-bold text-fg">نمونه سؤال‌ها</h2>
-              <div className="flex flex-col gap-2">
+            <div className="rounded-xl border border-border bg-elevated-2 p-6">
+              <h2 className="mb-1 text-[13.5px] font-medium text-fg">نمونه سؤال‌ها</h2>
+              <div className="flex flex-col">
                 {SUGGESTED_QUESTIONS.map((q) => (
                   <button
                     key={q}
                     type="button"
                     disabled={busy}
                     onClick={() => void ask(q)}
-                    className="min-h-11 rounded-[10px] border border-border bg-elevated px-3 py-2.5 text-start text-[13px] leading-7 text-muted transition-colors hover:border-accent/40 hover:text-fg disabled:opacity-50"
+                    className="flex min-h-11 items-center border-b border-border-soft px-1 py-3 text-start text-[13px] leading-6 text-muted transition-colors first:border-t hover:text-fg disabled:opacity-50"
                   >
                     {q}
                   </button>
@@ -199,9 +200,9 @@ function ResidencyPage() {
           </aside>
 
           {/* CHAT PANEL */}
-          <section className="order-1 flex min-h-[70vh] flex-col overflow-hidden rounded-2xl border border-border bg-elevated-2 md:order-2">
-            <div className="border-b border-border px-5 py-4">
-              <h1 className="m-0 text-[17px] font-bold">پرسش‌وپاسخ اقامتی</h1>
+          <section className="order-1 flex min-h-[70vh] flex-col overflow-hidden rounded-xl border border-border bg-elevated-2 md:order-2">
+            <div className="border-b border-border px-6 py-5">
+              <h1 className="t-h3 m-0 text-fg">پرسش‌وپاسخ اقامتی</h1>
               <p className="mt-1 text-[12.5px] text-subtle">
                 پاسخ‌ها با جست‌وجوی اسنادی در متون رسمی مهاجرت تهیه می‌شود.
               </p>
@@ -210,7 +211,7 @@ function ResidencyPage() {
             {/* ناحیهٔ زنده: پاسخ استریم می‌شود، پس بدون این، کاربر screen
                 reader هیچ‌وقت متن پاسخ را نمی‌شنود (WCAG 4.1.3). */}
             <div
-              className="flex flex-1 flex-col gap-5 overflow-y-auto p-5"
+              className="flex flex-1 flex-col gap-5 overflow-y-auto p-6"
               role="log"
               aria-label="گفت‌وگوی اقامتی"
               aria-live="polite"
@@ -218,8 +219,8 @@ function ResidencyPage() {
               aria-busy={busy}
             >
               {turns.length === 0 && (
-                <div className="flex flex-1 flex-col items-center justify-center gap-2.5 text-center text-sm text-subtle">
-                  <div className="text-4xl" aria-hidden="true">⚖️</div>
+                <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-[13.5px] leading-7 text-subtle">
+                  <Scale className="size-6 text-n300" aria-hidden="true" />
                   سؤالی درباره قوانین مهاجرت بنویسید یا یکی از نمونه‌ها را انتخاب کنید.
                 </div>
               )}
@@ -227,7 +228,7 @@ function ResidencyPage() {
               {turns.map((turn, i) => (
                 <div key={i} className="flex flex-col gap-2.5">
                   <div
-                    className="self-end rounded-[16px_16px_3px_16px] bg-[linear-gradient(135deg,var(--color-cyan-dim)_0%,#0e5f70_100%)] px-4 py-[11px] text-[14.5px] text-white"
+                    className="self-end rounded-sm bg-elevated px-4 py-3 text-[14.5px] leading-7 text-fg"
                     style={{ maxWidth: "82%" }}
                   >
                     {turn.question}
@@ -241,7 +242,7 @@ function ResidencyPage() {
 
                   {turn.error && (
                     <div
-                      className="whitespace-pre-wrap break-words rounded-[10px] border border-danger bg-danger-soft px-3.5 py-3 text-[13.5px] text-danger-fg"
+                      className="whitespace-pre-wrap break-words rounded-sm border border-danger/30 bg-danger-soft px-4 py-3 text-[13.5px] leading-7 text-danger-fg"
                       role="alert"
                     >
                       {turn.error}
@@ -250,7 +251,7 @@ function ResidencyPage() {
 
                   {turn.answer && (
                     <div
-                      className="self-start break-words rounded-[16px_16px_16px_3px] border border-border bg-elevated px-[18px] py-4 text-[14.5px] leading-8"
+                      className="self-start break-words rounded-sm border border-border bg-bg px-5 py-4 text-[14.5px] leading-8 text-fg"
                       style={{ maxWidth: "95%", whiteSpace: "pre-wrap" }}
                     >
                       {turn.answer}
@@ -266,7 +267,7 @@ function ResidencyPage() {
                 e.preventDefault();
                 void ask(input);
               }}
-              className="flex gap-2.5 border-t border-border bg-surface p-4"
+              className="flex gap-2 border-t border-border bg-bg p-4"
             >
               <label htmlFor="residency-composer" className="sr-only">
                 پرسش خود درباره قوانین مهاجرت
@@ -279,12 +280,12 @@ function ResidencyPage() {
                 maxLength={2000}
                 disabled={busy}
                 placeholder="پرسش خود را درباره قوانین مهاجرت بنویسید…"
-                className="h-11 min-h-11 flex-1 rounded-[10px] border border-border bg-elevated px-4 text-[14.5px] text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:opacity-60"
+                className="control-h-lg min-w-0 flex-1 rounded-sm border border-border bg-elevated-2 px-4 text-[14.5px] text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={busy || input.trim().length === 0}
-                className="h-11 min-h-11 shrink-0 rounded-xl bg-[image:var(--gradient-gold)] px-6 text-sm font-bold text-accent-fg transition-[filter] hover:brightness-[1.06] disabled:opacity-50"
+                className="control-h-lg shrink-0 rounded-sm bg-fg px-6 text-sm font-medium text-bg transition-colors hover:bg-n800 disabled:opacity-40"
               >
                 {busy ? "در حال پرسش…" : "پرسیدن"}
               </button>
