@@ -51,7 +51,11 @@ describe("horizontal overflow guards", () => {
 
   it("the residency answer bubble opts into break-words", () => {
     const src = read("src/routes/residency.tsx");
-    assert.match(src, /self-start break-words rounded-\[16px/);
+    // ادعا روی خودِ گارد است، نه روی شعاع گوشه. نسخهٔ قبلی این تست
+    // `rounded-[16px` را هم می‌طلبید و با یکسان‌سازی شعاع‌ها در سیستم
+    // طراحی می‌شکست — در حالی که چیزی که واقعاً محافظت می‌کند
+    // `break-words` است.
+    assert.match(src, /self-start break-words/);
   });
 
   it("flex-1 filter pills carry min-w-0 so a long label cannot widen the row", () => {

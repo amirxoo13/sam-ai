@@ -3,24 +3,36 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * دکمهٔ پایه.
+ *
+ * انضباط عمدی: دکمهٔ اصلی «بلوک بازاریابی» نیست — کوتاه، با شعاع ۴
+ * پیکسل، وزن ۵۰۰ و فقط دو سر رمپ خنثی (جوهر روی عاج). نه گرادیان، نه
+ * سایهٔ رنگی، نه scale در حالت active. اعتبار بصری از تضاد و فاصله
+ * می‌آید، نه از تزئین.
+ *
+ * نام واریانت‌ها (از جمله `premium`) عمداً دست‌نخورده مانده است: در
+ * forms.tsx شش فراخوانی به آن وجود دارد و تغییر نام یعنی تغییر بی‌دلیل
+ * در فایل‌هایی که کارشان درست است. `premium` حالا همان دکمهٔ اصلی است.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,background-color,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:pointer-events-none disabled:opacity-40 active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm font-medium transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-n900 disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-fg text-accent-fg hover:bg-fg/90",
-        premium:
-          "bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent)_60%,var(--color-warn))] text-[#1a1305] shadow-[0_8px_24px_-8px_rgba(217,178,92,0.55)] hover:brightness-[1.06] active:brightness-95",
+        default: "bg-fg text-bg hover:bg-n800",
+        /** مترادف دکمهٔ اصلی — رجوع به توضیح بالا. */
+        premium: "bg-fg text-bg hover:bg-n800",
         secondary:
-          "border border-border bg-elevated text-fg hover:bg-surface",
+          "border border-border bg-elevated-2 text-fg hover:border-n300 hover:bg-elevated",
         ghost: "text-muted hover:bg-elevated hover:text-fg",
-        outline: "border border-border bg-transparent text-fg hover:bg-elevated",
+        outline: "border border-n300 bg-transparent text-fg hover:bg-elevated",
       },
       size: {
-        default: "h-11 min-h-11 px-4",
-        lg: "h-12 min-h-12 px-5 text-[15px]",
-        sm: "h-9 min-h-9 px-3 text-xs",
-        icon: "size-11 min-h-11 min-w-11",
+        default: "control-h px-3.5 text-sm",
+        lg: "control-h-lg px-5 text-[15px]",
+        sm: "h-9 min-h-9 px-3 text-[13px]",
+        icon: "control-h w-10 min-w-10",
       },
     },
     defaultVariants: {

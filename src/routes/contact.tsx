@@ -3,10 +3,21 @@ import { Mail, MessageCircle, Phone } from "lucide-react";
 import { useState } from "react";
 import { AppHeader } from "@/components/app-header";
 import { SiteFooter } from "@/components/site-footer";
+import { BRAND } from "@/lib/brand";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
+
+/* توکن‌های فرم — یک بار تعریف، همه‌جا یکسان.
+   ارتفاع فیلد ۴۸ پیکسل، شعاع ۴ پیکسل، فاصلهٔ برچسب تا فیلد ۸ پیکسل و
+   فاصلهٔ ردیف‌ها ۲۴ پیکسل. پیش از این هر فرم پروژه (تماس، ورود، برگه‌ها)
+   اعداد خودش را داشت. */
+const FIELD =
+  "h-12 w-full rounded-sm border border-border bg-elevated-2 px-4 text-sm text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none";
+const FIELD_MULTILINE =
+  "w-full resize-y rounded-sm border border-border bg-elevated-2 px-4 py-3 text-sm leading-8 text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none";
+const LABEL = "text-[13px] font-medium text-fg";
 
 function ContactPage() {
   const [name, setName] = useState("");
@@ -14,7 +25,7 @@ function ContactPage() {
 
   function sendMail(e: React.FormEvent) {
     e.preventDefault();
-    const subject = encodeURIComponent(`پیام از سایت SAM AI — ${name || "کاربر"}`);
+    const subject = encodeURIComponent(`پیام از سایت ${BRAND.name} — ${name || "کاربر"}`);
     const body = encodeURIComponent(message);
     window.location.href = `mailto:akbarmousavi1356@gmail.com?subject=${subject}&body=${body}`;
   }
@@ -22,30 +33,26 @@ function ContactPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader active="contact" />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-12">
-        <p className="mb-2 text-[12px] font-bold tracking-[0.18em] text-accent uppercase">
-          تماس با ما
-        </p>
-        <h1 className="text-[26px] font-extrabold leading-[1.4]">
-          نیاز به بررسی دقیق‌تر پرونده دارید؟
-        </h1>
-        <p className="mt-3 max-w-lg text-[14px] leading-7 text-muted">
-          برای مشاورهٔ تخصصی با دفتر مؤسسه حقوقی SAM AI تماس بگیرید.
+      <main id="main" className="container-prose flex-1 py-14 lg:py-20">
+        <p className="t-eyebrow">تماس با ما</p>
+        <h1 className="t-h1 mt-3 text-fg">نیاز به بررسی دقیق‌تر پرونده دارید؟</h1>
+        <p className="t-body mt-4 max-w-lg text-muted">
+          برای مشاورهٔ تخصصی با دفتر مؤسسهٔ حقوقی {BRAND.name} تماس بگیرید.
         </p>
 
-        <div className="mt-6 grid gap-2.5 sm:grid-cols-3">
+        <div className="mt-8 grid gap-2 sm:grid-cols-3">
           <ContactLink
-            icon={<Phone className="size-4" />}
+            icon={<Phone className="size-4" aria-hidden="true" />}
             label="۰۹۱۲۲۱۶۸۵۱۲"
             href="tel:+989122168512"
           />
           <ContactLink
-            icon={<MessageCircle className="size-4" />}
+            icon={<MessageCircle className="size-4" aria-hidden="true" />}
             label="واتس‌اپ"
             href="https://wa.me/989122168512"
           />
           <ContactLink
-            icon={<Mail className="size-4" />}
+            icon={<Mail className="size-4" aria-hidden="true" />}
             label="ایمیل"
             href="mailto:akbarmousavi1356@gmail.com"
           />
@@ -53,38 +60,45 @@ function ContactPage() {
 
         <form
           onSubmit={sendMail}
-          className="mt-8 grid gap-3.5 rounded-2xl border border-border bg-elevated-2 p-5 sm:p-6"
+          className="mt-10 grid gap-6 border-t border-border pt-8"
         >
-          <label className="grid gap-1.5">
-            <span className="text-xs text-muted">نام شما</span>
+          <h2 className="t-h3 text-fg">فرم پیام</h2>
+
+          <label className="grid gap-2">
+            <span className={LABEL}>نام شما</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="نام و نام‌خانوادگی"
-              className="h-11 rounded-lg border border-border bg-surface px-3 text-sm text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+              autoComplete="name"
+              className={FIELD}
             />
           </label>
-          <label className="grid gap-1.5">
-            <span className="text-xs text-muted">پیام</span>
+
+          <label className="grid gap-2">
+            <span className={LABEL}>پیام</span>
             <textarea
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              rows={5}
-              placeholder="خلاصه‌ای از موضوع را بنویسید..."
-              className="resize-y rounded-lg border border-border bg-surface px-3 py-2.5 text-sm leading-7 text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+              rows={6}
+              placeholder="خلاصه‌ای از موضوع را بنویسید…"
+              className={FIELD_MULTILINE}
             />
           </label>
-          <button
-            type="submit"
-            className="mt-1 h-11 rounded-xl text-[14px] font-bold text-[#1a1305]"
-            style={{
-              background:
-                "linear-gradient(135deg,var(--color-accent-light),var(--color-accent) 60%,var(--color-warn))",
-            }}
-          >
-            ارسال از طریق ایمیل
-          </button>
+
+          <div>
+            <button
+              type="submit"
+              className="control-h-lg inline-flex w-full items-center justify-center rounded-sm bg-fg px-6 text-[14px] font-medium text-bg transition-colors hover:bg-n800 sm:w-auto"
+            >
+              ارسال از طریق ایمیل
+            </button>
+            <p className="t-caption mt-3 text-subtle">
+              این دکمه برنامهٔ ایمیل دستگاه شما را با متن آماده باز می‌کند؛ پیام
+              روی این سایت ذخیره نمی‌شود.
+            </p>
+          </div>
         </form>
       </main>
       <SiteFooter />
@@ -101,15 +115,17 @@ function ContactLink({
   label: string;
   href: string;
 }) {
+  const external = href.startsWith("http");
   return (
     <a
       href={href}
-      target={href.startsWith("http") ? "_blank" : undefined}
-      rel={href.startsWith("http") ? "noreferrer" : undefined}
-      className="flex items-center justify-center gap-2 rounded-xl border border-border bg-elevated-2 px-4 py-3 text-[13px] font-medium text-fg hover:border-accent/40"
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      className="flex h-12 items-center justify-center gap-2 rounded-sm border border-border bg-elevated-2 px-4 text-[13px] font-medium text-fg transition-colors hover:border-n300 hover:bg-elevated"
     >
       {icon}
       {label}
+      {external ? <span className="sr-only"> (باز شدن در زبانهٔ جدید)</span> : null}
     </a>
   );
 }

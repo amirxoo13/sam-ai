@@ -23,6 +23,7 @@ import {
 } from "@/data/legal-forms";
 import { draftLegal, getCorpusStats } from "@/lib/legal/ask.functions";
 import { classifyMatter, type Classification } from "@/lib/legal/classify";
+import { BRAND } from "@/lib/brand";
 import { DRAFT_DISCLAIMER } from "@/lib/legal/copy";
 import type { DraftResult } from "@/lib/legal/types";
 import { cn } from "@/lib/utils";
@@ -73,20 +74,24 @@ function StepIndicator({ step }: { step: Step }) {
             <div className="flex flex-col items-center gap-1.5">
               <div
                 className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-full border text-[12px] font-bold transition-colors",
+                  "flex size-8 shrink-0 items-center justify-center rounded-full border text-[12px] font-medium transition-colors",
                   isActive
-                    ? "border-accent bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] text-[#1a1305]"
+                    ? "border-fg bg-fg text-bg"
                     : isDone
-                      ? "border-accent/50 bg-elevated text-accent"
-                      : "border-border bg-surface text-subtle",
+                      ? "border-n300 bg-elevated-2 text-fg"
+                      : "border-border bg-elevated-2 text-subtle",
                 )}
               >
-                {isDone ? <Check className="size-4" /> : i + 1}
+                {isDone ? (
+                  <Check className="size-4" aria-hidden="true" />
+                ) : (
+                  (i + 1).toLocaleString("fa-IR")
+                )}
               </div>
               <span
                 className={cn(
-                  "text-[11.5px] font-medium",
-                  isActive ? "text-accent-light" : isDone ? "text-muted" : "text-subtle",
+                  "text-[11.5px]",
+                  isActive ? "font-medium text-fg" : isDone ? "text-muted" : "text-subtle",
                 )}
               >
                 {item.label}
@@ -94,7 +99,7 @@ function StepIndicator({ step }: { step: Step }) {
             </div>
             {i < STEPS.length - 1 ? (
               <div
-                className={cn("mx-2 h-px flex-1 transition-colors", isDone ? "bg-accent/50" : "bg-border")}
+                className={cn("mx-2 h-px flex-1 transition-colors", isDone ? "bg-n400" : "bg-border")}
                 aria-hidden="true"
               />
             ) : null}
@@ -207,7 +212,7 @@ function FormsPage() {
     URL.revokeObjectURL(url);
   }
 
-  const corpusLabel = `${stats.total} قطعه در پیکره · ${LEGAL_FORMS.length} قالب برگه`;
+  const corpusLabel = `${Number(stats.total ?? 0).toLocaleString("fa-IR")} قطعه در پیکره · ${LEGAL_FORMS.length.toLocaleString("fa-IR")} قالب برگه`;
   const fields: FormFieldId[] = (selected ?? cls?.form)?.fields ?? [
     "story",
     "claimant",
@@ -221,61 +226,65 @@ function FormsPage() {
     <RequireAuth>
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader corpusLabel={corpusLabel} active="forms" />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-        <section className="mb-6">
-          <p className="mb-2 flex items-center gap-2 text-[11.5px] font-bold tracking-[0.14em] text-accent">
-            <Scale className="size-3.5" />
+      <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 lg:py-14">
+        {/* این صفحه پیش از این هیچ h1 نداشت و با h2 شروع می‌شد — ناوبری با
+            screen reader را می‌شکست (WCAG 1.3.1). */}
+        <section className="mb-8">
+          <p className="t-eyebrow flex items-center gap-2">
+            <Scale className="size-3.5" aria-hidden="true" />
             تشخیص مسیر و پیش‌نویس اوراق
           </p>
-          <h2 className="text-[26px] font-extrabold leading-[1.35] tracking-tight text-fg">
-            مثل جلسه‌ی وکیل: اول ماجرا، بعد مسیر، بعد برگه.
-          </h2>
-          <p className="mt-2 max-w-xl text-[13.5px] leading-7 text-muted">
-            شرح را بگویید. SAM AI تشخیص می‌دهد دعوا حقوقی است یا کیفری، قالب
-            شکواییه / دادخواست / لایحه را برمی‌گزیند و با مواد پیکره پیش‌نویس
-            می‌نویسد.
+          <h1 className="t-h1 mt-3 text-fg">
+            مثل جلسهٔ وکیل: اول ماجرا، بعد مسیر، بعد برگه.
+          </h1>
+          <p className="t-body mt-4 max-w-xl text-muted">
+            شرح را بگویید. {BRAND.name} تشخیص می‌دهد دعوا حقوقی است یا کیفری،
+            قالب شکواییه / دادخواست / لایحه را برمی‌گزیند و با مواد پیکره
+            پیش‌نویس می‌نویسد.
           </p>
         </section>
 
-        <div className="rounded-2xl border border-border bg-elevated-2 p-5 sm:p-6">
+        <div className="rounded-xl border border-border bg-elevated-2 p-6 sm:p-8">
           <StepIndicator step={step} />
 
         <div className="mt-6">
         {step === "story" ? (
-          <section className="grid gap-4">
-            <label className="grid gap-1.5">
-              <span className="text-xs text-muted">شرح ماجرا</span>
+          <section className="grid gap-6">
+            <label className="grid gap-2">
+              <span className="text-[13px] font-medium text-fg">شرح ماجرا</span>
               <textarea
                 value={answers.story ?? ""}
                 onChange={(e) => setField("story", e.target.value)}
                 rows={7}
                 placeholder="از ابتدا تا امروز چه شده؟ مبلغ، تاریخ، محل، طرف مقابل و مدارک را بنویسید. اگر رأی صادر شده، آن را هم بگویید."
-                className="min-h-32 resize-y rounded-lg border border-border bg-surface px-3 py-2.5 text-sm leading-7 text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+                className="min-h-36 resize-y rounded-sm border border-border bg-bg px-4 py-3 text-sm leading-8 text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none"
               />
             </label>
             <label
               className={cn(
-                "flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[13px] leading-6 transition-colors",
-                hasJudgment ? "border-accent/50 bg-accent/[0.07] text-fg" : "border-border bg-surface text-muted",
+                "flex min-h-12 cursor-pointer items-center gap-3 rounded-sm border px-4 py-3 text-[13px] leading-6 transition-colors",
+                hasJudgment ? "border-fg bg-elevated text-fg" : "border-border bg-bg text-muted hover:border-n300",
               )}
             >
               <input
                 type="checkbox"
                 checked={hasJudgment}
                 onChange={(e) => setHasJudgment(e.target.checked)}
-                className="size-4 shrink-0 accent-[#d9b25c]"
+                className="size-4 shrink-0"
               />
               رأی، قرار یا دادنامه صادر شده و می‌خواهم لایحه / اعتراض بنویسم
             </label>
             {hasJudgment ? (
-              <label className="grid gap-1.5">
-                <span className="text-xs text-muted">{FORM_FIELDS.judgment.label}</span>
+              <label className="grid gap-2">
+                <span className="text-[13px] font-medium text-fg">
+                  {FORM_FIELDS.judgment.label}
+                </span>
                 <textarea
                   value={answers.judgment ?? ""}
                   onChange={(e) => setField("judgment", e.target.value)}
                   rows={5}
                   placeholder={FORM_FIELDS.judgment.placeholder}
-                  className="min-h-11 resize-y rounded-lg border border-border bg-surface px-3 py-2.5 text-sm leading-7 text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  className="min-h-24 resize-y rounded-sm border border-border bg-bg px-4 py-3 text-sm leading-8 text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none"
                 />
               </label>
             ) : null}
@@ -293,7 +302,7 @@ function FormsPage() {
             <button
               type="button"
               onClick={() => setShowCatalog((v) => !v)}
-              className="text-sm text-muted underline-offset-4 hover:text-fg hover:underline"
+              className="link-inline inline-flex min-h-11 w-fit items-center text-[13.5px] font-medium"
             >
               {showCatalog ? "بستن فهرست قالب‌ها" : "می‌دانم چه برگی می‌خواهم — فهرست قالب‌ها"}
             </button>
@@ -323,34 +332,34 @@ function FormsPage() {
         ) : null}
 
         {step === "fill" ? (
-          <section className="grid gap-4">
-            <p className="rounded-lg border border-border bg-surface px-4 py-3 text-sm leading-6 text-muted">
-              <span className="text-fg">{(selected ?? cls?.form)?.title}.</span>{" "}
+          <section className="grid gap-6">
+            <p className="rounded-sm border-s-2 border-n300 bg-elevated px-4 py-3 text-sm leading-7 text-muted">
+              <span className="font-medium text-fg">{(selected ?? cls?.form)?.title}.</span>{" "}
               {(selected ?? cls?.form)?.when} ثبت از طریق {(selected ?? cls?.form)?.fileVia}.
             </p>
-            <div className="grid gap-3">
+            <div className="grid gap-5">
               {fields
                 .filter((id) => id !== "story")
                 .map((id) => {
                   const meta = FORM_FIELDS[id];
                   const rows = meta.rows ?? 1;
                   return (
-                    <label key={id} className="grid gap-1.5">
-                      <span className="text-xs text-muted">{meta.label}</span>
+                    <label key={id} className="grid gap-2">
+                      <span className="text-[13px] font-medium text-fg">{meta.label}</span>
                       {rows > 1 ? (
                         <textarea
                           value={answers[id] ?? ""}
                           onChange={(e) => setField(id, e.target.value)}
                           rows={rows}
                           placeholder={meta.placeholder}
-                          className="min-h-11 resize-y rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+                          className="min-h-24 resize-y rounded-sm border border-border bg-bg px-4 py-3 text-sm leading-8 text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none"
                         />
                       ) : (
                         <input
                           value={answers[id] ?? ""}
                           onChange={(e) => setField(id, e.target.value)}
                           placeholder={meta.placeholder}
-                          className="h-11 min-h-11 rounded-lg border border-border bg-surface px-3 text-sm text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+                          className="h-12 rounded-sm border border-border bg-bg px-4 text-sm text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none"
                         />
                       )}
                     </label>
@@ -426,7 +435,7 @@ function Catalog({
 }) {
   return (
     <div className="grid gap-3">
-      <div className="flex flex-wrap gap-1 rounded-lg bg-surface p-1" role="tablist">
+      <div className="flex flex-wrap gap-1 rounded-sm bg-surface p-1" role="tablist" aria-label="نوع پرونده">
         {TRACK_FILTER.map((item) => (
           <button
             key={item.id}
@@ -435,8 +444,10 @@ function Catalog({
             aria-selected={track === item.id}
             onClick={() => onTrack(item.id)}
             className={cn(
-              "h-11 min-h-11 flex-1 rounded-md px-2 text-sm",
-              track === item.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
+              "control-h flex-1 rounded-sm px-2 text-[13px] transition-colors",
+              track === item.id
+                ? "bg-elevated-2 font-medium text-fg shadow-[0_1px_2px_rgba(15,14,13,0.06)]"
+                : "font-normal text-muted hover:text-fg",
             )}
           >
             {item.label}
@@ -450,14 +461,14 @@ function Catalog({
             type="button"
             onClick={() => onPick(f.id)}
             className={cn(
-              "min-h-11 rounded-lg border px-4 py-3 text-right transition-colors duration-150",
+              "min-h-11 rounded-sm border px-4 py-3.5 text-start transition-colors duration-150",
               selectedId === f.id
                 ? "border-fg bg-elevated"
-                : "border-border bg-surface hover:bg-elevated",
+                : "border-border bg-bg hover:border-n300 hover:bg-elevated",
             )}
           >
             <div className="flex items-center gap-2 text-sm font-medium text-fg">
-              <FileText className="size-3.5 shrink-0 text-muted" />
+              <FileText className="size-3.5 shrink-0 text-n400" aria-hidden="true" />
               {f.title}
             </div>
             <p className="mt-1 text-xs leading-5 text-muted">{f.forum}</p>
@@ -485,16 +496,16 @@ function PathCard({
     cls.track === "criminal"
       ? "text-danger"
       : cls.track === "civil"
-        ? "text-accent"
+        ? "text-fg"
         : "text-warn";
   const trackBorder =
     cls.track === "criminal"
-      ? "border-r-4 border-r-danger"
+      ? "border-s-4 border-s-danger"
       : cls.track === "civil"
-        ? "border-r-4 border-r-accent"
-        : "border-r-4 border-r-warn";
+        ? "border-s-4 border-s-fg"
+        : "border-s-4 border-s-warn";
   return (
-    <article className={cn("space-y-5 rounded-xl border border-border bg-surface p-5", trackBorder)}>
+    <article className={cn("space-y-6 rounded-sm border border-border bg-bg p-6", trackBorder)}>
       <div className="flex items-start gap-3">
         <Scale className="mt-0.5 size-4 shrink-0 text-muted" />
         <div className="min-w-0 flex-1">
@@ -525,7 +536,7 @@ function PathCard({
                 key={f.id}
                 type="button"
                 onClick={() => onPickAlt(f.id)}
-                className="min-h-11 rounded-md border border-border bg-elevated px-3 text-xs text-fg hover:border-fg"
+                className="control-h rounded-sm border border-border bg-elevated-2 px-3.5 text-xs font-medium text-fg transition-colors hover:border-fg"
               >
                 {f.title}
               </button>
@@ -535,7 +546,7 @@ function PathCard({
       ) : null}
       <ol className="grid gap-2">
         {cls.nextSteps.map((s, i) => (
-          <li key={s.title} className="rounded-lg bg-elevated px-3 py-2">
+          <li key={s.title} className="rounded-sm bg-elevated px-4 py-3">
             <p className="text-xs font-medium text-fg">
               {i + 1}. {s.title}
             </p>
@@ -576,16 +587,16 @@ function ResultCard({
     c.track === "criminal"
       ? "text-danger"
       : c.track === "civil"
-        ? "text-accent"
+        ? "text-fg"
         : "text-warn";
   const trackBorder =
     c.track === "criminal"
-      ? "border-r-4 border-r-danger"
+      ? "border-s-4 border-s-danger"
       : c.track === "civil"
-        ? "border-r-4 border-r-accent"
-        : "border-r-4 border-r-warn";
+        ? "border-s-4 border-s-fg"
+        : "border-s-4 border-s-warn";
   return (
-    <article className={cn("space-y-4 rounded-xl border border-border bg-surface p-5", trackBorder)}>
+    <article className={cn("space-y-5 rounded-sm border border-border bg-bg p-6", trackBorder)}>
       <div>
         <p className={cn("text-sm font-semibold", trackColor)}>مسیر: {c.trackLabel}</p>
         <p className="mt-1 text-sm leading-6 text-muted">
@@ -595,7 +606,7 @@ function ResultCard({
         </p>
         {c.advice ? <p className="mt-1 text-sm leading-6 text-muted">{c.advice}</p> : null}
       </div>
-      <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap break-words rounded-lg border border-border bg-elevated px-4 py-3 text-sm leading-7 text-fg">
+      <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap break-words rounded-sm border border-border bg-elevated-2 px-5 py-4 text-sm leading-8 text-fg">
         {result.draft}
       </pre>
       <p className="text-xs text-subtle">
@@ -627,7 +638,7 @@ function ResultCard({
           {result.sources.slice(0, 4).map((s, i) => (
             <li
               key={s.id}
-              className="rounded-md border border-border bg-elevated px-3 py-2 text-xs text-muted"
+              className="rounded-sm border border-border bg-elevated-2 px-4 py-3 text-xs leading-6 text-muted"
             >
               <p>
                 منبع {i + 1} ({s.authorityShort}):{" "}
@@ -636,7 +647,7 @@ function ResultCard({
                     href={s.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-accent-light underline-offset-2 hover:underline"
+                    className="link-inline font-medium"
                   >
                     {s.source_title}
                     {s.article_number ? ` — ماده ${s.article_number}` : ""}

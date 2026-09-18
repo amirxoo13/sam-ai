@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/app-header";
 import { authClient } from "@/lib/auth/client";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -93,27 +94,28 @@ function LoginPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader active="home" />
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-10">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 flex flex-col items-center gap-3 text-center">
+      <main id="main" className="flex flex-1 flex-col items-center justify-center px-4 py-14">
+        <div className="w-full max-w-md">
+          <div className="mb-8 flex flex-col items-center gap-4 text-center">
             <img
-              src="/logo.png"
-              alt="SAM AI"
-              width={56}
-              height={56}
-              className="rounded-full"
-              style={{ boxShadow: "0 0 0 1px rgba(217,178,92,0.35)" }}
+              src={BRAND.logoSrc}
+              alt=""
+              width={48}
+              height={48}
+              className="size-12 rounded-sm object-cover ring-1 ring-border"
             />
             <div>
-              <div className="text-[20px] font-extrabold tracking-tight">
-                SAM<span className="text-cyan">AI</span>
-              </div>
-              <p className="mt-1 text-[12.5px] text-subtle">مؤسسه حقوقی — ورود موکل</p>
+              <h1 className="t-h3 text-fg">ورود موکل</h1>
+              <p className="t-caption mt-1 text-subtle">
+                {BRAND.name} — {BRAND.tagline}
+              </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-elevated-2 p-6">
-            <div className="mb-5 flex rounded-lg bg-surface p-1">
+          <div className="rounded-xl border border-border bg-elevated-2 p-7 sm:p-8">
+            {/* انتخاب حالت: نوار تب روی سطح فرورفته، تب فعال سفید و
+                بالاتر — تمایز از ارتفاع می‌آید نه از رنگ اکسنت. */}
+            <div className="mb-7 flex rounded-sm bg-surface p-1" role="tablist" aria-label="حالت ورود">
               {(
                 [
                   { id: "signin", label: "ورود" },
@@ -123,13 +125,17 @@ function LoginPage() {
                 <button
                   key={t.id}
                   type="button"
+                  role="tab"
+                  aria-selected={mode === t.id}
                   onClick={() => {
                     setMode(t.id);
                     setError(null);
                   }}
                   className={cn(
-                    "flex h-10 flex-1 items-center justify-center rounded-md text-[13.5px] font-medium transition-colors",
-                    mode === t.id ? "bg-elevated-2 text-accent-light" : "text-muted hover:text-fg",
+                    "control-h flex flex-1 items-center justify-center rounded-sm text-[13.5px] transition-colors",
+                    mode === t.id
+                      ? "bg-elevated-2 font-medium text-fg shadow-[0_1px_2px_rgba(15,14,13,0.06)]"
+                      : "font-normal text-muted hover:text-fg",
                   )}
                 >
                   {t.label}
@@ -137,21 +143,21 @@ function LoginPage() {
               ))}
             </div>
 
-            <form onSubmit={submit} className="grid gap-3.5">
+            <form onSubmit={submit} className="grid gap-6">
               {mode === "signup" ? (
-                <label className="grid gap-1.5">
-                  <span className="text-xs text-muted">نام</span>
+                <label className="grid gap-2">
+                  <span className="text-[13px] font-medium text-fg">نام</span>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="نام و نام‌خانوادگی"
                     autoComplete="name"
-                    className="h-11 rounded-lg border border-border bg-surface px-3 text-sm text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+                    className="h-12 rounded-sm border border-border bg-bg px-4 text-sm text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none"
                   />
                 </label>
               ) : null}
-              <label className="grid gap-1.5">
-                <span className="text-xs text-muted">ایمیل</span>
+              <label className="grid gap-2">
+                <span className="text-[13px] font-medium text-fg">ایمیل</span>
                 <input
                   type="email"
                   required
@@ -160,11 +166,11 @@ function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className="h-11 rounded-lg border border-border bg-surface px-3 text-sm text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  className="h-12 rounded-sm border border-border bg-bg px-4 text-sm text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none"
                 />
               </label>
-              <label className="grid gap-1.5">
-                <span className="text-xs text-muted">رمز عبور</span>
+              <label className="grid gap-2">
+                <span className="text-[13px] font-medium text-fg">رمز عبور</span>
                 <input
                   type="password"
                   required
@@ -174,12 +180,15 @@ function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="حداقل ۸ کاراکتر"
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                  className="h-11 rounded-lg border border-border bg-surface px-3 text-sm text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  className="h-12 rounded-sm border border-border bg-bg px-4 text-sm text-fg transition-colors placeholder:text-subtle hover:border-n300 focus:border-fg focus:outline-none"
                 />
               </label>
 
               {error ? (
-                <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-[12.5px] text-[#fca5a5]" role="alert">
+                <p
+                  className="rounded-sm border border-danger/30 bg-danger-soft px-4 py-3 text-[13px] leading-6 text-danger-fg"
+                  role="alert"
+                >
                   {error}
                 </p>
               ) : null}
@@ -187,27 +196,24 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={busy}
-                className="mt-1 h-11 rounded-xl text-[14.5px] font-bold text-[#1a1305] transition-[filter] disabled:opacity-60"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--color-accent-light), var(--color-accent) 60%, var(--color-warn))",
-                }}
+                className="control-h-lg rounded-sm bg-fg text-[14px] font-medium text-bg transition-colors hover:bg-n800 disabled:opacity-40"
               >
                 {busy ? "لطفاً صبر کنید…" : mode === "signup" ? "ایجاد حساب" : "ورود"}
               </button>
             </form>
           </div>
 
-          <p className="mt-5 text-center text-[12px] leading-6 text-subtle">
-            برای پرسش حقوقی، پرسش اقامتی و تنظیم برگه باید وارد حساب کاربری خود شوید.
-            <span className="block">
-              <Link to="/" className="text-accent-light hover:underline">
+          <p className="t-caption mt-6 text-center text-subtle">
+            برای پرسش حقوقی، پرسش اقامتی و تنظیم برگه باید وارد حساب کاربری خود
+            شوید.
+            <span className="mt-1 block">
+              <Link to="/" className="link-inline font-medium">
                 بازگشت به خانه
               </Link>
             </span>
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
