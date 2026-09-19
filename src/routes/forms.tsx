@@ -26,6 +26,7 @@ import { classifyMatter, type Classification } from "@/lib/legal/classify";
 import { DRAFT_DISCLAIMER } from "@/lib/legal/copy";
 import type { DraftResult } from "@/lib/legal/types";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 export const Route = createFileRoute("/forms")({
   loader: () =>
@@ -38,8 +39,12 @@ export const Route = createFileRoute("/forms")({
       backend: "unknown",
     })),
   pendingComponent: () => (
-    <div className="grid min-h-dvh place-items-center bg-bg text-sm text-muted" role="status">
-      در حال آماده‌سازی برگه‌ها…
+    <div className="grid min-h-dvh place-items-center bg-bg px-6" role="status">
+      <div className="w-full max-w-sm space-y-3">
+        <div className="skeleton-bar h-3 w-1/3" />
+        <div className="skeleton-bar h-3 w-full" />
+        <p className="pt-2 text-sm text-muted">در حال آماده‌سازی برگه‌ها…</p>
+      </div>
     </div>
   ),
   component: FormsPage,
@@ -75,9 +80,9 @@ function StepIndicator({ step }: { step: Step }) {
                 className={cn(
                   "flex size-8 shrink-0 items-center justify-center rounded-full border text-[12px] font-bold transition-colors",
                   isActive
-                    ? "border-accent bg-[linear-gradient(135deg,var(--color-accent-light),var(--color-accent))] text-[#1a1305]"
+                    ? "border-fg bg-fg text-accent-fg"
                     : isDone
-                      ? "border-accent/50 bg-elevated text-accent"
+                      ? "border-fg/40 bg-elevated text-fg"
                       : "border-border bg-surface text-subtle",
                 )}
               >
@@ -86,7 +91,7 @@ function StepIndicator({ step }: { step: Step }) {
               <span
                 className={cn(
                   "text-[11.5px] font-medium",
-                  isActive ? "text-accent-light" : isDone ? "text-muted" : "text-subtle",
+                  isActive ? "text-fg" : isDone ? "text-muted" : "text-subtle",
                 )}
               >
                 {item.label}
@@ -94,7 +99,7 @@ function StepIndicator({ step }: { step: Step }) {
             </div>
             {i < STEPS.length - 1 ? (
               <div
-                className={cn("mx-2 h-px flex-1 transition-colors", isDone ? "bg-accent/50" : "bg-border")}
+                className={cn("mx-2 h-px flex-1 transition-colors", isDone ? "bg-fg/40" : "bg-border")}
                 aria-hidden="true"
               />
             ) : null}
@@ -223,21 +228,21 @@ function FormsPage() {
       <AppHeader corpusLabel={corpusLabel} active="forms" />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
         <section className="mb-6">
-          <p className="mb-2 flex items-center gap-2 text-[11.5px] font-bold tracking-[0.14em] text-accent">
+          <p className="mb-2 flex items-center gap-2 text-[11.5px] font-bold tracking-[0.14em] text-muted">
             <Scale className="size-3.5" />
             تشخیص مسیر و پیش‌نویس اوراق
           </p>
-          <h2 className="text-[26px] font-extrabold leading-[1.35] tracking-tight text-fg">
+          <h1 className="text-[26px] font-extrabold leading-[1.35] tracking-tight text-fg">
             مثل جلسه‌ی وکیل: اول ماجرا، بعد مسیر، بعد برگه.
-          </h2>
+          </h1>
           <p className="mt-2 max-w-xl text-[13.5px] leading-7 text-muted">
-            شرح را بگویید. SAM AI تشخیص می‌دهد دعوا حقوقی است یا کیفری، قالب
+            شرح را بگویید. {BRAND.short} تشخیص می‌دهد دعوا حقوقی است یا کیفری، قالب
             شکواییه / دادخواست / لایحه را برمی‌گزیند و با مواد پیکره پیش‌نویس
             می‌نویسد.
           </p>
         </section>
 
-        <div className="rounded-2xl border border-border bg-elevated-2 p-5 sm:p-6">
+        <div className="rounded-[12px] border border-border bg-elevated p-5 sm:p-6">
           <StepIndicator step={step} />
 
         <div className="mt-6">
@@ -256,14 +261,14 @@ function FormsPage() {
             <label
               className={cn(
                 "flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-[13px] leading-6 transition-colors",
-                hasJudgment ? "border-accent/50 bg-accent/[0.07] text-fg" : "border-border bg-surface text-muted",
+                hasJudgment ? "border-fg/40 bg-site-100 text-fg" : "border-border bg-surface text-muted",
               )}
             >
               <input
                 type="checkbox"
                 checked={hasJudgment}
                 onChange={(e) => setHasJudgment(e.target.checked)}
-                className="size-4 shrink-0 accent-[#d9b25c]"
+                className="size-4 shrink-0 accent-fg"
               />
               رأی، قرار یا دادنامه صادر شده و می‌خواهم لایحه / اعتراض بنویسم
             </label>
@@ -636,7 +641,7 @@ function ResultCard({
                     href={s.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-accent-light underline-offset-2 hover:underline"
+                    className="text-fg underline-offset-2 hover:underline"
                   >
                     {s.source_title}
                     {s.article_number ? ` — ماده ${s.article_number}` : ""}

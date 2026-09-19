@@ -9,6 +9,7 @@ import type { ChatMessageRow, ChatType } from "@/lib/chat-history.server";
 import { listMyMatters } from "@/lib/matter.functions";
 import { deleteMyFile, listMyFiles, uploadUserFile } from "@/lib/user-files.functions";
 import type { UserFileSummary } from "@/lib/user-files.server";
+import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/profile")({
@@ -27,27 +28,24 @@ function ProfilePage() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
       <AppHeader active="profile" corpusLabel="پروفایل کاربری" />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-        {/* کارت هویت */}
-        <section className="mb-6 flex items-center gap-4 rounded-2xl border border-border bg-elevated-2 p-6">
+      <main id="main" className="mx-auto w-full max-w-xl flex-1 px-4 py-8">
+        <section className="mb-6 flex items-center gap-4 rounded-[12px] border border-border bg-elevated p-6">
           {user?.profileImageUrl ? (
             <img
               src={user.profileImageUrl}
               alt=""
-              className="size-16 shrink-0 rounded-full object-cover"
-              style={{ boxShadow: "0 0 0 2px var(--color-accent)" }}
+              className="size-16 shrink-0 rounded-[8px] object-cover ring-1 ring-border"
             />
           ) : (
             <span
-              className="grid size-16 shrink-0 place-items-center rounded-full text-2xl font-extrabold text-[#1a1305]"
-              style={{ background: "linear-gradient(135deg,var(--color-accent-light),var(--color-accent))" }}
+              className="grid size-16 shrink-0 place-items-center rounded-[8px] bg-fg text-2xl font-extrabold text-accent-fg"
             >
-              {(user?.displayName ?? user?.primaryEmail ?? "?").charAt(0).toUpperCase()}
+              {(user?.displayName ?? user?.primaryEmail ?? "?").charAt(0)}
             </span>
           )}
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-[18px] font-extrabold text-fg">
-              {user?.displayName ?? "کاربر SAM AI"}
+              {user?.displayName ?? `کاربر ${BRAND.short}`}
             </h1>
             <p className="mt-0.5 truncate text-[13px] text-muted" dir="ltr">
               {user?.primaryEmail}
@@ -60,21 +58,19 @@ function ProfilePage() {
               setSigningOut(true);
               void signOut().catch(() => setSigningOut(false));
             }}
-            className="shrink-0 rounded-lg border border-border px-3.5 py-2 text-[13px] font-medium text-muted hover:border-danger/50 hover:text-danger disabled:opacity-50"
+            className="inline-flex h-11 min-h-11 shrink-0 items-center rounded-[8px] border border-border px-3.5 text-[13px] font-medium text-muted hover:border-danger/50 hover:text-danger disabled:opacity-50"
           >
-            {signingOut ? "..." : "خروج از حساب"}
+            {signingOut ? "خروج…" : "خروج از حساب"}
           </button>
         </section>
 
-        {/* پرونده‌های کاربر */}
-        <section className="mb-6 rounded-2xl border border-border bg-elevated-2 p-5 sm:p-6">
+        <section className="mb-6 rounded-[12px] border border-border bg-elevated p-5 sm:p-6">
           <FilesSection />
         </section>
 
-        {/* تاریخچه‌ی مکالمات */}
-        <section className="rounded-2xl border border-border bg-elevated-2 p-5 sm:p-6">
-          <h2 className="mb-4 text-[14px] font-bold text-fg">تاریخچه‌ی مکالمات</h2>
-          <div className="mb-4 flex rounded-lg bg-surface p-1">
+        <section className="rounded-[12px] border border-border bg-elevated p-5 sm:p-6">
+          <h2 className="mb-4 text-[14px] font-extrabold text-fg">تاریخچه‌ی مکالمات</h2>
+          <div className="mb-4 flex rounded-[8px] bg-site-100 p-1">
             {(
               [
                 { id: "legal" as const, label: "چت حقوقی" },
@@ -86,8 +82,8 @@ function ProfilePage() {
                 type="button"
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "flex h-10 flex-1 items-center justify-center rounded-md text-[13px] font-medium transition-colors",
-                  tab === t.id ? "bg-elevated-2 text-accent-light" : "text-muted hover:text-fg",
+                  "flex h-11 min-h-11 flex-1 items-center justify-center rounded-[8px] text-[13px] font-semibold transition-colors",
+                  tab === t.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
                 )}
               >
                 {t.label}
@@ -164,7 +160,7 @@ function FilesSection() {
   return (
     <>
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-[14px] font-bold text-fg">پرونده‌های کاری</h2>
+        <h2 className="text-[14px] font-extrabold text-fg">پرونده‌های کاری</h2>
         <span className="text-[11.5px] text-subtle">فقط شما این فایل‌ها را می‌بینید</span>
       </div>
       <p className="mt-1.5 text-[12.5px] leading-6 text-subtle">
@@ -175,7 +171,7 @@ function FilesSection() {
         <label className="mt-3 grid gap-1.5">
           <span className="text-[12px] text-muted">پروندهٔ کاری</span>
           <select
-            className="h-10 rounded-md border border-border bg-surface px-2 text-sm text-fg"
+            className="h-11 min-h-11 rounded-[8px] border border-border bg-site-50 px-2 text-sm text-fg"
             value={matterId ?? ""}
             onChange={(e) => setMatterId(e.target.value)}
           >
@@ -190,8 +186,8 @@ function FilesSection() {
 
       <label
         className={cn(
-          "mt-4 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed px-4 py-6 text-center transition-colors",
-          uploading ? "border-accent/50 bg-accent/5" : "border-border hover:border-accent/40",
+          "mt-4 flex min-h-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[8px] border border-dashed px-4 py-6 text-center transition-colors",
+          uploading ? "border-fg/40 bg-site-100" : "border-border hover:border-site-400",
         )}
       >
         <input
@@ -203,24 +199,38 @@ function FilesSection() {
           onChange={(e) => void handleFiles(e.target.files)}
           disabled={uploading}
         />
+        {uploading ? (
+          <span className="w-full max-w-xs space-y-2" aria-hidden="true">
+            <span className="skeleton-bar mx-auto block h-2.5 w-2/3" />
+            <span className="skeleton-bar mx-auto block h-2.5 w-1/2" />
+          </span>
+        ) : null}
         <span className="text-[13px] font-medium text-fg">
           {uploading ? "در حال بارگذاری…" : "برای انتخاب فایل کلیک کنید"}
         </span>
         <span className="text-[11.5px] text-subtle">فرمت‌های مجاز: txt، md</span>
       </label>
 
-      {error ? <p className="mt-3 text-[12.5px] text-danger">{error}</p> : null}
+      {error ? (
+        <p className="mt-3 text-[12.5px] text-danger" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       <div className="mt-4 grid gap-2">
         {files === null ? (
-          <p className="text-[13px] text-subtle">در حال بارگذاری...</p>
+          <div className="space-y-2" role="status">
+            <div className="skeleton-bar h-10 w-full" />
+            <div className="skeleton-bar h-10 w-full" />
+            <p className="text-[13px] text-subtle">در حال بارگذاری پرونده‌ها…</p>
+          </div>
         ) : files.length === 0 ? (
           <p className="text-[13px] text-subtle">هنوز فایلی پیوست نشده است.</p>
         ) : (
           files.map((f) => (
             <div
               key={f.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3.5 py-2.5"
+              className="flex items-center justify-between gap-3 rounded-[8px] border border-border bg-site-50 px-3.5 py-2.5"
             >
               <div className="min-w-0">
                 <p className="truncate text-[13px] font-medium text-fg">{f.filename}</p>
@@ -231,7 +241,7 @@ function FilesSection() {
               <button
                 type="button"
                 onClick={() => void remove(f.id)}
-                className="shrink-0 text-[12px] text-subtle hover:text-danger"
+                className="inline-flex h-11 min-h-11 shrink-0 items-center px-2 text-[12px] text-subtle hover:text-danger"
               >
                 حذف
               </button>
@@ -264,7 +274,14 @@ function HistoryList({ chatType }: { chatType: ChatType }) {
   }, [chatType]);
 
   if (error) return <p className="text-[13px] text-danger">{error}</p>;
-  if (!rows) return <p className="text-[13px] text-subtle">در حال بارگذاری...</p>;
+  if (!rows)
+    return (
+      <div className="space-y-2" role="status">
+        <div className="skeleton-bar h-16 w-full" />
+        <div className="skeleton-bar h-16 w-full" />
+        <p className="text-[13px] text-subtle">در حال بارگذاری تاریخچه…</p>
+      </div>
+    );
   if (rows.length === 0)
     return <p className="text-[13px] text-subtle">هنوز مکالمه‌ای در این بخش ثبت نشده.</p>;
 
@@ -274,17 +291,17 @@ function HistoryList({ chatType }: { chatType: ChatType }) {
         <li
           key={row.id}
           className={cn(
-            "rounded-xl border px-4 py-3 text-[13px] leading-6",
+            "rounded-[8px] border px-4 py-3 text-[13px] leading-6",
             row.role === "user"
-              ? "border-cyan-dim/40 bg-cyan/[0.06] text-fg"
-              : "border-border bg-surface text-muted",
+              ? "border-border bg-site-100 text-fg"
+              : "border-border bg-site-50 text-muted",
           )}
         >
           <div className="mb-1 flex items-center justify-between gap-2 text-[11px] text-subtle">
-            <span>{row.role === "user" ? "پرسش شما" : "پاسخ SAM AI"}</span>
+            <span>{row.role === "user" ? "پرسش شما" : `پاسخ ${BRAND.short}`}</span>
             <span dir="ltr">{new Date(row.created_at).toLocaleString("fa-IR")}</span>
           </div>
-          <p className="whitespace-pre-wrap">
+          <p className="whitespace-pre-wrap break-words">
             {row.content.length > 400 ? `${row.content.slice(0, 400)}…` : row.content}
           </p>
         </li>

@@ -15,8 +15,13 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (isPending) {
     return (
-      <div className="grid min-h-dvh place-items-center bg-bg text-sm text-muted" role="status">
-        در حال بررسی نشست…
+      <div className="grid min-h-dvh place-items-center bg-bg px-6" role="status">
+        <div className="w-full max-w-sm space-y-3">
+          <div className="skeleton-bar h-3 w-1/3" />
+          <div className="skeleton-bar h-3 w-full" />
+          <div className="skeleton-bar h-3 w-5/6" />
+          <p className="pt-2 text-sm text-muted">در حال بررسی نشست…</p>
+        </div>
       </div>
     );
   }

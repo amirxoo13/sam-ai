@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Gavel, LoaderCircle, Send, ShieldAlert } from "lucide-react";
+import { LoaderCircle, Send, ShieldAlert } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppHeader } from "@/components/app-header";
 import { RequireAuth } from "@/components/require-auth";
 import { Button } from "@/components/ui/button";
+import { CitationChip } from "@/components/product/citation-chip";
 import { getCorpusStats } from "@/lib/legal/ask.functions";
 import { IDENTITY_BANNER, LEGAL_DISCLAIMER } from "@/lib/legal/copy";
 import type { AskEval, PublicCitation } from "@/lib/legal/types";
-import { sourceTypeLabelFa } from "@/lib/legal/types";
 import { getChatHistory } from "@/lib/chat-history.functions";
 import { listMyMatters, createMyMatter } from "@/lib/matter.functions";
+import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 type AskFilterChoice = "all" | "statute" | "case_law" | "advisory_opinion";
@@ -25,8 +26,13 @@ export const Route = createFileRoute("/ask")({
       backend: "unknown",
     })),
   pendingComponent: () => (
-    <div className="grid min-h-dvh place-items-center bg-bg text-sm text-muted" role="status">
-      در حال آماده‌سازی پرونده و پیکره…
+    <div className="grid min-h-dvh place-items-center bg-bg px-6" role="status">
+      <div className="w-full max-w-sm space-y-3">
+        <div className="skeleton-bar h-3 w-1/3" />
+        <div className="skeleton-bar h-3 w-full" />
+        <div className="skeleton-bar h-3 w-4/5" />
+        <p className="pt-2 text-sm text-muted">در حال آماده‌سازی پرونده و پیکره…</p>
+      </div>
     </div>
   ),
   component: Home,
@@ -100,7 +106,6 @@ function Home() {
     return `${stats.total} سند · ${embedded} بردار کامل · ${cases} رأی · ${statutes} قانون`;
   }, [stats]);
 
-  /** تاریخچهٔ یک پرونده را بار می‌کند. خطا به کاربر گفته می‌شود، نه بلعیده. */
   async function loadMatterHistory(id: string) {
     try {
       const hist = await getChatHistory({ data: { chatType: "legal", matterId: id } });
@@ -137,7 +142,6 @@ function Home() {
         body: JSON.stringify({ question: q, sourceType: filter, matterId: matterId ?? undefined }),
       });
       if (!res.ok || !res.body) {
-        // ۴۲۹ سقف نرخ است و پیام اختصاصی خودش را دارد؛ بقیه پیام عمومی.
         throw new Error(
           res.status === 429
             ? "تعداد درخواست‌های شما بیش از حد مجاز است. کمی بعد دوباره تلاش کنید."
@@ -217,11 +221,8 @@ function Home() {
         <AppHeader corpusLabel={corpusLabel} active="ask" />
 
         <main id="main" className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-4 pt-6">
-          {/* هر صفحه باید یک h1 داشته باشد. حالت خالی تیتر بصری خودش را
-              دارد، ولی به‌محض شروع گفت‌وگو آن تیتر برداشته می‌شد و صفحه
-              بی‌h1 می‌ماند — ناوبری با screen reader را می‌شکند. */}
           {messages.length > 0 || busy ? (
-            <h1 className="sr-only">پرسش حقوقی — گفت‌وگو با SAM AI</h1>
+            <h1 className="sr-only">پرسش حقوقی — گفت‌وگو با {BRAND.name}</h1>
           ) : null}
 
           {messages.length === 0 && !busy && historyReady ? (
@@ -232,11 +233,6 @@ function Home() {
           ) : (
             <div
               className="flex flex-1 flex-col gap-5"
-              // پاسخ به‌صورت توکن‌به‌توکن استریم می‌شود. بدون ناحیهٔ زنده،
-              // کاربر screen reader هیچ‌وقت متنِ پاسخ را نمی‌شنود — یعنی
-              // کل کارکرد محصول برای او در دسترس نیست (WCAG 4.1.3).
-              // aria-busy در طول استریم به SR می‌گوید صبر کند و در پایان
-              // یک‌بار بخواند، نه با هر قطعه.
               role="log"
               aria-label="گفت‌وگوی حقوقی"
               aria-live="polite"
@@ -272,10 +268,6 @@ function Home() {
                 void loadMatterHistory(id);
               }}
               onCreate={async () => {
-                // قبلاً این تابع هیچ try/catch نداشت و از
-                // `onClick={() => void onCreate()}` صدا زده می‌شد: اگر
-                // createMyMatter رد می‌شد، یک unhandled rejection در کنسول
-                // می‌نشست و از نظر کاربر دکمه بی‌صدا کار نمی‌کرد.
                 try {
                   setError(null);
                   const created = await createMyMatter({
@@ -292,11 +284,7 @@ function Home() {
             />
             <FilterBar value={filter} onChange={setFilter} />
             <form
-              // حلقهٔ فوکوس روی کل پوستهٔ نگارش.
-              // textarea عمداً `focus:outline-none` دارد (تا دو حلقهٔ تودرتو
-              // نداشته باشیم) — ولی پیش از این هیچ جایگزینی نداشت، یعنی
-              // ورودی اصلیِ محصول با کیبورد هیچ نشانگر فوکوسی نمی‌گرفت.
-              className="mt-3 flex items-end gap-2 rounded-xl border border-border bg-surface p-2 transition-colors focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/25"
+              className="mt-3 flex items-end gap-2 rounded-[8px] border border-border bg-elevated p-2 transition-colors focus-within:border-fg/40 focus-within:ring-2 focus-within:ring-fg/15"
               onSubmit={(e) => {
                 e.preventDefault();
                 void submit(draft);
@@ -365,7 +353,7 @@ function MatterBar({
       </label>
       <select
         id="matter-select"
-        className="h-11 min-h-11 w-full min-w-0 flex-1 rounded-md border border-border bg-surface px-2 text-sm text-fg"
+        className="h-11 min-h-11 w-full min-w-0 flex-1 rounded-[8px] border border-border bg-elevated px-2 text-sm text-fg"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -378,7 +366,7 @@ function MatterBar({
       <button
         type="button"
         onClick={() => void onCreate()}
-        className="h-11 min-h-11 shrink-0 rounded-md border border-border px-3 text-xs text-muted transition-colors hover:border-accent/40 hover:text-fg"
+        className="h-11 min-h-11 shrink-0 rounded-[8px] border border-border px-3 text-xs text-muted transition-colors hover:border-fg hover:text-fg"
       >
         پرونده جدید
       </button>
@@ -396,12 +384,12 @@ function EmptyState({
   return (
     <div className="flex flex-1 flex-col justify-center gap-8 pb-8">
       <div className="space-y-3">
-        <p className="text-xs font-medium tracking-[0.18em] text-subtle uppercase">
-          مؤسسه حقوقی SAM AI
-        </p>
-        <h1 className="max-w-lg text-3xl font-semibold leading-tight tracking-tight text-fg">
+        <p className="text-xs font-medium tracking-[0.18em] text-subtle">{BRAND.name}</p>
+        <h1 className="max-w-lg text-[1.75rem] font-extrabold leading-[1.35] tracking-tight text-fg sm:text-3xl sm:leading-[1.2]">
           پرسش حقوقی خود را مطرح کنید؛
-          <span className="block text-muted">پاسخ با ارجاع قابل راستی‌آزمایی به متن قانون.</span>
+          <span className="mt-1 block font-bold text-muted">
+            پاسخ با ارجاع قابل راستی‌آزمایی به متن قانون.
+          </span>
         </h1>
         {statuteCount === 0 ? (
           <p className="text-sm text-danger" role="status">
@@ -416,9 +404,7 @@ function EmptyState({
             key={q}
             type="button"
             onClick={() => onPick(q)}
-            // text-start به‌جای text-right: در RTL نتیجه یکی است، ولی این
-            // خصوصیت منطقی است و در صورت افزودن نسخهٔ LTR هم درست می‌ماند.
-            className="min-h-11 rounded-lg border border-border bg-surface px-4 py-3 text-start text-sm text-fg transition-colors duration-150 hover:border-accent/40 hover:bg-elevated"
+            className="min-h-11 rounded-[8px] border border-border bg-elevated px-4 py-3 text-start text-sm text-fg transition-colors duration-150 hover:border-site-400 hover:bg-site-50"
           >
             {q}
           </button>
@@ -431,27 +417,18 @@ function EmptyState({
 function UserBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-start">
-      {/* rounded-ss-sm (start-start) به‌جای rounded-tr-sm: در RTL همان
-          گوشهٔ بالا-راست است، ولی منطقی و جهت-آگاه. */}
-      <div className="max-w-[85%] break-words rounded-xl rounded-ss-sm bg-elevated px-4 py-3 text-sm leading-6">
+      <div className="max-w-[85%] break-words rounded-[8px] rounded-ss-sm bg-site-100 px-4 py-3 text-sm leading-6">
         {text}
       </div>
     </div>
   );
 }
 
-function matchKindLabel(kind: PublicCitation["matchKind"]): string {
-  if (kind === "exact_article") return "ماده دقیق";
-  if (kind === "fts") return "تطبیق متنی";
-  return "تطبیق معنایی";
-}
-
 function AssistantBubble({ message }: { message: ChatMessage }) {
   return (
-    <article className="rounded-xl border border-border bg-surface p-4">
+    <article className="rounded-[12px] border border-border bg-elevated p-4">
       <div className="flex items-center gap-2 text-xs font-medium text-muted">
-        <Gavel className="size-3.5" aria-hidden="true" />
-        SAM AI — پاسخ مستند
+        {BRAND.short} — پاسخ مستند
         {message.usedFallback ? (
           <span className="text-danger">بازیابی بدون مدل تولید</span>
         ) : null}
@@ -462,44 +439,7 @@ function AssistantBubble({ message }: { message: ChatMessage }) {
           <h3 className="mt-4 text-xs font-medium text-muted">منابع استنادی</h3>
           <ul className="mt-2 grid gap-2">
             {message.sources.map((s, i) => (
-              <li key={s.id} className="rounded-md border border-border bg-elevated px-3 py-2">
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-                  <BookOpen className="size-3.5 shrink-0" aria-hidden="true" />
-                  <span>منبع {i + 1}</span>
-                  <span>{sourceTypeLabelFa(s.source_type)}</span>
-                  <span className="text-accent-light">{s.authorityShort}</span>
-                  <span>{matchKindLabel(s.matchKind)}</span>
-                  {s.verified ? null : <span className="text-danger">استناد تأییدنشده</span>}
-                </div>
-                <p className="mt-1 text-sm text-fg">
-                  {s.source_url ? (
-                    <a
-                      href={s.source_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-accent-light underline-offset-2 hover:underline"
-                    >
-                      {s.source_title}
-                      {s.article_number
-                        ? ` — ${s.source_title?.includes("اساسی") ? "اصل" : "ماده"} ${s.article_number}`
-                        : ""}
-                      <span className="sr-only"> (باز شدن در زبانهٔ جدید)</span>
-                    </a>
-                  ) : (
-                    <>
-                      {s.source_title}
-                      {s.article_number
-                        ? ` — ${s.source_title?.includes("اساسی") ? "اصل" : "ماده"} ${s.article_number}`
-                        : ""}
-                    </>
-                  )}
-                  {s.law_date ? ` · ${s.law_date}` : ""}
-                </p>
-                <p className="mt-1 text-[12px] leading-5 text-muted">{s.authorityLabel}</p>
-                {s.quote ? (
-                  <p className="mt-1 text-[12.5px] leading-6 text-subtle">{s.quote}</p>
-                ) : null}
-              </li>
+              <CitationChip key={s.id} citation={s} index={i} />
             ))}
           </ul>
         </>
@@ -521,9 +461,14 @@ function AssistantBubble({ message }: { message: ChatMessage }) {
 
 function ThinkingRow() {
   return (
-    <div className="flex items-center gap-2 text-sm text-muted" role="status">
-      <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-      در حال بازیابی ماده و نگارش پاسخ…
+    <div className="rounded-[12px] border border-border bg-elevated p-4" role="status">
+      <p className="text-xs font-medium text-muted">در حال بازیابی ماده و نگارش پاسخ…</p>
+      <div className="mt-3 space-y-2" aria-hidden="true">
+        <div className="skeleton-bar h-2.5 w-1/3" />
+        <div className="skeleton-bar h-2.5 w-full" />
+        <div className="skeleton-bar h-2.5 w-11/12" />
+        <div className="skeleton-bar h-2.5 w-4/5" />
+      </div>
     </div>
   );
 }
@@ -542,7 +487,7 @@ function FilterBar({
     { id: "advisory_opinion", label: "نظریات مشورتی" },
   ];
   return (
-    <div className="flex gap-1 rounded-lg bg-surface p-1" role="tablist" aria-label="فیلتر منبع">
+    <div className="flex gap-1 rounded-[8px] bg-site-100 p-1" role="tablist" aria-label="فیلتر منبع">
       {items.map((item) => (
         <button
           key={item.id}
@@ -551,11 +496,8 @@ function FilterBar({
           aria-selected={value === item.id}
           onClick={() => onChange(item.id)}
           className={cn(
-            // min-w-0 لازم است: پیش‌فرض flex item برابر min-width:auto است و
-            // زیر عرض محتوا کوچک نمی‌شود، پس برچسب بلندی مثل «نظریات مشورتی»
-            // ردیف را از عرض صفحه پهن‌تر می‌کرد.
-            "h-11 min-h-11 min-w-0 flex-1 rounded-md px-1 text-[13px] leading-tight transition-colors duration-150 sm:text-sm",
-            value === item.id ? "bg-elevated text-fg" : "text-muted hover:text-fg",
+            "h-11 min-h-11 min-w-0 flex-1 rounded-[8px] px-1 text-[13px] leading-tight transition-colors duration-150 sm:text-sm",
+            value === item.id ? "bg-elevated font-semibold text-fg" : "text-muted hover:text-fg",
           )}
         >
           {item.label}

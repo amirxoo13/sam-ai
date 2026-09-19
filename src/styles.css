@@ -1,66 +1,60 @@
 @import "tailwindcss";
 
-/* این پالت دقیقاً همان توکن‌های app/globals.css در سایت اقامت (cursor/SAMAI)
-   است — چون هدف این است که هر دو بخش (پرسش‌وپاسخ اقامتی + وکیل هوش‌مصنوعی)
-   روی یک دامنه، بی‌هیچ تفاوت بصری محسوسی، یک سایت واحد به‌نظر برسند. اگر
-   پالت دامنه‌ی اصلی روزی عوض شد، فقط همین‌جا و globals.css آن‌طرف را با هم
-   به‌روزرسانی کن. */
+/*
+  هویت بصری اها — رمپ خاکستری گرم.
+  رنگ اصلی (جوهر نزدیک به مشکی) فقط برای CTA و نشانگرهای محدود.
+*/
 @theme {
-  --color-bg: #05070d;
-  --color-surface: #0c1120;
-  --color-elevated: #171f3d;
-  --color-elevated-2: #121830;
-  --color-fg: #eef1fa;
-  --color-muted: #8b93b0;
-  --color-subtle: #5b6485;
-  --color-accent: #d9b25c;
-  --color-accent-light: #f0d78c;
-  --color-accent-fg: #1a1305;
-  --color-cyan: #34d6e8;
-  --color-cyan-dim: #1a8fa3;
-  --color-border: #212a48;
-  --color-border-soft: #171e38;
-  --color-danger: #ef4444;
-  --color-warn: #9c7f3a;
+  --color-site-50: #f7f4ef;
+  --color-site-100: #efebe3;
+  --color-site-200: #e2dcd2;
+  --color-site-300: #c9c1b4;
+  --color-site-400: #a39a8c;
+  --color-site-500: #82786b;
+  --color-site-600: #655e54;
+  --color-site-700: #4a453e;
+  --color-site-800: #322e29;
+  --color-site-900: #1f1c18;
+  --color-site-950: #141210;
 
-  --color-danger-soft: rgba(239, 68, 68, 0.08);
-  --color-danger-fg: #fca5a5;
-  --color-success: #34d399;
-  --color-success-soft: rgba(52, 211, 153, 0.1);
-  --color-info: #60a5fa;
-  --color-info-soft: rgba(96, 165, 250, 0.1);
-  --color-accent-soft: rgba(217, 178, 92, 0.1);
+  --color-bg: #f7f4ef;
+  --color-surface: #fffcf7;
+  --color-elevated: #ffffff;
+  --color-elevated-2: #efebe3;
+  --color-fg: #141210;
+  --color-muted: #655e54;
+  --color-subtle: #82786b;
+  --color-accent: #141210;
+  --color-accent-light: #322e29;
+  --color-accent-fg: #f7f4ef;
+  --color-cyan: #4a453e;
+  --color-cyan-dim: #655e54;
+  --color-border: #e2dcd2;
+  --color-border-soft: #efebe3;
+  --color-danger: #9b1c1c;
+  --color-warn: #8a6a3a;
+  --color-danger-soft: rgba(155, 28, 28, 0.08);
+  --color-danger-fg: #9b1c1c;
+  --color-success: #2f6f4e;
+  --color-success-soft: rgba(47, 111, 78, 0.1);
+  --color-info: #3d5a73;
+  --color-info-soft: rgba(61, 90, 115, 0.1);
+  --color-accent-soft: rgba(20, 18, 16, 0.06);
 
   --font-sans: "Vazirmatn", "Segoe UI", system-ui, sans-serif;
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-site: 8px;
+  --radius-control: 8px;
   --text-micro: 0.75rem;
-
-  --color-site-50: #faf8f4;
-  --color-site-100: #f2efe8;
-  --color-site-200: #e6e1d7;
-  --color-site-300: #ccc5b7;
-  --color-site-400: #a8a094;
-  --color-site-500: #8a8276;
-  --color-site-600: #6b645a;
-  --color-site-700: #4e4840;
-  --color-site-800: #332f29;
-  --color-site-900: #1e1b17;
-  --color-site-950: #12100d;
-
-  --radius-site: 4px;
 }
 
 :root {
-  --gradient-gold: linear-gradient(
-    135deg,
-    var(--color-accent-light),
-    var(--color-accent) 60%,
-    var(--color-warn)
-  );
-  --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px rgba(217, 178, 92, 0.65);
+  --gradient-gold: linear-gradient(180deg, var(--color-site-900), var(--color-site-950));
+  --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px rgba(20, 18, 16, 0.35);
+  --shadow-panel: 0 1px 0 rgba(20, 18, 16, 0.04), 0 12px 40px -24px rgba(20, 18, 16, 0.18);
 }
 
 @layer base {
@@ -69,14 +63,13 @@
     color: var(--color-fg);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     min-height: 100dvh;
-    background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(52, 214, 232, 0.08), transparent 60%),
-      radial-gradient(1000px 500px at 100% 0%, rgba(217, 178, 92, 0.07), transparent 55%),
-      var(--color-bg);
+    background: var(--color-bg);
+    color: var(--color-fg);
   }
 
   p,
@@ -109,9 +102,9 @@
   [role="button"]:focus-visible,
   [role="tab"]:focus-visible,
   [tabindex]:not([tabindex="-1"]):focus-visible {
-    outline: 2px solid var(--color-accent-light);
+    outline: 2px solid var(--color-fg);
     outline-offset: 2px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-control);
   }
 
   h1,
@@ -125,36 +118,19 @@
   }
 
   textarea,
-  input {
+  input,
+  select {
     font-family: inherit;
+    border-radius: var(--radius-control);
   }
 
   ::selection {
-    background: rgba(217, 178, 92, 0.35);
-  }
-
-  body:has(.site-surface) {
-    background: var(--color-site-50);
+    background: rgba(20, 18, 16, 0.12);
   }
 
   .site-surface {
-    background: var(--color-site-50);
-    color: var(--color-site-900);
-  }
-
-  .site-surface a:focus-visible,
-  .site-surface button:focus-visible,
-  .site-surface select:focus-visible,
-  .site-surface summary:focus-visible,
-  .site-surface [role="button"]:focus-visible,
-  .site-surface [tabindex]:not([tabindex="-1"]):focus-visible {
-    outline: 2px solid var(--color-site-950);
-    outline-offset: 2px;
-    border-radius: var(--radius-site);
-  }
-
-  .site-surface ::selection {
-    background: rgba(217, 178, 92, 0.45);
+    background: var(--color-bg);
+    color: var(--color-fg);
   }
 }
 
@@ -163,21 +139,58 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--color-cyan);
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.6);
+    background: var(--color-fg);
+    box-shadow: 0 0 0 0 rgba(20, 18, 16, 0.35);
     animation: sam-pulse 1.4s infinite;
+  }
+
+  .skeleton-bar {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--color-site-200);
+  }
+
+  .skeleton-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-site-50) 70%, transparent),
+      transparent
+    );
+    animation: aha-shimmer 1.4s linear infinite;
+  }
+
+  .product-window {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-elevated);
+    box-shadow: var(--shadow-panel);
   }
 }
 
 @keyframes sam-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.5);
+    box-shadow: 0 0 0 0 rgba(20, 18, 16, 0.35);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(52, 214, 232, 0);
+    box-shadow: 0 0 0 8px rgba(20, 18, 16, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0);
+    box-shadow: 0 0 0 0 rgba(20, 18, 16, 0);
+  }
+}
+
+@keyframes aha-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
   }
 }
 
