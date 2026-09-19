@@ -23,14 +23,6 @@
   --color-danger: #ef4444;
   --color-warn: #9c7f3a;
 
-  /* ── توکن‌های معنایی که تا امروز وجود نداشتند ─────────────────────────
-     پیش از این هر جای پروژه که به این رنگ‌ها نیاز داشت، مقدار را
-     hard-code می‌کرد: `text-[#fca5a5]` در login.tsx و residency.tsx،
-     `#1a1305` در index.tsx / login.tsx / app-header.tsx، و
-     `#1a8fa3`/`#0e5f70` در حباب پرسشِ residency.tsx. یعنی تغییر پالت
-     عملاً نیازمند grep زدن در کل کدبیس بود.
-     نام‌ها معنایی‌اند (نقش، نه مقدار) تا در صورت افزودن Light Mode فقط
-     همین بلوک عوض شود. */
   --color-danger-soft: rgba(239, 68, 68, 0.08);
   --color-danger-fg: #fca5a5;
   --color-success: #34d399;
@@ -45,13 +37,22 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
   --text-micro: 0.75rem;
+
+  --color-site-50: #faf8f4;
+  --color-site-100: #f2efe8;
+  --color-site-200: #e6e1d7;
+  --color-site-300: #ccc5b7;
+  --color-site-400: #a8a094;
+  --color-site-500: #8a8276;
+  --color-site-600: #6b645a;
+  --color-site-700: #4e4840;
+  --color-site-800: #332f29;
+  --color-site-900: #1e1b17;
+  --color-site-950: #12100d;
+
+  --radius-site: 4px;
 }
 
-/* گرادیان طلایی «اقدام اصلی».
-   دقیقاً همین سه-توقفه در button.tsx (variant=premium)، index.tsx (دو بار)،
-   login.tsx و residency.tsx به‌صورت inline تکرار شده بود. یک منبع حقیقت تا
-   واریانت‌ها از هم جدا نیفتند. خارج از @theme تعریف شده چون یک مقدار
-   ترکیبی است، نه یک توکن رنگِ تک. */
 :root {
   --gradient-gold: linear-gradient(
     135deg,
@@ -72,19 +73,12 @@
 
   body {
     min-height: 100dvh;
-    /* همان درخشش رادیال دو رنگ (طلایی/فیروزه‌ای) پس‌زمینه‌ی سایت اقامت */
     background:
       radial-gradient(1200px 600px at 15% -10%, rgba(52, 214, 232, 0.08), transparent 60%),
       radial-gradient(1000px 500px at 100% 0%, rgba(217, 178, 92, 0.07), transparent 55%),
       var(--color-bg);
   }
 
-  /* گارد سراسری سرریز افقی.
-     متن پیکره گاهی توکن بلندِ بدون فاصله دارد — مثلاً عنوان خرابِ یک فایل
-     Word که به‌صورت `<4D6963726F736F66742...>` رندر می‌شود. چنین رشته‌ای
-     هیچ نقطه‌ی شکست طبیعی ندارد، پس کانتینر را از عرض صفحه پهن‌تر می‌کند و
-     کل صفحه روی موبایل به‌صورت افقی اسکرول می‌خورد (فضای خالی کنار صفحه).
-     `overflow-wrap: anywhere` اجازه می‌دهد چنین رشته‌ای هرجا شکسته شود. */
   p,
   li,
   span,
@@ -98,7 +92,6 @@
     overflow-wrap: anywhere;
   }
 
-  /* هیچ فرزندی نباید ریشه را افقی بکشد. */
   html,
   body {
     overflow-x: clip;
@@ -109,18 +102,6 @@
     cursor: pointer;
   }
 
-  /* ── پایهٔ سراسری فوکوس (WCAG 2.4.7 / 2.4.11) ────────────────────────
-     مشکل واقعی: بیشترِ عناصر تعاملی این پروژه با `<Link>` یا `<button>`
-     خام و کلاس‌های دستی ساخته شده‌اند، نه با `components/ui/button.tsx` —
-     و تنها همان فایل است که `focus-visible:ring` دارد. پس ناوبری با
-     کیبورد روی هدر (۷ لینک)، CTAهای صفحهٔ خانه، نمونه‌سؤال‌های
-     residency و تمام لینک‌های فوتر هیچ نشانگر فوکوسِ طراحی‌شده‌ای نداشت.
-
-     این قاعده در @layer base است، پس هر کامپوننتی که یوتیلیتی فوکوس خودش
-     را دارد (login/contact/forms با `focus:ring-2`) همچنان برنده می‌شود و
-     ظاهرش عوض نمی‌شود — لایهٔ utilities بر base اولویت دارد.
-
-     :focus-visible و نه :focus — تا کلیک ماوس حلقه نگیرد. */
   a:focus-visible,
   button:focus-visible,
   select:focus-visible,
@@ -151,14 +132,33 @@
   ::selection {
     background: rgba(217, 178, 92, 0.35);
   }
+
+  body:has(.site-surface) {
+    background: var(--color-site-50);
+  }
+
+  .site-surface {
+    background: var(--color-site-50);
+    color: var(--color-site-900);
+  }
+
+  .site-surface a:focus-visible,
+  .site-surface button:focus-visible,
+  .site-surface select:focus-visible,
+  .site-surface summary:focus-visible,
+  .site-surface [role="button"]:focus-visible,
+  .site-surface [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 2px solid var(--color-site-950);
+    outline-offset: 2px;
+    border-radius: var(--radius-site);
+  }
+
+  .site-surface ::selection {
+    background: rgba(217, 178, 92, 0.45);
+  }
 }
 
 @layer components {
-  /* نشانگر «در حال تهیه پاسخ» صفحهٔ اقامت.
-     قبلاً این keyframe در یک <style> درون‌خطی داخل خودِ کامپوننت
-     residency.tsx بود، یعنی با هر رندر آن مسیر یک تگ style سراسری به DOM
-     تزریق می‌شد. حالا یک بار در شیت اصلی می‌آید و گاردِ
-     prefers-reduced-motion پایین‌تر هم واقعاً شاملش می‌شود. */
   .pulse-dot {
     width: 8px;
     height: 8px;
