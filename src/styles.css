@@ -23,14 +23,6 @@
   --color-danger: #ef4444;
   --color-warn: #9c7f3a;
 
-  /* ── توکن‌های معنایی که تا امروز وجود نداشتند ─────────────────────────
-     پیش از این هر جای پروژه که به این رنگ‌ها نیاز داشت، مقدار را
-     hard-code می‌کرد: `text-[#fca5a5]` در login.tsx و residency.tsx،
-     `#1a1305` در index.tsx / login.tsx / app-header.tsx، و
-     `#1a8fa3`/`#0e5f70` در حباب پرسشِ residency.tsx. یعنی تغییر پالت
-     عملاً نیازمند grep زدن در کل کدبیس بود.
-     نام‌ها معنایی‌اند (نقش، نه مقدار) تا در صورت افزودن Light Mode فقط
-     همین بلوک عوض شود. */
   --color-danger-soft: rgba(239, 68, 68, 0.08);
   --color-danger-fg: #fca5a5;
   --color-success: #34d399;
@@ -46,17 +38,6 @@
   --radius-xl: 24px;
   --text-micro: 0.75rem;
 
-  /* ── رمپ خنثای «سایت» ─────────────────────────────────────────
-     پوسته‌ی بازاریابی (خانه و صفحات معرفی) روی یک رمپ خنثای گرم کار
-     می‌کند، نه روی پالت تیره‌ی اپ. دلیل: در صفحه‌ای که هدفش اعتماد
-     است، نبودِ رنگ اشباع همان چیزی است که حس «جدی و گران» می‌دهد —
-     طلایی فقط روی یک اقدام در هر نما می‌ماند.
-
-     تهِ رمپ گرم است (کمی به سمت زرد) تا وقتی طلایی برند کنارش
-     می‌نشیند، خاکستری سرد در برابرش کثیف به‌نظر نرسد.
-
-     اپ (ask / forms / residency / profile) دست‌نخورده تیره می‌ماند و
-     هیچ‌کدام از توکن‌های بالا عوض نشده‌اند. */
   --color-site-50: #faf8f4;
   --color-site-100: #f2efe8;
   --color-site-200: #e6e1d7;
@@ -69,16 +50,9 @@
   --color-site-900: #1e1b17;
   --color-site-950: #12100d;
 
-  /* یک شعاع، همه‌جای پوسته‌ی سایت — دکمه، ورودی، کارت، قاب تصویر.
-     اپ شعاع‌های خودش (۸/۱۲/۱۶/۲۴) را نگه می‌دارد. */
   --radius-site: 4px;
 }
 
-/* گرادیان طلایی «اقدام اصلی».
-   دقیقاً همین سه-توقفه در button.tsx (variant=premium)، index.tsx (دو بار)،
-   login.tsx و residency.tsx به‌صورت inline تکرار شده بود. یک منبع حقیقت تا
-   واریانت‌ها از هم جدا نیفتند. خارج از @theme تعریف شده چون یک مقدار
-   ترکیبی است، نه یک توکن رنگِ تک. */
 :root {
   --gradient-gold: linear-gradient(
     135deg,
@@ -87,4 +61,132 @@
     var(--color-warn)
   );
   --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px rgba(217, 178, 92, 0.65);
+}
+
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100dvh;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(52, 214, 232, 0.08), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(217, 178, 92, 0.07), transparent 55%),
+      var(--color-bg);
+  }
+
+  p,
+  li,
+  span,
+  a,
+  h1,
+  h2,
+  h3,
+  h4,
+  td,
+  th {
+    overflow-wrap: anywhere;
+  }
+
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  select:focus-visible,
+  summary:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 2px solid var(--color-accent-light);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  textarea,
+  input {
+    font-family: inherit;
+  }
+
+  ::selection {
+    background: rgba(217, 178, 92, 0.35);
+  }
+
+  body:has(.site-surface) {
+    background: var(--color-site-50);
+  }
+
+  .site-surface {
+    background: var(--color-site-50);
+    color: var(--color-site-900);
+  }
+
+  .site-surface a:focus-visible,
+  .site-surface button:focus-visible,
+  .site-surface select:focus-visible,
+  .site-surface summary:focus-visible,
+  .site-surface [role="button"]:focus-visible,
+  .site-surface [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 2px solid var(--color-site-950);
+    outline-offset: 2px;
+    border-radius: var(--radius-site);
+  }
+
+  .site-surface ::selection {
+    background: rgba(217, 178, 92, 0.45);
+  }
+}
+
+@layer components {
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-cyan);
+    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.6);
+    animation: sam-pulse 1.4s infinite;
+  }
+}
+
+@keyframes sam-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(52, 214, 232, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
