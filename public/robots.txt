@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /login
+Disallow: /forgot
+Disallow: /reset
+Disallow: /profile
+
+Sitemap: https://sam-ai-green.vercel.app/sitemap.xml

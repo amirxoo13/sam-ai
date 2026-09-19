@@ -18,7 +18,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResidencyRouteImport } from './routes/residency'
 import { Route as SourcesRouteImport } from './routes/sources'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ForgotRouteImport } from './routes/forgot'
+import { Route as ResetRouteImport } from './routes/reset'
 import { Route as ApiAskRouteImport } from './routes/api/ask'
+import { Route as ApiContactRouteImport } from './routes/api/contact'
 import { Route as ApiLegalAskRouteImport } from './routes/api/legal-ask'
 import { Route as ApiDraftRouteImport } from './routes/api/draft'
 import { Route as ApiResidencyAskRouteImport } from './routes/api/residency-ask'
@@ -71,9 +76,34 @@ const SourcesRoute = SourcesRouteImport.update({
   path: '/sources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotRoute = ForgotRouteImport.update({
+  id: '/forgot',
+  path: '/forgot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetRoute = ResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAskRoute = ApiAskRouteImport.update({
   id: '/api/ask',
   path: '/api/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiContactRoute = ApiContactRouteImport.update({
+  id: '/api/contact',
+  path: '/api/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiLegalAskRoute = ApiLegalAskRouteImport.update({
@@ -117,7 +147,12 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
   '/sources': typeof SourcesRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/forgot': typeof ForgotRoute
+  '/reset': typeof ResetRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/contact': typeof ApiContactRoute
   '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
@@ -135,7 +170,12 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
   '/sources': typeof SourcesRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/forgot': typeof ForgotRoute
+  '/reset': typeof ResetRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/contact': typeof ApiContactRoute
   '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
@@ -154,7 +194,12 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/residency': typeof ResidencyRoute
   '/sources': typeof SourcesRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/forgot': typeof ForgotRoute
+  '/reset': typeof ResetRoute
   '/api/ask': typeof ApiAskRoute
+  '/api/contact': typeof ApiContactRoute
   '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/draft': typeof ApiDraftRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
@@ -174,7 +219,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/residency'
     | '/sources'
+    | '/terms'
+    | '/privacy'
+    | '/forgot'
+    | '/reset'
     | '/api/ask'
+    | '/api/contact'
     | '/api/legal-ask'
     | '/api/draft'
     | '/api/residency-ask'
@@ -192,7 +242,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/residency'
     | '/sources'
+    | '/terms'
+    | '/privacy'
+    | '/forgot'
+    | '/reset'
     | '/api/ask'
+    | '/api/contact'
     | '/api/legal-ask'
     | '/api/draft'
     | '/api/residency-ask'
@@ -210,7 +265,12 @@ export interface FileRouteTypes {
     | '/profile'
     | '/residency'
     | '/sources'
+    | '/terms'
+    | '/privacy'
+    | '/forgot'
+    | '/reset'
     | '/api/ask'
+    | '/api/contact'
     | '/api/legal-ask'
     | '/api/draft'
     | '/api/residency-ask'
@@ -229,7 +289,12 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ResidencyRoute: typeof ResidencyRoute
   SourcesRoute: typeof SourcesRoute
+  TermsRoute: typeof TermsRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ForgotRoute: typeof ForgotRoute
+  ResetRoute: typeof ResetRoute
   ApiAskRoute: typeof ApiAskRoute
+  ApiContactRoute: typeof ApiContactRoute
   ApiLegalAskRoute: typeof ApiLegalAskRoute
   ApiDraftRoute: typeof ApiDraftRoute
   ApiResidencyAskRoute: typeof ApiResidencyAskRoute
@@ -303,11 +368,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot': {
+      id: '/forgot'
+      path: '/forgot'
+      fullPath: '/forgot'
+      preLoaderRoute: typeof ForgotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset': {
+      id: '/reset'
+      path: '/reset'
+      fullPath: '/reset'
+      preLoaderRoute: typeof ResetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ask': {
       id: '/api/ask'
       path: '/api/ask'
       fullPath: '/api/ask'
       preLoaderRoute: typeof ApiAskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/contact': {
+      id: '/api/contact'
+      path: '/api/contact'
+      fullPath: '/api/contact'
+      preLoaderRoute: typeof ApiContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/legal-ask': {
@@ -365,7 +465,12 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ResidencyRoute: ResidencyRoute,
   SourcesRoute: SourcesRoute,
+  TermsRoute: TermsRoute,
+  PrivacyRoute: PrivacyRoute,
+  ForgotRoute: ForgotRoute,
+  ResetRoute: ResetRoute,
   ApiAskRoute: ApiAskRoute,
+  ApiContactRoute: ApiContactRoute,
   ApiLegalAskRoute: ApiLegalAskRoute,
   ApiDraftRoute: ApiDraftRoute,
   ApiResidencyAskRoute: ApiResidencyAskRoute,

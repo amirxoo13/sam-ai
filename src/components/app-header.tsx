@@ -1,20 +1,11 @@
-import { Link } from "@tanstack/react-router";
-import { cn } from "@/lib/utils";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useId, useState } from "react";
+import { HamburgerButton, MobileNavPanel } from "@/components/mobile-nav";
+import { SITE_NAV, type NavKey } from "@/components/site-nav";
 import { BrandMark } from "@/components/brand-mark";
 import { BRAND } from "@/lib/brand";
+import { cn } from "@/lib/utils";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-
-type NavKey = "home" | "ask" | "forms" | "residency" | "about" | "sources" | "contact";
-
-const NAV_LINKS: { to: string; label: string; key: NavKey }[] = [
-  { to: "/", label: "خانه", key: "home" },
-  { to: "/ask", label: "پرسش حقوقی", key: "ask" },
-  { to: "/forms", label: "برگه‌ها", key: "forms" },
-  { to: "/residency", label: "پرسش اقامتی", key: "residency" },
-  { to: "/sources", label: "منابع", key: "sources" },
-  { to: "/about", label: "درباره", key: "about" },
-  { to: "/contact", label: "تماس", key: "contact" },
-];
 
 function AccountChip() {
   const { user, isPending } = useCurrentUserState();
@@ -34,7 +25,7 @@ function AccountChip() {
       <Link
         to="/login"
         search={{ next: "/ask" }}
-        className="inline-flex h-11 min-h-11 shrink-0 items-center rounded-[8px] border border-border bg-elevated px-4 text-[13px] font-semibold text-fg transition-colors hover:border-site-400"
+        className="inline-flex h-11 min-h-11 shrink-0 items-center whitespace-nowrap rounded-[8px] border border-border bg-elevated px-4 text-[13px] font-semibold text-fg transition-colors hover:border-site-400"
       >
         ورود
       </Link>
@@ -71,6 +62,15 @@ export function AppHeader({
   corpusLabel?: string;
   active: NavKey | "profile";
 }) {
+  const [open, setOpen] = useState(false);
+  const menuId = useId();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navActive = active === "profile" ? undefined : active;
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-bg/95 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-2.5">
@@ -78,9 +78,9 @@ export function AppHeader({
           <BrandMark size="md" subtitle={corpusLabel ?? BRAND.tagline} />
         </Link>
 
-        <nav className="mx-auto hidden items-center gap-0.5 lg:flex" aria-label="بخش‌ها">
-          {NAV_LINKS.map((link) => {
-            const isActive = active === link.key;
+        <nav className="mx-auto hidden items-center gap-0.5 lg:flex" aria-label="پیوندهای اصلی">
+          {SITE_NAV.map((link) => {
+            const isActive = navActive === link.key;
             return (
               <Link
                 key={link.to}
@@ -105,30 +105,11 @@ export function AppHeader({
 
         <div className="ms-auto flex items-center gap-2 lg:ms-0">
           <AccountChip />
+          <HamburgerButton open={open} onToggle={() => setOpen((v) => !v)} controlsId={menuId} />
         </div>
       </div>
 
-      <nav
-        className="flex items-center gap-1 overflow-x-auto border-t border-border px-4 py-1.5 [-ms-overflow-style:none] [mask-image:linear-gradient(to_left,transparent,#000_24px,#000_calc(100%-24px),transparent)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
-        aria-label="بخش‌ها"
-      >
-        {NAV_LINKS.map((link) => {
-          const isActive = active === link.key;
-          return (
-            <Link
-              key={link.to}
-              to={link.to}
-              aria-current={isActive ? "page" : undefined}
-              className={cn(
-                "flex h-11 min-h-11 shrink-0 items-center rounded-[8px] px-3 text-[13px] font-medium transition-colors",
-                isActive ? "bg-site-100 text-fg" : "text-muted hover:text-fg",
-              )}
-            >
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <MobileNavPanel id={menuId} open={open} onClose={() => setOpen(false)} active={navActive} />
     </header>
   );
 }

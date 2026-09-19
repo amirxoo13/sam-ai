@@ -31,7 +31,13 @@ export const askLegal = createServerFn({ method: "POST" })
 
 export const getCorpusStats = createServerFn({ method: "GET" }).handler(async () => {
   const { corpusStats } = await import("./retrieve.server");
-  return corpusStats();
+  const stats = await corpusStats();
+  return {
+    total: stats.total,
+    embedded: stats.embedded,
+    searchable: stats.searchable,
+    byType: stats.byType,
+  };
 });
 
 export const draftLegal = createServerFn({ method: "POST" })
