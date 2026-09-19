@@ -113,10 +113,15 @@ export function AppHeader({
       </div>
 
       {/* ناوبری موبایل/تبلت — ردیف جداگانه، قابل اسکرول.
-          ماسک محوشونده در لبه نشان می‌دهد که ردیف ادامه دارد — قبلاً
-          اسکرول‌بار مخفی بود و هیچ نشانه‌ای از وجود تب‌های بیشتر نبود. */}
+          ماسک محوشونده در لبه نشان می‌دهد که ردیف ادامه دارد.
+
+          در مقدار دلخواه Tailwind، زیرخط به فاصله ترجمه می‌شود. نسخهٔ قبلی
+          `calc(100%-24px)` بود که عیناً همین طور در CSS می‌نشست و CSS نامعتبر
+          است: عملگر - در calc() حتماً باید دو طرفش فاصله داشته باشد، وگرنه
+          پارسر کل اعلان mask-image را دور می‌ریزد و ماسک بی‌صدا اعمال
+          نمی‌شد. `_-_` خروجی را به `calc(100% - 24px)` تبدیل می‌کند. */}
       <nav
-        className="flex items-center gap-1 overflow-x-auto border-t border-border-soft px-4 py-1.5 [-ms-overflow-style:none] [mask-image:linear-gradient(to_left,transparent,#000_24px,#000_calc(100%-24px),transparent)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+        className="flex items-center gap-1 overflow-x-auto border-t border-border-soft px-4 py-1.5 [-ms-overflow-style:none] [mask-image:linear-gradient(to_left,transparent,#000_24px,#000_calc(100%_-_24px),transparent)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
         aria-label="بخش‌ها"
       >
         {NAV_LINKS.map((link) => {
