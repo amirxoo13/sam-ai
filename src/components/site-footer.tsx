@@ -9,6 +9,8 @@ const PLATFORM_LINKS = [
   { to: "/forms", label: "برگه‌ها و دادرسی" },
   { to: "/sources", label: "منابع و روش‌شناسی" },
   { to: "/about", label: "درباره ما" },
+  { to: "/terms", label: "شرایط استفاده" },
+  { to: "/privacy", label: "حریم خصوصی" },
 ] as const;
 
 export function SiteFooter() {
@@ -96,7 +98,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-border-soft px-4 py-5 text-center text-[11.5px] text-subtle">
-        © ۲۰۲۶ {BRAND.name}
+        © ۲۰۲۶ {BRAND.name} — این سامانه جایگزین مشاوره‌ی حقوقی رسمی نیست.
       </div>
     </footer>
   );
