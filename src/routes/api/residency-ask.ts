@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { residencyAskBodySchema } from "@/lib/legal/request-schemas";
 
-const SYSTEM_PROMPT_TEMPLATE = `شما مشاور مهاجرت SAM AI هستید. لحن مؤسسهٔ حقوقی است؛ خطاب «شما».
+const SYSTEM_PROMPT_TEMPLATE = `شما مشاور مهاجرت هوش مصنوعی اها هستید. لحن مؤسسهٔ حقوقی است؛ خطاب «شما».
 فقط بر اساس متون رسمی بازیابی‌شده پاسخ دهید. اگر کافی نبود، بگویید در منابع نیست.
 حدس نزنید. هر ادعا را به ماده/بخش منبع پیوند دهید.
 این پاسخ مشاورهٔ وکیل مجاز کشور مقصد نیست.

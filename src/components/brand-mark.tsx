@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const SIZES = {
   sm: { img: "size-8", name: "text-[15px]", sub: "text-[10.5px]" },
-  md: { img: "size-10", name: "text-[19px]", sub: "text-[11px]" },
+  md: { img: "size-9", name: "text-[17px]", sub: "text-[11px]" },
   lg: { img: "size-14", name: "text-[26px]", sub: "text-[13px]" },
 } as const;
 
@@ -36,18 +36,14 @@ export function BrandMark({
         alt=""
         width={56}
         height={56}
-        className={cn(
-          s.img,
-          "shrink-0 rounded-xl object-cover ring-1 ring-accent/35",
-        )}
+        className={cn(s.img, "shrink-0 rounded-[8px] object-cover ring-1 ring-border")}
       />
       <span className="flex min-w-0 flex-col leading-tight">
         <span className={cn(s.name, "font-extrabold tracking-tight text-fg")}>
           {BRAND.short}
-          <span className="text-cyan">.</span>
         </span>
         {sub ? (
-          <span className={cn(s.sub, "truncate text-muted")}>{sub}</span>
+          <span className={cn(s.sub, "hidden truncate text-muted sm:block")}>{sub}</span>
         ) : null}
       </span>
     </span>

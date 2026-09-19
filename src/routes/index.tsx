@@ -1,9 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { ArrowLeft } from "lucide-react";
 import { MarketingHeader, PrimaryCta } from "@/components/marketing/marketing-header";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
-import { ProductFrame } from "@/components/marketing/product-frame";
+import {
+  AskConversationPreview,
+  IndividualAudiencePreview,
+  LawyerAudiencePreview,
+  ResidencyAudiencePreview,
+  CAPABILITY_PREVIEWS,
+} from "@/components/marketing/product-previews";
 import { getCorpusStats } from "@/lib/legal/ask.functions";
 import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
@@ -33,27 +39,32 @@ const SOURCE_STRIP = [
   "CourtListener",
 ];
 
-const AUDIENCES = [
+const AUDIENCES: {
+  to: "/ask" | "/forms" | "/residency";
+  title: string;
+  scenario: string;
+  Preview: ComponentType;
+}[] = [
   {
-    to: "/ask" as const,
+    to: "/ask",
     title: "وکلا و کارآموزان",
-    desc: "بازیابی ماده‌به‌ماده از قانون اساسی، قوانین عادی، آیین‌نامه، رأی وحدت رویه و نظریات مشورتی — با تمایز الزام‌آوری.",
-    shot: undefined as string | undefined,
-    label: "نمای پاسخ با فهرست مواد مستند",
+    scenario:
+      "امشب اصل ۳۵ قانون اساسی را با شمارهٔ اصل می‌پرسید؛ پاسخ همان متن اصل است، با نشان «مادهٔ دقیق · ۱۰۰٪».",
+    Preview: LawyerAudiencePreview,
   },
   {
-    to: "/residency" as const,
-    title: "متقاضیان اقامت اروپا و آمریکا",
-    desc: "بر پایه‌ی اسناد رسمی eCFR، Federal Register، CourtListener و EUR-Lex، بر اساس کشور مورد نظر شما.",
-    shot: undefined as string | undefined,
-    label: "نمای گفت‌وگوی اقامتی",
+    to: "/forms",
+    title: "افراد حقیقی",
+    scenario:
+      "شرح مهریه یا نفقه را می‌نویسید؛ مسیر حقوقی تشخیص داده می‌شود و پیش‌نویس دادخواست با مواد بازیابی‌شده پر می‌گردد.",
+    Preview: IndividualAudiencePreview,
   },
   {
-    to: "/forms" as const,
-    title: "تنظیم اوراق دادرسی",
-    desc: "شرح ماجرا را بنویسید؛ مسیر حقوقی یا کیفری تشخیص داده می‌شود و پیش‌نویس با مواد بازیابی‌شده تنظیم می‌گردد.",
-    shot: undefined as string | undefined,
-    label: "نمای پیش‌نویس شکواییه",
+    to: "/residency",
+    title: "متقاضیان مهاجرت",
+    scenario:
+      "سؤال H-1B یا پناهندگی آلمان را با کشور مشخص می‌پرسید؛ پاسخ از eCFR یا EUR-Lex می‌آید، نه از تفسیر عمومی.",
+    Preview: ResidencyAudiencePreview,
   },
 ];
 
@@ -61,32 +72,22 @@ const CAPABILITIES = [
   {
     title: "تطبیق ماده‌ی دقیق",
     desc: "شماره‌ی ماده یا اصل را بنویسید؛ همان متن عیناً بازیابی می‌شود — نه چیزی شبیه آن.",
-    label: "تطبیق مستقیم شماره‌ی ماده",
-    shot: undefined as string | undefined,
   },
   {
     title: "جست‌وجوی متنی و معنایی",
     desc: "جست‌وجوی تمام‌متن و بازیابی برداری، با رتبه‌بندی بر اساس الزام‌آوری منبع.",
-    label: "رتبه‌بندی نتایج بر پایه‌ی الزام‌آوری",
-    shot: undefined as string | undefined,
   },
   {
     title: "راستی‌آزمایی استناد",
     desc: "هر ماده‌ای که در پاسخ بیاید با متن بازیابی‌شده مقابله می‌شود؛ استناد تأییدنشده علامت می‌خورد.",
-    label: "نشانه‌گذاری استناد تأییدنشده",
-    shot: undefined as string | undefined,
   },
   {
     title: "پرونده به‌عنوان شیء کاری",
     desc: "پرونده جدا از پرسش نگهداری می‌شود. فقط بند مرتبط بازیابی می‌گردد؛ کل متن به مدل ریخته نمی‌شود.",
-    label: "نمای پرونده و بندهای مرتبط",
-    shot: undefined as string | undefined,
   },
   {
     title: "مسیر بازیابی، آشکار",
-    desc: "هر پاسخ با فهرست منابع، نوع تطبیق و شناسه‌ی ممازی برمی‌گردد.",
-    label: "فهرست منابع و شناسه‌ی ممازی",
-    shot: undefined as string | undefined,
+    desc: "هر پاسخ با فهرست منابع، نوع تطبیق و شناسه‌ی ممیزی برمی‌گردد.",
   },
 ];
 
@@ -98,16 +99,15 @@ function LandingPage() {
       <MarketingHeader active="home" />
 
       <main id="main" className="flex-1">
-        <section className="mx-auto w-full max-w-[1280px] px-6 pb-16 pt-12 lg:px-10 lg:pb-24 lg:pt-20">
+        <section className="mx-auto w-full max-w-[1280px] px-6 pb-16 pt-10 lg:px-10 lg:pb-24 lg:pt-16">
           <div className="grid items-end gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-7">
               <p className="text-[12px] font-semibold tracking-[0.18em] text-site-500">
                 {BRAND.name}
               </p>
-              <h1 className="mt-5 text-[clamp(2.25rem,5vw,3.5rem)] font-semibold leading-[1.18] tracking-[-0.01em] text-site-950">
+              <h1 className="mt-5 text-[2rem] font-extrabold leading-[1.35] tracking-tight text-fg sm:text-[2.75rem] sm:leading-[1.2] lg:text-[3.5rem] lg:leading-[1.15]">
                 پاسخ حقوقی، مستند به متن قانون.
-                <br />
-                نه حدس، نه درصد شباهت.
+                <span className="mt-2 block">نه حدس، نه درصد شباهت.</span>
               </h1>
             </div>
 
@@ -121,7 +121,7 @@ function LandingPage() {
                 <PrimaryCta />
                 <Link
                   to="/sources"
-                  className="group inline-flex min-h-11 items-center gap-2 border-b border-site-300 text-[14px] font-medium text-site-950 transition-colors hover:border-site-950"
+                  className="group inline-flex min-h-11 items-center gap-2 border-b border-site-300 text-[14px] font-medium text-fg transition-colors hover:border-fg"
                 >
                   منابع و روش‌شناسی
                   <ArrowLeft
@@ -133,17 +133,13 @@ function LandingPage() {
             </div>
           </div>
 
-          <ProductFrame
-            className="mt-14 lg:mt-20"
-            priority
-            alt="نمای پرسش حقوقی اها: پاسخ همراه با فهرست مواد مستند و شناسه‌ی ممازی"
-            label="اسکرین‌شات صفحه‌ی پرسش حقوقی اینجا می‌نشیند"
-            ratio="16 / 9"
-          />
+          <div className="mt-14 lg:mt-20">
+            <AskConversationPreview />
+          </div>
         </section>
 
         <section
-          className="border-y border-site-200 bg-site-100"
+          className="border-y border-border bg-site-100"
           aria-labelledby="corpus-heading"
         >
           <div className="mx-auto w-full max-w-[1280px] px-6 py-16 lg:px-10 lg:py-20">
@@ -152,7 +148,7 @@ function LandingPage() {
             </h2>
             <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
               <div className="lg:col-span-5">
-                <p className="text-[clamp(3rem,7vw,4.5rem)] font-semibold leading-none tracking-[-0.02em] text-site-950">
+                <p className="text-[clamp(3rem,7vw,4.5rem)] font-extrabold leading-none tracking-tight text-fg">
                   {stats.total > 0 ? fa.format(stats.total) : "—"}
                 </p>
                 <p className="mt-4 text-[16px] leading-[1.75] text-site-600">
@@ -164,19 +160,19 @@ function LandingPage() {
                 <dl className="grid grid-cols-2 gap-8 sm:grid-cols-3">
                   <div>
                     <dt className="text-[13px] text-site-500">قطعه‌ی برداری‌شده</dt>
-                    <dd className="mt-1 text-[24px] font-semibold text-site-950">
+                    <dd className="mt-1 text-[24px] font-extrabold text-fg">
                       {stats.embedded > 0 ? fa.format(stats.embedded) : "—"}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-[13px] text-site-500">قابل جست‌وجوی متنی</dt>
-                    <dd className="mt-1 text-[24px] font-semibold text-site-950">
+                    <dd className="mt-1 text-[24px] font-extrabold text-fg">
                       {stats.searchable > 0 ? fa.format(stats.searchable) : "—"}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-[13px] text-site-500">منبع رسمی</dt>
-                    <dd className="mt-1 text-[24px] font-semibold text-site-950">
+                    <dd className="mt-1 text-[24px] font-extrabold text-fg">
                       {fa.format(SOURCE_STRIP.length)}
                     </dd>
                   </div>
@@ -202,7 +198,7 @@ function LandingPage() {
         >
           <h2
             id="audiences-heading"
-            className="max-w-xl text-[32px] font-semibold leading-[1.25] tracking-[-0.01em] text-site-950"
+            className="max-w-xl text-[1.75rem] font-extrabold leading-[1.35] tracking-tight text-fg sm:text-[2rem] sm:leading-[1.25]"
           >
             برای کدام کار آمده‌اید؟
           </h2>
@@ -211,35 +207,30 @@ function LandingPage() {
               <Link
                 key={a.to}
                 to={a.to}
-                className="group flex flex-col rounded-site border border-site-200 bg-site-50 p-6 transition-colors hover:border-site-400"
+                className="group flex flex-col rounded-[12px] border border-border bg-elevated p-5 transition-colors hover:border-site-400"
               >
-                <ProductFrame
-                  src={a.shot}
-                  alt={`${a.title} — نمای محصول`}
-                  label={a.label}
-                  ratio="4 / 3"
-                />
-                <h3 className="mt-6 flex items-center gap-2 text-[18px] font-semibold text-site-950">
+                <a.Preview />
+                <h3 className="mt-5 flex items-center gap-2 text-[18px] font-extrabold text-fg">
                   {a.title}
                   <ArrowLeft
-                    className="size-4 shrink-0 text-site-400 transition-transform duration-150 group-hover:-translate-x-1 group-hover:text-site-950"
+                    className="size-4 shrink-0 text-site-400 transition-transform duration-150 group-hover:-translate-x-1 group-hover:text-fg"
                     aria-hidden="true"
                   />
                 </h3>
-                <p className="mt-2 text-[14px] leading-[1.75] text-site-600">{a.desc}</p>
+                <p className="mt-2 text-[14px] leading-[1.75] text-site-600">{a.scenario}</p>
               </Link>
             ))}
           </div>
         </section>
 
         <section
-          className="border-y border-site-200 bg-site-100"
+          className="border-y border-border bg-site-100"
           aria-labelledby="capabilities-heading"
         >
           <div className="mx-auto w-full max-w-[1280px] px-6 py-16 lg:px-10 lg:py-24">
             <h2
               id="capabilities-heading"
-              className="max-w-xl text-[32px] font-semibold leading-[1.25] tracking-[-0.01em] text-site-950"
+              className="max-w-xl text-[1.75rem] font-extrabold leading-[1.35] tracking-tight text-fg sm:text-[2rem] sm:leading-[1.25]"
             >
               مسیر رسیدن به پاسخ پنهان نیست.
             </h2>
@@ -256,16 +247,14 @@ function LandingPage() {
           </h2>
           <figure className="m-0 grid gap-10 lg:grid-cols-12 lg:gap-16">
             <blockquote className="lg:col-span-8">
-              <p className="text-[clamp(1.375rem,3vw,1.75rem)] font-normal leading-[1.6] text-site-950">
+              <p className="text-[1.375rem] font-bold leading-[1.6] text-fg sm:text-[1.75rem]">
                 پاسخی که منبعش قابل بررسی نباشد، در کار حقوقی ارزشی ندارد. بنای
                 اها بر همین است: هر جمله‌ای که می‌گوید، باید بتوان به متن قانون
                 بازگرداند.
               </p>
             </blockquote>
             <figcaption className="lg:col-span-4 lg:self-end">
-              <p className="text-[16px] font-semibold text-site-950">
-                دکتر سیداکبر موسوی
-              </p>
+              <p className="text-[16px] font-extrabold text-fg">دکتر سیداکبر موسوی</p>
               <p className="mt-1 text-[14px] leading-[1.7] text-site-600">
                 وکیل پایه‌یک دادگستری، عضو کانون وکلای مرکز — ناظر حقوقی اها
               </p>
@@ -273,10 +262,10 @@ function LandingPage() {
           </figure>
         </section>
 
-        <section className="border-t border-site-200 bg-site-950">
+        <section className="border-t border-border bg-fg">
           <div className="mx-auto grid w-full max-w-[1280px] gap-8 px-6 py-16 lg:grid-cols-12 lg:px-10 lg:py-20">
             <div className="lg:col-span-8">
-              <h2 className="text-[24px] font-semibold leading-[1.35] text-site-50">
+              <h2 className="text-[24px] font-extrabold leading-[1.35] text-bg">
                 این سامانه جایگزین وکیل نیست
               </h2>
               <p className="mt-3 max-w-xl text-[15px] leading-[1.75] text-site-300">
@@ -287,7 +276,7 @@ function LandingPage() {
             <div className="flex items-start lg:col-span-4 lg:justify-end">
               <Link
                 to="/contact"
-                className="inline-flex h-11 min-h-11 items-center justify-center rounded-site border border-site-700 px-5 text-[14px] font-medium text-site-50 transition-colors hover:border-site-400"
+                className="inline-flex h-11 min-h-11 items-center justify-center rounded-[8px] border border-site-700 px-5 text-[14px] font-medium text-bg transition-colors hover:border-site-400"
               >
                 تماس با ما
               </Link>
@@ -296,7 +285,7 @@ function LandingPage() {
         </section>
 
         <section className="mx-auto w-full max-w-[1280px] px-6 py-16 text-center lg:px-10 lg:py-24">
-          <h2 className="mx-auto max-w-2xl text-[32px] font-semibold leading-[1.25] tracking-[-0.01em] text-site-950">
+          <h2 className="mx-auto max-w-2xl text-[1.75rem] font-extrabold leading-[1.35] tracking-tight text-fg sm:text-[2rem] sm:leading-[1.25]">
             پرسش حقوقی‌تان را با متن قانون بسنجید.
           </h2>
           <div className="mt-8 flex justify-center">
@@ -313,6 +302,7 @@ function LandingPage() {
 function CapabilityExplorer() {
   const [active, setActive] = useState(0);
   const current = CAPABILITIES[active];
+  const Preview = CAPABILITY_PREVIEWS[active];
 
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-16">
@@ -330,18 +320,16 @@ function CapabilityExplorer() {
                 aria-controls="cap-panel"
                 onClick={() => setActive(i)}
                 className={cn(
-                  "group border-t border-site-200 py-5 text-start transition-colors first:border-t-0",
-                  isActive ? "text-site-950" : "text-site-600 hover:text-site-950",
+                  "group border-t border-border py-5 text-start transition-colors first:border-t-0",
+                  isActive ? "text-fg" : "text-site-600 hover:text-fg",
                 )}
               >
-                <span className="flex items-center gap-2 text-[17px] font-semibold">
+                <span className="flex items-center gap-2 text-[17px] font-extrabold">
                   {c.title}
                   <ArrowLeft
                     className={cn(
                       "size-4 shrink-0 transition-transform duration-150",
-                      isActive
-                        ? "-translate-x-1 text-site-950"
-                        : "text-site-400 group-hover:-translate-x-1",
+                      isActive ? "-translate-x-1 text-fg" : "text-site-400 group-hover:-translate-x-1",
                     )}
                     aria-hidden="true"
                   />
@@ -362,12 +350,10 @@ function CapabilityExplorer() {
           aria-labelledby={`cap-tab-${active}`}
           className="lg:sticky lg:top-28"
         >
-          <ProductFrame
-            src={current.shot}
-            alt={`${current.title} — نمای محصول`}
-            label={current.label}
-            ratio="16 / 10"
-          />
+          <Preview />
+          <p className="mt-3 text-[12.5px] leading-6 text-site-500">
+            پیش‌نمایش رابط — {current.title}. دادهٔ زنده نیست.
+          </p>
         </div>
       </div>
     </div>

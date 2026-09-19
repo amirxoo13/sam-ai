@@ -89,7 +89,7 @@ export async function runDraft(input: {
     const steps = cls.nextSteps
       .map((s, i) => `${i + 1}. ${s.title} — ${s.detail}`)
       .join("\n");
-    draft = `${skeleton}\n\n—\nگام بعدی ثبت:\n${steps}\n\nپیش‌نویس بر اساس قالب استاندارد تنظیم شد (مدل تولید متن در دسترس نبود). مواد استنادی را با متن قانون در SAM AI مقابله کنید.`;
+    draft = `${skeleton}\n\n—\nگام بعدی ثبت:\n${steps}\n\nپیش‌نویس بر اساس قالب استاندارد تنظیم شد (مدل تولید متن در دسترس نبود). مواد استنادی را با متن قانون در هوش مصنوعی اها مقابله کنید.`;
   }
 
   return {

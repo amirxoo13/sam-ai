@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/app-header";
 import { RequireAuth } from "@/components/require-auth";
 import { COUNTRIES_WITH_COVERAGE, COUNTRY_LABEL_FA } from "@/lib/residency/countries";
+import { BRAND } from "@/lib/brand";
+import { RESIDENCY_DISCLAIMER } from "@/lib/legal/copy";
 
 export const Route = createFileRoute("/residency")({
   component: ResidencyPage,
@@ -23,19 +25,14 @@ const SUGGESTED_QUESTIONS = [
   "روند رسیدگی به درخواست پناهندگی در اتحادیه اروپا چگونه است؟",
 ];
 
-function flagEmoji(iso2: string): string {
-  const codePoints = [...iso2.toUpperCase()].map((c) => 127397 + c.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-}
-
 const PRIORITY_COUNTRIES = ["US", "DE", "NL", "ES"];
 const COUNTRY_OPTIONS = [
-  { value: "ALL", label: "🌍 همه کشورها" },
-  ...PRIORITY_COUNTRIES.map((c) => ({ value: c, label: `${flagEmoji(c)} ${COUNTRY_LABEL_FA[c]}` })),
-  { value: "EU_GENERAL", label: "🇪🇺 قوانین عمومی اتحادیه اروپا" },
+  { value: "ALL", label: "همه کشورها" },
+  ...PRIORITY_COUNTRIES.map((c) => ({ value: c, label: COUNTRY_LABEL_FA[c] })),
+  { value: "EU_GENERAL", label: "قوانین عمومی اتحادیه اروپا" },
   ...COUNTRIES_WITH_COVERAGE.filter((c) => !PRIORITY_COUNTRIES.includes(c))
     .sort((a, b) => (COUNTRY_LABEL_FA[a] || a).localeCompare(COUNTRY_LABEL_FA[b] || b, "fa"))
-    .map((c) => ({ value: c, label: `${flagEmoji(c)} ${COUNTRY_LABEL_FA[c] || c}` })),
+    .map((c) => ({ value: c, label: COUNTRY_LABEL_FA[c] || c })),
 ];
 
 function ResidencyPage() {
@@ -51,16 +48,11 @@ function ResidencyPage() {
   }, [turns]);
 
   async function ask(question: string) {
-    // گاردِ ارسال هم‌زمان. به‌روزرسانی وضعیت پایین با
-    // `next[next.length - 1]` فرض می‌کند آخرین turn همان turnِ جاری است؛
-    // دو ارسال هم‌زمان این فرض را می‌شکست و پاسخ یک پرسش روی پرسش دیگر
-    // نوشته می‌شد. جلوی هزینهٔ دوبارهٔ embedding + مدل را هم می‌گیرد.
     if (!question.trim() || busy) return;
     setInput("");
     setBusy(true);
     setTurns((prev) => [...prev, { question, loading: true }]);
 
-    /** فقط آخرین turn را به‌روز می‌کند. */
     const patchLast = (patch: Partial<ChatTurn>) => {
       setTurns((prev) => {
         if (prev.length === 0) return prev;
@@ -81,11 +73,7 @@ function ResidencyPage() {
         }),
       });
 
-      // پاسخ موفق NDJSON استریم است: هر خط {"t":"r"|"c","d":"..."} — "r" تکه‌ای
-      // از فکرکردنِ زنده‌ی مدل، "c" تکه‌ای از جواب نهایی. فقط خطاها JSON یک‌جا هستند.
       if (!res.ok || !res.body) {
-        // بدنهٔ خطای سرور از قبل پیام امن و فارسی است (server-error.ts)، پس
-        // نمایشش اشکالی ندارد. برای ۴۲۹ پیام اختصاصی سقف نرخ.
         let message =
           res.status === 429
             ? "تعداد درخواست‌های شما بیش از حد مجاز است. کمی بعد دوباره تلاش کنید."
@@ -126,7 +114,6 @@ function ResidencyPage() {
           answer: answerSoFar || undefined,
         });
       }
-      // استریم بدون هیچ قطعهٔ "c" تمام شد: نباید تا ابد در حالت loading بماند.
       if (!answerSoFar) {
         patchLast({
           loading: false,
@@ -134,9 +121,6 @@ function ResidencyPage() {
         });
       }
     } catch (err) {
-      // پیام خام خطای JS (مثلاً «Failed to fetch» یا جزئیات TypeError) به
-      // کاربر نشان داده نمی‌شود؛ در کنسول می‌ماند و کاربر یک پیام قابل‌فهم
-      // و قابل‌اقدام می‌گیرد.
       console.error("[residency] ask failed", err);
       patchLast({
         error: "ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
@@ -149,150 +133,152 @@ function ResidencyPage() {
 
   return (
     <RequireAuth>
-    <div className="min-h-dvh bg-bg text-fg">
-      <AppHeader active="residency" corpusLabel="قوانین مهاجرت اروپا و آمریکا" />
-      <main id="main" className="mx-auto w-full max-w-4xl px-4 py-8">
-        <div className="grid min-w-0 gap-7 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
-          {/* SIDEBAR */}
-          <aside className="order-2 flex flex-col gap-5 md:order-1">
-            <div className="rounded-2xl border border-border bg-elevated-2 p-5">
-              {/* پیش از این یک <div> بود، نه <label>: هیچ پیوند برنامه‌ای
-                  میان نوشته و کنترل وجود نداشت، پس screen reader این
-                  select را بی‌نام می‌خواند (WCAG 3.3.2 / 4.1.2). */}
-              <label htmlFor="residency-country" className="mb-1 block text-[13px] font-bold text-fg">
-                کشور مورد نظر را انتخاب کنید
-              </label>
-              <p id="residency-country-hint" className="mb-3 text-[11.5px] leading-7 text-subtle">
-                پاسخ‌ها بر اساس قوانین همان کشور جست‌وجو می‌شوند. این خدمت مشاورهٔ وکیل مجاز کشور مقصد نیست.
-              </p>
-              <select
-                id="residency-country"
-                aria-describedby="residency-country-hint"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="h-11 min-h-11 w-full cursor-pointer rounded-[10px] border border-warn bg-accent-soft px-3 text-sm text-accent-light"
-              >
-                {COUNTRY_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value} className="bg-elevated text-fg">
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="rounded-2xl border border-border bg-elevated-2 p-5">
-              <h2 className="mb-3 text-[13px] font-bold text-fg">نمونه سؤال‌ها</h2>
-              <div className="flex flex-col gap-2">
-                {SUGGESTED_QUESTIONS.map((q) => (
-                  <button
-                    key={q}
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void ask(q)}
-                    className="min-h-11 rounded-[10px] border border-border bg-elevated px-3 py-2.5 text-start text-[13px] leading-7 text-muted transition-colors hover:border-accent/40 hover:text-fg disabled:opacity-50"
-                  >
-                    {q}
-                  </button>
-                ))}
+      <div className="min-h-dvh bg-bg text-fg">
+        <AppHeader active="residency" corpusLabel="قوانین مهاجرت اروپا و آمریکا" />
+        <main id="main" className="mx-auto w-full max-w-4xl px-4 py-8">
+          <div className="grid min-w-0 gap-7 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
+            <aside className="order-2 flex flex-col gap-5 md:order-1">
+              <div className="rounded-[12px] border border-border bg-elevated p-5">
+                <label htmlFor="residency-country" className="mb-1 block text-[13px] font-bold text-fg">
+                  کشور مورد نظر را انتخاب کنید
+                </label>
+                <p id="residency-country-hint" className="mb-3 text-[11.5px] leading-7 text-subtle">
+                  پاسخ‌ها بر اساس قوانین همان کشور جست‌وجو می‌شوند. {RESIDENCY_DISCLAIMER}
+                </p>
+                <select
+                  id="residency-country"
+                  aria-describedby="residency-country-hint"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="h-11 min-h-11 w-full cursor-pointer rounded-[8px] border border-border bg-site-50 px-3 text-sm text-fg"
+                >
+                  {COUNTRY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className="bg-elevated text-fg">
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </div>
-          </aside>
 
-          {/* CHAT PANEL */}
-          <section className="order-1 flex min-h-[70vh] flex-col overflow-hidden rounded-2xl border border-border bg-elevated-2 md:order-2">
-            <div className="border-b border-border px-5 py-4">
-              <h1 className="m-0 text-[17px] font-bold">پرسش‌وپاسخ اقامتی</h1>
-              <p className="mt-1 text-[12.5px] text-subtle">
-                پاسخ‌ها با جست‌وجوی اسنادی در متون رسمی مهاجرت تهیه می‌شود.
-              </p>
-            </div>
-
-            {/* ناحیهٔ زنده: پاسخ استریم می‌شود، پس بدون این، کاربر screen
-                reader هیچ‌وقت متن پاسخ را نمی‌شنود (WCAG 4.1.3). */}
-            <div
-              className="flex flex-1 flex-col gap-5 overflow-y-auto p-5"
-              role="log"
-              aria-label="گفت‌وگوی اقامتی"
-              aria-live="polite"
-              aria-relevant="additions text"
-              aria-busy={busy}
-            >
-              {turns.length === 0 && (
-                <div className="flex flex-1 flex-col items-center justify-center gap-2.5 text-center text-sm text-subtle">
-                  <div className="text-4xl" aria-hidden="true">⚖️</div>
-                  سؤالی درباره قوانین مهاجرت بنویسید یا یکی از نمونه‌ها را انتخاب کنید.
+              <div className="rounded-[12px] border border-border bg-elevated p-5">
+                <h2 className="mb-3 text-[13px] font-extrabold text-fg">نمونه سؤال‌ها</h2>
+                <div className="flex flex-col gap-2">
+                  {SUGGESTED_QUESTIONS.map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void ask(q)}
+                      className="min-h-11 rounded-[8px] border border-border bg-site-50 px-3 py-2.5 text-start text-[13px] leading-7 text-muted transition-colors hover:border-site-400 hover:text-fg disabled:opacity-50"
+                    >
+                      {q}
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
+            </aside>
 
-              {turns.map((turn, i) => (
-                <div key={i} className="flex flex-col gap-2.5">
-                  <div
-                    className="self-end rounded-[16px_16px_3px_16px] bg-[linear-gradient(135deg,var(--color-cyan-dim)_0%,#0e5f70_100%)] px-4 py-[11px] text-[14.5px] text-white"
-                    style={{ maxWidth: "82%" }}
-                  >
-                    {turn.question}
+            <section className="order-1 flex min-h-[70vh] flex-col overflow-hidden rounded-[12px] border border-border bg-elevated md:order-2">
+              <div className="border-b border-border px-5 py-4">
+                <h1 className="m-0 text-[17px] font-extrabold">پرسش‌وپاسخ اقامتی</h1>
+                <p className="mt-1 text-[12.5px] text-subtle">
+                  پاسخ‌ها با جست‌وجوی اسنادی در متون رسمی مهاجرت تهیه می‌شود.
+                </p>
+              </div>
+
+              <div
+                className="flex flex-1 flex-col gap-5 overflow-y-auto p-5"
+                role="log"
+                aria-label="گفت‌وگوی اقامتی"
+                aria-live="polite"
+                aria-relevant="additions text"
+                aria-busy={busy}
+              >
+                {turns.length === 0 && (
+                  <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-sm text-subtle">
+                    <p className="max-w-sm text-[15px] font-semibold leading-7 text-fg">
+                      سؤالی درباره قوانین مهاجرت بنویسید یا یکی از نمونه‌ها را انتخاب کنید.
+                    </p>
+                    <p className="max-w-sm text-[13px] leading-6">
+                      {BRAND.short} پاسخ را از اسناد رسمی کشور انتخاب‌شده بازیابی می‌کند.
+                    </p>
                   </div>
+                )}
 
-                  {turn.loading ? (
-                      <div className="flex items-center gap-2 text-[13.5px] text-muted" role="status">
-                        <span className="pulse-dot" aria-hidden="true" /> در حال تهیه پاسخ از منابع رسمی…
+                {turns.map((turn, i) => (
+                  <div key={i} className="flex flex-col gap-2.5">
+                    <div
+                      className="self-end rounded-[16px_16px_3px_16px] bg-fg px-4 py-[11px] text-[14.5px] text-accent-fg"
+                      style={{ maxWidth: "82%" }}
+                    >
+                      {turn.question}
+                    </div>
+
+                    {turn.loading ? (
+                      <div className="rounded-[12px] border border-border bg-site-50 p-4" role="status">
+                        <p className="text-[13px] text-muted">در حال تهیه پاسخ از منابع رسمی…</p>
+                        <div className="mt-3 space-y-2" aria-hidden="true">
+                          <div className="skeleton-bar h-2.5 w-1/3" />
+                          <div className="skeleton-bar h-2.5 w-full" />
+                          <div className="skeleton-bar h-2.5 w-5/6" />
+                        </div>
                       </div>
                     ) : null}
 
-                  {turn.error && (
-                    <div
-                      className="whitespace-pre-wrap break-words rounded-[10px] border border-danger bg-danger-soft px-3.5 py-3 text-[13.5px] text-danger-fg"
-                      role="alert"
-                    >
-                      {turn.error}
-                    </div>
-                  )}
+                    {turn.error && (
+                      <div
+                        className="whitespace-pre-wrap break-words rounded-[10px] border border-danger bg-danger-soft px-3.5 py-3 text-[13.5px] text-danger-fg"
+                        role="alert"
+                      >
+                        {turn.error}
+                      </div>
+                    )}
 
-                  {turn.answer && (
-                    <div
-                      className="self-start break-words rounded-[16px_16px_16px_3px] border border-border bg-elevated px-[18px] py-4 text-[14.5px] leading-8"
-                      style={{ maxWidth: "95%", whiteSpace: "pre-wrap" }}
-                    >
-                      {turn.answer}
-                    </div>
-                  )}
-                </div>
-              ))}
-              <div ref={bottomRef} />
-            </div>
+                    {turn.answer && (
+                      <div
+                        className="self-start break-words rounded-[16px_16px_16px_3px] border border-border bg-elevated px-[18px] py-4 text-[14.5px] leading-8"
+                        style={{ maxWidth: "95%", whiteSpace: "pre-wrap" }}
+                      >
+                        {turn.answer}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div ref={bottomRef} />
+              </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                void ask(input);
-              }}
-              className="flex gap-2.5 border-t border-border bg-surface p-4"
-            >
-              <label htmlFor="residency-composer" className="sr-only">
-                پرسش خود درباره قوانین مهاجرت
-              </label>
-              <input
-                id="residency-composer"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                enterKeyHint="send"
-                maxLength={2000}
-                disabled={busy}
-                placeholder="پرسش خود را درباره قوانین مهاجرت بنویسید…"
-                className="h-11 min-h-11 flex-1 rounded-[10px] border border-border bg-elevated px-4 text-[14.5px] text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:opacity-60"
-              />
-              <button
-                type="submit"
-                disabled={busy || input.trim().length === 0}
-                className="h-11 min-h-11 shrink-0 rounded-xl bg-[image:var(--gradient-gold)] px-6 text-sm font-bold text-accent-fg transition-[filter] hover:brightness-[1.06] disabled:opacity-50"
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void ask(input);
+                }}
+                className="flex gap-2.5 border-t border-border bg-site-50 p-4"
               >
-                {busy ? "در حال پرسش…" : "پرسیدن"}
-              </button>
-            </form>
-          </section>
-        </div>
-      </main>
-    </div>
+                <label htmlFor="residency-composer" className="sr-only">
+                  پرسش خود درباره قوانین مهاجرت
+                </label>
+                <input
+                  id="residency-composer"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  enterKeyHint="send"
+                  maxLength={2000}
+                  disabled={busy}
+                  placeholder="پرسش خود را درباره قوانین مهاجرت بنویسید…"
+                  className="h-11 min-h-11 flex-1 rounded-[8px] border border-border bg-elevated px-4 text-[14.5px] text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-fg/20 disabled:opacity-60"
+                />
+                <button
+                  type="submit"
+                  disabled={busy || input.trim().length === 0}
+                  className="h-11 min-h-11 shrink-0 rounded-[8px] bg-fg px-6 text-sm font-bold text-accent-fg transition-colors hover:bg-site-800 disabled:opacity-50"
+                >
+                  {busy ? "در حال پرسش…" : "پرسیدن"}
+                </button>
+              </form>
+            </section>
+          </div>
+        </main>
+      </div>
     </RequireAuth>
   );
 }

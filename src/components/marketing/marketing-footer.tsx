@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BRAND } from "@/lib/brand";
-import { MarketingBrand } from "@/components/marketing/marketing-header";
+import { BrandMark } from "@/components/brand-mark";
 
 /**
  * فوتر پوسته‌ی بازاریابی — روشن، چهارستونی، سازمان‌دهی بر اساس آنچه
@@ -28,7 +28,7 @@ export function MarketingFooter() {
     <footer className="border-t border-site-200 bg-site-100">
       <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">
         <div className="lg:col-span-1">
-          <MarketingBrand size="sm" />
+          <BrandMark size="sm" />
           <p className="mt-4 max-w-xs text-[14px] leading-7 text-site-600">
             دستیار حقوقی و اقامتی، بر پایه‌ی متن قانون و اسناد رسمی، با ارجاع
             قابل راستی‌آزمایی.

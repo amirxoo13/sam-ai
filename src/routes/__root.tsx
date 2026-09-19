@@ -11,7 +11,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: BRAND.title },
       { name: "description", content: BRAND.description },
-      { name: "theme-color", content: "#05070d" },
+      { name: "theme-color", content: "#f7f4ef" },
       { property: "og:title", content: BRAND.title },
       { property: "og:description", content: BRAND.description },
       { property: "og:type", content: "website" },
@@ -43,14 +43,9 @@ export const Route = createRootRoute({
         <HeadContent />
       </head>
       <body className="bg-bg text-fg">
-        {/*
-          پرش به محتوا (WCAG 2.4.1). هر صفحه ۷ لینک ناوبری قبل از محتوا
-          دارد؛ کاربر کیبورد باید بتواند ردشان کند. فقط هنگام فوکوس
-          دیده می‌شود.
-        */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-accent-fg"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:right-3 focus:z-50 focus:rounded-[8px] focus:bg-fg focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-accent-fg"
         >
           پرش به محتوای اصلی
         </a>
