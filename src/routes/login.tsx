@@ -2,24 +2,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MarketingHeader } from "@/components/marketing/marketing-header";
 import { authClient } from "@/lib/auth/client";
+import { returnToOrAsk, sanitizeReturnTo } from "@/lib/auth/return-to";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { BRAND } from "@/lib/brand";
+import { validateEmailField, validatePasswordField } from "@/lib/form-validation";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    next: typeof s.next === "string" && s.next.startsWith("/") ? s.next : "/ask",
-  }),
+  validateSearch: (s: Record<string, unknown>) => {
+    const next = sanitizeReturnTo(s.next);
+    return next ? { next } : {};
+  },
   component: LoginPage,
 });
-
-const NEXT_ROUTES = ["/", "/ask", "/forms", "/residency", "/profile", "/sources", "/about", "/contact"] as const;
-type NextRoute = (typeof NEXT_ROUTES)[number];
-
-function safeNext(next: string): NextRoute {
-  if (next === "/login") return "/ask";
-  return (NEXT_ROUTES as readonly string[]).includes(next) ? (next as NextRoute) : "/ask";
-}
 
 const fieldClass =
   "h-11 min-h-11 rounded-[8px] border border-border bg-elevated px-3 text-sm text-fg placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-fg/20";
@@ -29,6 +24,7 @@ type Mode = "signin" | "signup";
 function LoginPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
+  const destination = returnToOrAsk(next);
   const { user, isPending } = useCurrentUserState();
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
@@ -37,12 +33,15 @@ function LoginPage() {
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [consentError, setConsentError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isPending && user) {
-      void navigate({ to: safeNext(next) });
+      void navigate({ to: destination });
     }
-  }, [isPending, user, navigate, next]);
+  }, [isPending, user, navigate, destination]);
 
   if (!isPending && user) {
     return (
@@ -59,10 +58,17 @@ function LoginPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (mode === "signup" && !consent) {
-      setError("برای ثبت‌نام باید شرایط استفاده را بپذیرید.");
-      return;
-    }
+    const nextEmailError = validateEmailField(email);
+    const nextPasswordError = validatePasswordField(password);
+    const nextConsentError =
+      mode === "signup" && !consent
+        ? "برای ثبت‌نام باید شرایط استفاده و حریم خصوصی را بپذیرید."
+        : null;
+    setEmailError(nextEmailError);
+    setPasswordError(nextPasswordError);
+    setConsentError(nextConsentError);
+    if (nextEmailError || nextPasswordError || nextConsentError) return;
+
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -84,10 +90,10 @@ function LoginPage() {
         sessionReady = false;
       }
       if (!sessionReady && typeof window !== "undefined") {
-        window.location.assign(safeNext(next));
+        window.location.assign(destination);
         return;
       }
-      await navigate({ to: safeNext(next) });
+      await navigate({ to: destination });
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطای غیرمنتظره");
     } finally {
@@ -121,6 +127,9 @@ function LoginPage() {
                   onClick={() => {
                     setMode(t.id);
                     setError(null);
+                    setEmailError(null);
+                    setPasswordError(null);
+                    setConsentError(null);
                     setConsent(false);
                   }}
                   className={cn(
@@ -133,7 +142,7 @@ function LoginPage() {
               ))}
             </div>
 
-            <form onSubmit={submit} className="grid gap-4">
+            <form onSubmit={submit} noValidate className="grid gap-4">
               {mode === "signup" ? (
                 <label className="grid gap-1.5">
                   <span className="text-[13px] font-medium text-muted">نام</span>
@@ -150,43 +159,85 @@ function LoginPage() {
                 <span className="text-[13px] font-medium text-muted">ایمیل</span>
                 <input
                   type="email"
-                  required
                   dir="ltr"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError(null);
+                  }}
                   placeholder="you@example.com"
                   autoComplete="email"
+                  aria-invalid={emailError ? true : undefined}
                   className={fieldClass}
                 />
+                {emailError ? (
+                  <span className="text-[12.5px] text-danger" role="alert">
+                    {emailError}
+                  </span>
+                ) : null}
               </label>
               <label className="grid gap-1.5">
                 <span className="text-[13px] font-medium text-muted">رمز عبور</span>
                 <input
                   type="password"
-                  required
-                  minLength={8}
                   dir="ltr"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordError(null);
+                  }}
                   placeholder="حداقل ۸ کاراکتر"
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  aria-invalid={passwordError ? true : undefined}
                   className={fieldClass}
                 />
+                {passwordError ? (
+                  <span className="text-[12.5px] text-danger" role="alert">
+                    {passwordError}
+                  </span>
+                ) : null}
               </label>
+
+              {mode === "signin" ? (
+                <p className="text-[13px]">
+                  <Link
+                    to="/forgot"
+                    className="font-medium text-fg underline-offset-4 hover:underline"
+                  >
+                    فراموشی رمز عبور
+                  </Link>
+                </p>
+              ) : null}
 
               {mode === "signup" ? (
                 <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-[8px] border border-border bg-site-50 px-3 py-3 text-[13px] leading-6 text-muted">
                   <input
                     type="checkbox"
                     checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
+                    onChange={(e) => {
+                      setConsent(e.target.checked);
+                      setConsentError(null);
+                    }}
+                    aria-invalid={consentError ? true : undefined}
                     className="mt-0.5 size-4 shrink-0 accent-fg"
                   />
                   <span>
-                    شرایط استفاده را خوانده‌ام و می‌پذیرم که این سامانه جایگزین
-                    مشاوره‌ی حقوقی رسمی نیست.
+                    <Link to="/terms" className="font-medium text-fg underline-offset-4 hover:underline">
+                      شرایط استفاده
+                    </Link>{" "}
+                    و{" "}
+                    <Link to="/privacy" className="font-medium text-fg underline-offset-4 hover:underline">
+                      سیاست حریم خصوصی
+                    </Link>{" "}
+                    را خوانده‌ام و می‌پذیرم که این سامانه جایگزین مشاوره‌ی حقوقی رسمی
+                    نیست و رابطهٔ وکیل–موکل ایجاد نمی‌کند.
                   </span>
                 </label>
+              ) : null}
+              {consentError ? (
+                <p className="text-[12.5px] text-danger" role="alert">
+                  {consentError}
+                </p>
               ) : null}
 
               {error ? (
@@ -200,7 +251,7 @@ function LoginPage() {
 
               <button
                 type="submit"
-                disabled={busy || (mode === "signup" && !consent)}
+                disabled={busy}
                 className="mt-1 inline-flex h-12 min-h-12 items-center justify-center rounded-[8px] bg-fg text-[14.5px] font-bold text-accent-fg transition-colors hover:bg-site-800 disabled:opacity-50"
               >
                 {busy ? "لطفاً صبر کنید…" : mode === "signup" ? "ایجاد حساب" : "ورود"}

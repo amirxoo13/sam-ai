@@ -2,15 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { BRAND } from "@/lib/brand";
 import { BrandMark } from "@/components/brand-mark";
 
-/**
- * فوتر پوسته‌ی بازاریابی — روشن، چهارستونی، سازمان‌دهی بر اساس آنچه
- * بازدیدکننده دنبالش می‌گردد (پلتفرم / منابع / ارتباط)، نه بر اساس
- * ساختار داخلی پروژه.
- *
- * site-footer.tsx قدیمی دست‌نخورده می‌ماند چون مسیرهای اپ هنوز از آن
- * استفاده می‌کنند.
- */
-
 const PLATFORM = [
   { to: "/ask", label: "پرسش حقوقی" },
   { to: "/residency", label: "پرسش اقامتی" },
@@ -21,6 +12,8 @@ const PLATFORM = [
 const RESOURCES = [
   { to: "/sources", label: "منابع و روش‌شناسی" },
   { to: "/about", label: "درباره‌ی اها" },
+  { to: "/terms", label: "شرایط استفاده" },
+  { to: "/privacy", label: "حریم خصوصی" },
 ] as const;
 
 export function MarketingFooter() {

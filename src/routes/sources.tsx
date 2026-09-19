@@ -11,8 +11,6 @@ export const Route = createFileRoute("/sources")({
       embedded: 0,
       searchable: 0,
       byType: {} as Record<string, number>,
-      byDataset: {} as Record<string, number>,
-      backend: "unknown",
     })),
     crawler: await getCrawlerStats().catch(() => ({ bySource: [] })),
   }),

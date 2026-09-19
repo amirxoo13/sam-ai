@@ -35,8 +35,6 @@ export const Route = createFileRoute("/forms")({
       embedded: 0,
       searchable: 0,
       byType: {} as Record<string, number>,
-      byDataset: {} as Record<string, number>,
-      backend: "unknown",
     })),
   pendingComponent: () => (
     <div className="grid min-h-dvh place-items-center bg-bg px-6" role="status">

@@ -34,6 +34,8 @@ export function BrandMark({
       <img
         src={BRAND.logoSrc}
         alt=""
+        role="presentation"
+        aria-hidden="true"
         width={56}
         height={56}
         className={cn(s.img, "shrink-0 rounded-[8px] object-cover ring-1 ring-border")}

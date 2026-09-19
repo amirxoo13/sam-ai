@@ -85,3 +85,10 @@ export const userFileUploadSchema = z.object({
   content: z.string().trim().min(1).max(40_000),
   matterId: z.string().uuid().optional(),
 });
+
+/** بدنهٔ `POST /api/contact`. */
+export const contactBodySchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().email().max(200),
+  message: z.string().trim().min(10).max(4000),
+});
