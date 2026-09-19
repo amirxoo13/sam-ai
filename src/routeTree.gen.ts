@@ -19,8 +19,8 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResidencyRouteImport } from './routes/residency'
 import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as ApiAskRouteImport } from './routes/api/ask'
-import { Route as ApiLegalAskRouteImport } from './routes/api/legal-ask'
 import { Route as ApiDraftRouteImport } from './routes/api/draft'
+import { Route as ApiLegalAskRouteImport } from './routes/api/legal-ask'
 import { Route as ApiResidencyAskRouteImport } from './routes/api/residency-ask'
 import { Route as ApiStatsRouteImport } from './routes/api/stats'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -76,14 +76,14 @@ const ApiAskRoute = ApiAskRouteImport.update({
   path: '/api/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiLegalAskRoute = ApiLegalAskRouteImport.update({
-  id: '/api/legal-ask',
-  path: '/api/legal-ask',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiDraftRoute = ApiDraftRouteImport.update({
   id: '/api/draft',
   path: '/api/draft',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLegalAskRoute = ApiLegalAskRouteImport.update({
+  id: '/api/legal-ask',
+  path: '/api/legal-ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiResidencyAskRoute = ApiResidencyAskRouteImport.update({
@@ -118,8 +118,8 @@ export interface FileRoutesByFullPath {
   '/residency': typeof ResidencyRoute
   '/sources': typeof SourcesRoute
   '/api/ask': typeof ApiAskRoute
-  '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/draft': typeof ApiDraftRoute
+  '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -136,8 +136,8 @@ export interface FileRoutesByTo {
   '/residency': typeof ResidencyRoute
   '/sources': typeof SourcesRoute
   '/api/ask': typeof ApiAskRoute
-  '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/draft': typeof ApiDraftRoute
+  '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -155,8 +155,8 @@ export interface FileRoutesById {
   '/residency': typeof ResidencyRoute
   '/sources': typeof SourcesRoute
   '/api/ask': typeof ApiAskRoute
-  '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/draft': typeof ApiDraftRoute
+  '/api/legal-ask': typeof ApiLegalAskRoute
   '/api/residency-ask': typeof ApiResidencyAskRoute
   '/api/stats': typeof ApiStatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -175,8 +175,8 @@ export interface FileRouteTypes {
     | '/residency'
     | '/sources'
     | '/api/ask'
-    | '/api/legal-ask'
     | '/api/draft'
+    | '/api/legal-ask'
     | '/api/residency-ask'
     | '/api/stats'
     | '/api/auth/$'
@@ -193,8 +193,8 @@ export interface FileRouteTypes {
     | '/residency'
     | '/sources'
     | '/api/ask'
-    | '/api/legal-ask'
     | '/api/draft'
+    | '/api/legal-ask'
     | '/api/residency-ask'
     | '/api/stats'
     | '/api/auth/$'
@@ -211,8 +211,8 @@ export interface FileRouteTypes {
     | '/residency'
     | '/sources'
     | '/api/ask'
-    | '/api/legal-ask'
     | '/api/draft'
+    | '/api/legal-ask'
     | '/api/residency-ask'
     | '/api/stats'
     | '/api/auth/$'
@@ -230,8 +230,8 @@ export interface RootRouteChildren {
   ResidencyRoute: typeof ResidencyRoute
   SourcesRoute: typeof SourcesRoute
   ApiAskRoute: typeof ApiAskRoute
-  ApiLegalAskRoute: typeof ApiLegalAskRoute
   ApiDraftRoute: typeof ApiDraftRoute
+  ApiLegalAskRoute: typeof ApiLegalAskRoute
   ApiResidencyAskRoute: typeof ApiResidencyAskRoute
   ApiStatsRoute: typeof ApiStatsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -310,18 +310,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAskRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/legal-ask': {
-      id: '/api/legal-ask'
-      path: '/api/legal-ask'
-      fullPath: '/api/legal-ask'
-      preLoaderRoute: typeof ApiLegalAskRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/draft': {
       id: '/api/draft'
       path: '/api/draft'
       fullPath: '/api/draft'
       preLoaderRoute: typeof ApiDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/legal-ask': {
+      id: '/api/legal-ask'
+      path: '/api/legal-ask'
+      fullPath: '/api/legal-ask'
+      preLoaderRoute: typeof ApiLegalAskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/residency-ask': {
@@ -366,8 +366,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResidencyRoute: ResidencyRoute,
   SourcesRoute: SourcesRoute,
   ApiAskRoute: ApiAskRoute,
-  ApiLegalAskRoute: ApiLegalAskRoute,
   ApiDraftRoute: ApiDraftRoute,
+  ApiLegalAskRoute: ApiLegalAskRoute,
   ApiResidencyAskRoute: ApiResidencyAskRoute,
   ApiStatsRoute: ApiStatsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

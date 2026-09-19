@@ -25,7 +25,10 @@ export type GrokProvider = {
   label: string;
 };
 
-export const GROK_PROVIDERS: readonly GrokProvider[] = [
-  { providerId: "grok-google", idp: "google", label: "Google" },
-  { providerId: "grok-x", idp: "twitter", label: "X" },
-];
+// Decommissioned: this app no longer federates through the shared Grok auth
+// broker (see `server.ts`). Kept as an empty list — not deleted — so
+// `SignInButtons()` (gates.tsx) simply renders no upstream buttons, and every
+// `GROK_PROVIDERS.map(...)` call site (server.ts) stays valid with zero entries,
+// instead of requiring those call sites to special-case "no broker". Local
+// email/password (`./email-password`) is this app's real sign-in method.
+export const GROK_PROVIDERS: readonly GrokProvider[] = [];
