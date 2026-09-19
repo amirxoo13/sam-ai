@@ -45,6 +45,33 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
   --text-micro: 0.75rem;
+
+  /* ── رمپ خنثای «سایت» ─────────────────────────────────────────
+     پوسته‌ی بازاریابی (خانه و صفحات معرفی) روی یک رمپ خنثای گرم کار
+     می‌کند، نه روی پالت تیره‌ی اپ. دلیل: در صفحه‌ای که هدفش اعتماد
+     است، نبودِ رنگ اشباع همان چیزی است که حس «جدی و گران» می‌دهد —
+     طلایی فقط روی یک اقدام در هر نما می‌ماند.
+
+     تهِ رمپ گرم است (کمی به سمت زرد) تا وقتی طلایی برند کنارش
+     می‌نشیند، خاکستری سرد در برابرش کثیف به‌نظر نرسد.
+
+     اپ (ask / forms / residency / profile) دست‌نخورده تیره می‌ماند و
+     هیچ‌کدام از توکن‌های بالا عوض نشده‌اند. */
+  --color-site-50: #faf8f4;
+  --color-site-100: #f2efe8;
+  --color-site-200: #e6e1d7;
+  --color-site-300: #ccc5b7;
+  --color-site-400: #a8a094;
+  --color-site-500: #8a8276;
+  --color-site-600: #6b645a;
+  --color-site-700: #4e4840;
+  --color-site-800: #332f29;
+  --color-site-900: #1e1b17;
+  --color-site-950: #12100d;
+
+  /* یک شعاع، همه‌جای پوسته‌ی سایت — دکمه، ورودی، کارت، قاب تصویر.
+     اپ شعاع‌های خودش (۸/۱۲/۱۶/۲۴) را نگه می‌دارد. */
+  --radius-site: 4px;
 }
 
 /* گرادیان طلایی «اقدام اصلی».
@@ -60,133 +87,4 @@
     var(--color-warn)
   );
   --ring-focus: 0 0 0 2px var(--color-bg), 0 0 0 4px rgba(217, 178, 92, 0.65);
-}
-
-@layer base {
-  html {
-    background: var(--color-bg);
-    color: var(--color-fg);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body {
-    min-height: 100dvh;
-    /* همان درخشش رادیال دو رنگ (طلایی/فیروزه‌ای) پس‌زمینه‌ی سایت اقامت */
-    background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(52, 214, 232, 0.08), transparent 60%),
-      radial-gradient(1000px 500px at 100% 0%, rgba(217, 178, 92, 0.07), transparent 55%),
-      var(--color-bg);
-  }
-
-  /* گارد سراسری سرریز افقی.
-     متن پیکره گاهی توکن بلندِ بدون فاصله دارد — مثلاً عنوان خرابِ یک فایل
-     Word که به‌صورت `<4D6963726F736F66742...>` رندر می‌شود. چنین رشته‌ای
-     هیچ نقطه‌ی شکست طبیعی ندارد، پس کانتینر را از عرض صفحه پهن‌تر می‌کند و
-     کل صفحه روی موبایل به‌صورت افقی اسکرول می‌خورد (فضای خالی کنار صفحه).
-     `overflow-wrap: anywhere` اجازه می‌دهد چنین رشته‌ای هرجا شکسته شود. */
-  p,
-  li,
-  span,
-  a,
-  h1,
-  h2,
-  h3,
-  h4,
-  td,
-  th {
-    overflow-wrap: anywhere;
-  }
-
-  /* هیچ فرزندی نباید ریشه را افقی بکشد. */
-  html,
-  body {
-    overflow-x: clip;
-  }
-
-  button:not(:disabled),
-  [role="button"]:not(:disabled) {
-    cursor: pointer;
-  }
-
-  /* ── پایهٔ سراسری فوکوس (WCAG 2.4.7 / 2.4.11) ────────────────────────
-     مشکل واقعی: بیشترِ عناصر تعاملی این پروژه با `<Link>` یا `<button>`
-     خام و کلاس‌های دستی ساخته شده‌اند، نه با `components/ui/button.tsx` —
-     و تنها همان فایل است که `focus-visible:ring` دارد. پس ناوبری با
-     کیبورد روی هدر (۷ لینک)، CTAهای صفحهٔ خانه، نمونه‌سؤال‌های
-     residency و تمام لینک‌های فوتر هیچ نشانگر فوکوسِ طراحی‌شده‌ای نداشت.
-
-     این قاعده در @layer base است، پس هر کامپوننتی که یوتیلیتی فوکوس خودش
-     را دارد (login/contact/forms با `focus:ring-2`) همچنان برنده می‌شود و
-     ظاهرش عوض نمی‌شود — لایهٔ utilities بر base اولویت دارد.
-
-     :focus-visible و نه :focus — تا کلیک ماوس حلقه نگیرد. */
-  a:focus-visible,
-  button:focus-visible,
-  select:focus-visible,
-  summary:focus-visible,
-  [role="button"]:focus-visible,
-  [role="tab"]:focus-visible,
-  [tabindex]:not([tabindex="-1"]):focus-visible {
-    outline: 2px solid var(--color-accent-light);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
-  }
-
-  h1,
-  h2,
-  h3 {
-    text-wrap: balance;
-  }
-
-  p {
-    text-wrap: pretty;
-  }
-
-  textarea,
-  input {
-    font-family: inherit;
-  }
-
-  ::selection {
-    background: rgba(217, 178, 92, 0.35);
-  }
-}
-
-@layer components {
-  /* نشانگر «در حال تهیه پاسخ» صفحهٔ اقامت.
-     قبلاً این keyframe در یک <style> درون‌خطی داخل خودِ کامپوننت
-     residency.tsx بود، یعنی با هر رندر آن مسیر یک تگ style سراسری به DOM
-     تزریق می‌شد. حالا یک بار در شیت اصلی می‌آید و گاردِ
-     prefers-reduced-motion پایین‌تر هم واقعاً شاملش می‌شود. */
-  .pulse-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-cyan);
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.6);
-    animation: sam-pulse 1.4s infinite;
-  }
-}
-
-@keyframes sam-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0.5);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(52, 214, 232, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(52, 214, 232, 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
 }
