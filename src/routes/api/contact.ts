@@ -38,13 +38,14 @@ export const Route = createFileRoute("/api/contact")({
           const { isMailConfigured, sendTransactionalEmail } = await import("@/lib/mail.server");
           if (isMailConfigured()) {
             try {
+              const safeName = escapeHtml(parsed.data.name);
+              const safeEmail = escapeHtml(parsed.data.email);
+              const safeMessage = escapeHtml(parsed.data.message).replace(/\n/g, "<br>");
               await sendTransactionalEmail({
                 to: CONTACT_TO,
                 subject: `پیام تماس از ${parsed.data.name}`,
                 text: `نام: ${parsed.data.name}\nایمیل: ${parsed.data.email}\n\n${parsed.data.message}`,
-                html: `<p><strong>نام:</strong> ${escapeHtml(parsed.data.name)}</p>
-<p><strong>ایمیل:</strong> ${escapeHtml(parsed.data.email)}</p>
-<p>${escapeHtml(parsed.data.message).replace(/\n/g, "<br>")}</p>`,
+                html: `<p><strong>نام:</strong> ${safeName}</p><p><strong>ایمیل:</strong> ${safeEmail}</p><p>${safeMessage}</p>`,
               });
               emailed = true;
             } catch (err) {
@@ -75,9 +76,13 @@ export const Route = createFileRoute("/api/contact")({
 });
 
 function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&")
-    .replaceAll("<", "<")
-    .replaceAll(">", ">")
-    .replaceAll('"', """);
+  return [...value]
+    .map((ch) => {
+      if (ch === "&") return "\u0026amp;";
+      if (ch === "<") return "\u0026lt;";
+      if (ch === ">") return "\u0026gt;";
+      if (ch === '"') return "\u0026quot;";
+      return ch;
+    })
+    .join("");
 }
